@@ -3,7 +3,7 @@ import {
 	DoubleSide,
 	Matrix4,
 	MeshBasicMaterial
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * https://github.com/gkjohnson/collada-exporter-js
@@ -19,100 +19,100 @@ import {
 
 class ColladaExporter {
 
-	parse( object, onDone, options = {} ) {
+	parse(object, onDone, options = {}) {
 
-		options = Object.assign( {
+		options = Object.assign({
 			version: '1.4.1',
 			author: null,
 			textureDirectory: '',
 			upAxis: 'Y_UP',
 			unitName: null,
 			unitMeter: null,
-		}, options );
+		}, options);
 
-		if ( options.upAxis.match( /^[XYZ]_UP$/ ) === null ) {
+		if (options.upAxis.match(/^[XYZ]_UP$/) === null) {
 
-			console.error( 'ColladaExporter: Invalid upAxis: valid values are X_UP, Y_UP or Z_UP.' );
+			console.error('ColladaExporter: Invalid upAxis: valid values are X_UP, Y_UP or Z_UP.');
 			return null;
 
 		}
 
-		if ( options.unitName !== null && options.unitMeter === null ) {
+		if (options.unitName !== null && options.unitMeter === null) {
 
-			console.error( 'ColladaExporter: unitMeter needs to be specified if unitName is specified.' );
+			console.error('ColladaExporter: unitMeter needs to be specified if unitName is specified.');
 			return null;
 
 		}
 
-		if ( options.unitMeter !== null && options.unitName === null ) {
+		if (options.unitMeter !== null && options.unitName === null) {
 
-			console.error( 'ColladaExporter: unitName needs to be specified if unitMeter is specified.' );
+			console.error('ColladaExporter: unitName needs to be specified if unitMeter is specified.');
 			return null;
 
 		}
 
-		if ( options.textureDirectory !== '' ) {
+		if (options.textureDirectory !== '') {
 
-			options.textureDirectory = `${ options.textureDirectory }/`
-				.replace( /\\/g, '/' )
-				.replace( /\/+/g, '/' );
+			options.textureDirectory = `${options.textureDirectory}/`
+				.replace(/\\/g, '/')
+				.replace(/\/+/g, '/');
 
 		}
 
 		const version = options.version;
 
-		if ( version !== '1.4.1' && version !== '1.5.0' ) {
+		if (version !== '1.4.1' && version !== '1.5.0') {
 
-			console.warn( `ColladaExporter : Version ${ version } not supported for export. Only 1.4.1 and 1.5.0.` );
+			console.warn(`ColladaExporter : Version ${version} not supported for export. Only 1.4.1 and 1.5.0.`);
 			return null;
 
 		}
 
 		// Convert the urdf xml into a well-formatted, indented format
-		function format( urdf ) {
+		function format(urdf) {
 
 			const IS_END_TAG = /^<\//;
 			const IS_SELF_CLOSING = /(\?>$)|(\/>$)/;
 			const HAS_TEXT = /<[^>]+>[^<]*<\/[^<]+>/;
 
-			const pad = ( ch, num ) => ( num > 0 ? ch + pad( ch, num - 1 ) : '' );
+			const pad = (ch, num) => (num > 0 ? ch + pad(ch, num - 1) : '');
 
 			let tagnum = 0;
 
 			return urdf
-				.match( /(<[^>]+>[^<]+<\/[^<]+>)|(<[^>]+>)/g )
-				.map( tag => {
+				.match(/(<[^>]+>[^<]+<\/[^<]+>)|(<[^>]+>)/g)
+				.map(tag => {
 
-					if ( ! HAS_TEXT.test( tag ) && ! IS_SELF_CLOSING.test( tag ) && IS_END_TAG.test( tag ) ) {
+					if (!HAS_TEXT.test(tag) && !IS_SELF_CLOSING.test(tag) && IS_END_TAG.test(tag)) {
 
-						tagnum --;
+						tagnum--;
 
 					}
 
-					const res = `${ pad( '  ', tagnum ) }${ tag }`;
+					const res = `${pad('  ', tagnum)}${tag}`;
 
-					if ( ! HAS_TEXT.test( tag ) && ! IS_SELF_CLOSING.test( tag ) && ! IS_END_TAG.test( tag ) ) {
+					if (!HAS_TEXT.test(tag) && !IS_SELF_CLOSING.test(tag) && !IS_END_TAG.test(tag)) {
 
-						tagnum ++;
+						tagnum++;
 
 					}
 
 					return res;
 
-				} )
-				.join( '\n' );
+				})
+				.join('\n');
 
 		}
 
 		// Convert an image into a png format for saving
-		function base64ToBuffer( str ) {
+		function base64ToBuffer(str) {
 
-			const b = atob( str );
-			const buf = new Uint8Array( b.length );
+			const b = atob(str);
+			const buf = new Uint8Array(b.length);
 
-			for ( let i = 0, l = buf.length; i < l; i ++ ) {
+			for (let i = 0, l = buf.length; i < l; i++) {
 
-				buf[ i ] = b.charCodeAt( i );
+				buf[i] = b.charCodeAt(i);
 
 			}
 
@@ -122,42 +122,42 @@ class ColladaExporter {
 
 		let canvas, ctx;
 
-		function imageToData( image, ext ) {
+		function imageToData(image, ext) {
 
-			canvas = canvas || document.createElement( 'canvas' );
-			ctx = ctx || canvas.getContext( '2d' );
+			canvas = canvas || document.createElement('canvas');
+			ctx = ctx || canvas.getContext('2d');
 
 			canvas.width = image.width;
 			canvas.height = image.height;
 
-			ctx.drawImage( image, 0, 0 );
+			ctx.drawImage(image, 0, 0);
 
 			// Get the base64 encoded data
 			const base64data = canvas
-				.toDataURL( `image/${ ext }`, 1 )
-				.replace( /^data:image\/(png|jpg);base64,/, '' );
+				.toDataURL(`image/${ext}`, 1)
+				.replace(/^data:image\/(png|jpg);base64,/, '');
 
 			// Convert to a uint8 array
-			return base64ToBuffer( base64data );
+			return base64ToBuffer(base64data);
 
 		}
 
 		// gets the attribute array. Generate a new array if the attribute is interleaved
-		const getFuncs = [ 'getX', 'getY', 'getZ', 'getW' ];
+		const getFuncs = ['getX', 'getY', 'getZ', 'getW'];
 
-		function attrBufferToArray( attr ) {
+		function attrBufferToArray(attr) {
 
-			if ( attr.isInterleavedBufferAttribute ) {
+			if (attr.isInterleavedBufferAttribute) {
 
 				// use the typed array constructor to save on memory
-				const arr = new attr.array.constructor( attr.count * attr.itemSize );
+				const arr = new attr.array.constructor(attr.count * attr.itemSize);
 				const size = attr.itemSize;
 
-				for ( let i = 0, l = attr.count; i < l; i ++ ) {
+				for (let i = 0, l = attr.count; i < l; i++) {
 
-					for ( let j = 0; j < size; j ++ ) {
+					for (let j = 0; j < size; j++) {
 
-						arr[ i * size + j ] = attr[ getFuncs[ j ] ]( i );
+						arr[i * size + j] = attr[getFuncs[j]](i);
 
 					}
 
@@ -175,32 +175,32 @@ class ColladaExporter {
 
 		// Returns an array of the same type starting at the `st` index,
 		// and `ct` length
-		function subArray( arr, st, ct ) {
+		function subArray(arr, st, ct) {
 
-			if ( Array.isArray( arr ) ) return arr.slice( st, st + ct );
-			else return new arr.constructor( arr.buffer, st * arr.BYTES_PER_ELEMENT, ct );
+			if (Array.isArray(arr)) return arr.slice(st, st + ct);
+			else return new arr.constructor(arr.buffer, st * arr.BYTES_PER_ELEMENT, ct);
 
 		}
 
 		// Returns the string for a geometry's attribute
-		function getAttribute( attr, name, params, type ) {
+		function getAttribute(attr, name, params, type) {
 
-			const array = attrBufferToArray( attr );
+			const array = attrBufferToArray(attr);
 			const res =
-					`<source id="${ name }">` +
+				`<source id="${name}">` +
 
-					`<float_array id="${ name }-array" count="${ array.length }">` +
-					array.join( ' ' ) +
-					'</float_array>' +
+				`<float_array id="${name}-array" count="${array.length}">` +
+				array.join(' ') +
+				'</float_array>' +
 
-					'<technique_common>' +
-					`<accessor source="#${ name }-array" count="${ Math.floor( array.length / attr.itemSize ) }" stride="${ attr.itemSize }">` +
+				'<technique_common>' +
+				`<accessor source="#${name}-array" count="${Math.floor(array.length / attr.itemSize)}" stride="${attr.itemSize}">` +
 
-					params.map( n => `<param name="${ n }" type="${ type }" />` ).join( '' ) +
+				params.map(n => `<param name="${n}" type="${type}" />`).join('') +
 
-					'</accessor>' +
-					'</technique_common>' +
-					'</source>';
+				'</accessor>' +
+				'</technique_common>' +
+				'</source>';
 
 			return res;
 
@@ -208,37 +208,37 @@ class ColladaExporter {
 
 		// Returns the string for a node's transform information
 		let transMat;
-		function getTransform( o ) {
+		function getTransform(o) {
 
 			// ensure the object's matrix is up to date
 			// before saving the transform
 			o.updateMatrix();
 
 			transMat = transMat || new Matrix4();
-			transMat.copy( o.matrix );
+			transMat.copy(o.matrix);
 			transMat.transpose();
-			return `<matrix>${ transMat.toArray().join( ' ' ) }</matrix>`;
+			return `<matrix>${transMat.toArray().join(' ')}</matrix>`;
 
 		}
 
 		// Process the given piece of geometry into the geometry library
 		// Returns the mesh id
-		function processGeometry( g ) {
+		function processGeometry(g) {
 
-			let info = geometryInfo.get( g );
+			let info = geometryInfo.get(g);
 
-			if ( ! info ) {
+			if (!info) {
 
 				// convert the geometry to bufferGeometry if it isn't already
 				const bufferGeometry = g;
 
-				if ( bufferGeometry.isBufferGeometry !== true ) {
+				if (bufferGeometry.isBufferGeometry !== true) {
 
-					throw new Error( 'THREE.ColladaExporter: Geometry is not of type THREE.BufferGeometry.' );
+					throw new Error('THREE.ColladaExporter: Geometry is not of type THREE.BufferGeometry.');
 
 				}
 
-				const meshid = `Mesh${ libraryGeometries.length + 1 }`;
+				const meshid = `Mesh${libraryGeometries.length + 1}`;
 
 				const indexCount =
 					bufferGeometry.index ?
@@ -248,17 +248,17 @@ class ColladaExporter {
 				const groups =
 					bufferGeometry.groups != null && bufferGeometry.groups.length !== 0 ?
 						bufferGeometry.groups :
-						[ { start: 0, count: indexCount, materialIndex: 0 } ];
+						[{ start: 0, count: indexCount, materialIndex: 0 }];
 
 
-				const gname = g.name ? ` name="${ g.name }"` : '';
-				let gnode = `<geometry id="${ meshid }"${ gname }><mesh>`;
+				const gname = g.name ? ` name="${g.name}"` : '';
+				let gnode = `<geometry id="${meshid}"${gname}><mesh>`;
 
 				// define the geometry node and the vertices for the geometry
-				const posName = `${ meshid }-position`;
-				const vertName = `${ meshid }-vertices`;
-				gnode += getAttribute( bufferGeometry.attributes.position, posName, [ 'X', 'Y', 'Z' ], 'float' );
-				gnode += `<vertices id="${ vertName }"><input semantic="POSITION" source="#${ posName }" /></vertices>`;
+				const posName = `${meshid}-position`;
+				const vertName = `${meshid}-vertices`;
+				gnode += getAttribute(bufferGeometry.attributes.position, posName, ['X', 'Y', 'Z'], 'float');
+				gnode += `<vertices id="${vertName}"><input semantic="POSITION" source="#${posName}" /></vertices>`;
 
 				// NOTE: We're not optimizing the attribute arrays here, so they're all the same length and
 				// can therefore share the same triangle indices. However, MeshLab seems to have trouble opening
@@ -266,73 +266,73 @@ class ColladaExporter {
 				// MeshLab Bug#424: https://sourceforge.net/p/meshlab/bugs/424/
 
 				// serialize normals
-				let triangleInputs = `<input semantic="VERTEX" source="#${ vertName }" offset="0" />`;
-				if ( 'normal' in bufferGeometry.attributes ) {
+				let triangleInputs = `<input semantic="VERTEX" source="#${vertName}" offset="0" />`;
+				if ('normal' in bufferGeometry.attributes) {
 
-					const normName = `${ meshid }-normal`;
-					gnode += getAttribute( bufferGeometry.attributes.normal, normName, [ 'X', 'Y', 'Z' ], 'float' );
-					triangleInputs += `<input semantic="NORMAL" source="#${ normName }" offset="0" />`;
+					const normName = `${meshid}-normal`;
+					gnode += getAttribute(bufferGeometry.attributes.normal, normName, ['X', 'Y', 'Z'], 'float');
+					triangleInputs += `<input semantic="NORMAL" source="#${normName}" offset="0" />`;
 
 				}
 
 				// serialize uvs
-				if ( 'uv' in bufferGeometry.attributes ) {
+				if ('uv' in bufferGeometry.attributes) {
 
-					const uvName = `${ meshid }-texcoord`;
-					gnode += getAttribute( bufferGeometry.attributes.uv, uvName, [ 'S', 'T' ], 'float' );
-					triangleInputs += `<input semantic="TEXCOORD" source="#${ uvName }" offset="0" set="0" />`;
+					const uvName = `${meshid}-texcoord`;
+					gnode += getAttribute(bufferGeometry.attributes.uv, uvName, ['S', 'T'], 'float');
+					triangleInputs += `<input semantic="TEXCOORD" source="#${uvName}" offset="0" set="0" />`;
 
 				}
 
 				// serialize lightmap uvs
-				if ( 'uv2' in bufferGeometry.attributes ) {
+				if ('uv2' in bufferGeometry.attributes) {
 
-					const uvName = `${ meshid }-texcoord2`;
-					gnode += getAttribute( bufferGeometry.attributes.uv2, uvName, [ 'S', 'T' ], 'float' );
-					triangleInputs += `<input semantic="TEXCOORD" source="#${ uvName }" offset="0" set="1" />`;
+					const uvName = `${meshid}-texcoord2`;
+					gnode += getAttribute(bufferGeometry.attributes.uv2, uvName, ['S', 'T'], 'float');
+					triangleInputs += `<input semantic="TEXCOORD" source="#${uvName}" offset="0" set="1" />`;
 
 				}
 
 				// serialize colors
-				if ( 'color' in bufferGeometry.attributes ) {
+				if ('color' in bufferGeometry.attributes) {
 
-					const colName = `${ meshid }-color`;
-					gnode += getAttribute( bufferGeometry.attributes.color, colName, [ 'X', 'Y', 'Z' ], 'uint8' );
-					triangleInputs += `<input semantic="COLOR" source="#${ colName }" offset="0" />`;
+					const colName = `${meshid}-color`;
+					gnode += getAttribute(bufferGeometry.attributes.color, colName, ['X', 'Y', 'Z'], 'uint8');
+					triangleInputs += `<input semantic="COLOR" source="#${colName}" offset="0" />`;
 
 				}
 
 				let indexArray = null;
-				if ( bufferGeometry.index ) {
+				if (bufferGeometry.index) {
 
-					indexArray = attrBufferToArray( bufferGeometry.index );
+					indexArray = attrBufferToArray(bufferGeometry.index);
 
 				} else {
 
-					indexArray = new Array( indexCount );
-					for ( let i = 0, l = indexArray.length; i < l; i ++ ) indexArray[ i ] = i;
+					indexArray = new Array(indexCount);
+					for (let i = 0, l = indexArray.length; i < l; i++) indexArray[i] = i;
 
 				}
 
-				for ( let i = 0, l = groups.length; i < l; i ++ ) {
+				for (let i = 0, l = groups.length; i < l; i++) {
 
-					const group = groups[ i ];
-					const subarr = subArray( indexArray, group.start, group.count );
+					const group = groups[i];
+					const subarr = subArray(indexArray, group.start, group.count);
 					const polycount = subarr.length / 3;
-					gnode += `<triangles material="MESH_MATERIAL_${ group.materialIndex }" count="${ polycount }">`;
+					gnode += `<triangles material="MESH_MATERIAL_${group.materialIndex}" count="${polycount}">`;
 					gnode += triangleInputs;
 
-					gnode += `<p>${ subarr.join( ' ' ) }</p>`;
+					gnode += `<p>${subarr.join(' ')}</p>`;
 					gnode += '</triangles>';
 
 				}
 
 				gnode += '</mesh></geometry>';
 
-				libraryGeometries.push( gnode );
+				libraryGeometries.push(gnode);
 
 				info = { meshid: meshid, bufferGeometry: bufferGeometry };
-				geometryInfo.set( g, info );
+				geometryInfo.set(g, info);
 
 			}
 
@@ -342,39 +342,39 @@ class ColladaExporter {
 
 		// Process the given texture into the image library
 		// Returns the image library
-		function processTexture( tex ) {
+		function processTexture(tex) {
 
-			let texid = imageMap.get( tex );
-			if ( texid == null ) {
+			let texid = imageMap.get(tex);
+			if (texid == null) {
 
-				texid = `image-${ libraryImages.length + 1 }`;
+				texid = `image-${libraryImages.length + 1}`;
 
 				const ext = 'png';
 				const name = tex.name || texid;
-				let imageNode = `<image id="${ texid }" name="${ name }">`;
+				let imageNode = `<image id="${texid}" name="${name}">`;
 
-				if ( version === '1.5.0' ) {
+				if (version === '1.5.0') {
 
-					imageNode += `<init_from><ref>${ options.textureDirectory }${ name }.${ ext }</ref></init_from>`;
+					imageNode += `<init_from><ref>${options.textureDirectory}${name}.${ext}</ref></init_from>`;
 
 				} else {
 
 					// version image node 1.4.1
-					imageNode += `<init_from>${ options.textureDirectory }${ name }.${ ext }</init_from>`;
+					imageNode += `<init_from>${options.textureDirectory}${name}.${ext}</init_from>`;
 
 				}
 
 				imageNode += '</image>';
 
-				libraryImages.push( imageNode );
-				imageMap.set( tex, texid );
-				textures.push( {
+				libraryImages.push(imageNode);
+				imageMap.set(tex, texid);
+				textures.push({
 					directory: options.textureDirectory,
 					name,
 					ext,
-					data: imageToData( tex.image, ext ),
+					data: imageToData(tex.image, ext),
 					original: tex
-				} );
+				});
 
 			}
 
@@ -384,38 +384,38 @@ class ColladaExporter {
 
 		// Process the given material into the material and effect libraries
 		// Returns the material id
-		function processMaterial( m ) {
+		function processMaterial(m) {
 
-			let matid = materialMap.get( m );
+			let matid = materialMap.get(m);
 
-			if ( matid == null ) {
+			if (matid == null) {
 
-				matid = `Mat${ libraryEffects.length + 1 }`;
+				matid = `Mat${libraryEffects.length + 1}`;
 
 				let type = 'phong';
 
-				if ( m.isMeshLambertMaterial === true ) {
+				if (m.isMeshLambertMaterial === true) {
 
 					type = 'lambert';
 
-				} else if ( m.isMeshBasicMaterial === true ) {
+				} else if (m.isMeshBasicMaterial === true) {
 
 					type = 'constant';
 
-					if ( m.map !== null ) {
+					if (m.map !== null) {
 
 						// The Collada spec does not support diffuse texture maps with the
 						// constant shader type.
 						// mrdoob/three.js#15469
-						console.warn( 'ColladaExporter: Texture maps not supported with MeshBasicMaterial.' );
+						console.warn('ColladaExporter: Texture maps not supported with MeshBasicMaterial.');
 
 					}
 
 				}
 
-				const emissive = m.emissive ? m.emissive : new Color( 0, 0, 0 );
-				const diffuse = m.color ? m.color : new Color( 0, 0, 0 );
-				const specular = m.specular ? m.specular : new Color( 1, 1, 1 );
+				const emissive = m.emissive ? m.emissive : new Color(0, 0, 0);
+				const diffuse = m.color ? m.color : new Color(0, 0, 0);
+				const specular = m.specular ? m.specular : new Color(1, 1, 1);
 				const shininess = m.shininess || 0;
 				const reflectivity = m.reflectivity || 0;
 
@@ -423,7 +423,7 @@ class ColladaExporter {
 				// in three.js alpha maps are black and white, but collada expects the alpha
 				// channel to specify the transparency
 				let transparencyNode = '';
-				if ( m.transparent === true ) {
+				if (m.transparent === true) {
 
 					transparencyNode +=
 						'<transparent>' +
@@ -434,22 +434,22 @@ class ColladaExporter {
 						) +
 						'</transparent>';
 
-					if ( m.opacity < 1 ) {
+					if (m.opacity < 1) {
 
-						transparencyNode += `<transparency><float>${ m.opacity }</float></transparency>`;
+						transparencyNode += `<transparency><float>${m.opacity}</float></transparency>`;
 
 					}
 
 				}
 
-				const techniqueNode = `<technique sid="common"><${ type }>` +
+				const techniqueNode = `<technique sid="common"><${type}>` +
 
 					'<emission>' +
 
 					(
 						m.emissiveMap ?
 							'<texture texture="emissive-sampler" texcoord="TEXCOORD" />' :
-							`<color sid="emission">${ emissive.r } ${ emissive.g } ${ emissive.b } 1</color>`
+							`<color sid="emission">${emissive.r} ${emissive.g} ${emissive.b} 1</color>`
 					) +
 
 					'</emission>' +
@@ -458,12 +458,12 @@ class ColladaExporter {
 						type !== 'constant' ?
 							'<diffuse>' +
 
-						(
-							m.map ?
-								'<texture texture="diffuse-sampler" texcoord="TEXCOORD" />' :
-								`<color sid="diffuse">${ diffuse.r } ${ diffuse.g } ${ diffuse.b } 1</color>`
-						) +
-						'</diffuse>'
+							(
+								m.map ?
+									'<texture texture="diffuse-sampler" texcoord="TEXCOORD" />' :
+									`<color sid="diffuse">${diffuse.r} ${diffuse.g} ${diffuse.b} 1</color>`
+							) +
+							'</diffuse>'
 							: ''
 					) +
 
@@ -471,45 +471,45 @@ class ColladaExporter {
 						type !== 'constant' ?
 							'<bump>' +
 
-						(
-							m.normalMap ? '<texture texture="bump-sampler" texcoord="TEXCOORD" />' : ''
-						) +
-						'</bump>'
+							(
+								m.normalMap ? '<texture texture="bump-sampler" texcoord="TEXCOORD" />' : ''
+							) +
+							'</bump>'
 							: ''
 					) +
 
 					(
 						type === 'phong' ?
-							`<specular><color sid="specular">${ specular.r } ${ specular.g } ${ specular.b } 1</color></specular>` +
+							`<specular><color sid="specular">${specular.r} ${specular.g} ${specular.b} 1</color></specular>` +
 
-						'<shininess>' +
+							'<shininess>' +
 
-						(
-							m.specularMap ?
-								'<texture texture="specular-sampler" texcoord="TEXCOORD" />' :
-								`<float sid="shininess">${ shininess }</float>`
-						) +
+							(
+								m.specularMap ?
+									'<texture texture="specular-sampler" texcoord="TEXCOORD" />' :
+									`<float sid="shininess">${shininess}</float>`
+							) +
 
-						'</shininess>'
+							'</shininess>'
 							: ''
 					) +
 
-					`<reflective><color>${ diffuse.r } ${ diffuse.g } ${ diffuse.b } 1</color></reflective>` +
+					`<reflective><color>${diffuse.r} ${diffuse.g} ${diffuse.b} 1</color></reflective>` +
 
-					`<reflectivity><float>${ reflectivity }</float></reflectivity>` +
+					`<reflectivity><float>${reflectivity}</float></reflectivity>` +
 
 					transparencyNode +
 
-					`</${ type }></technique>`;
+					`</${type}></technique>`;
 
 				const effectnode =
-					`<effect id="${ matid }-effect">` +
+					`<effect id="${matid}-effect">` +
 					'<profile_COMMON>' +
 
 					(
 						m.map ?
 							'<newparam sid="diffuse-surface"><surface type="2D">' +
-							`<init_from>${ processTexture( m.map ) }</init_from>` +
+							`<init_from>${processTexture(m.map)}</init_from>` +
 							'</surface></newparam>' +
 							'<newparam sid="diffuse-sampler"><sampler2D><source>diffuse-surface</source></sampler2D></newparam>' :
 							''
@@ -518,7 +518,7 @@ class ColladaExporter {
 					(
 						m.specularMap ?
 							'<newparam sid="specular-surface"><surface type="2D">' +
-							`<init_from>${ processTexture( m.specularMap ) }</init_from>` +
+							`<init_from>${processTexture(m.specularMap)}</init_from>` +
 							'</surface></newparam>' +
 							'<newparam sid="specular-sampler"><sampler2D><source>specular-surface</source></sampler2D></newparam>' :
 							''
@@ -527,7 +527,7 @@ class ColladaExporter {
 					(
 						m.emissiveMap ?
 							'<newparam sid="emissive-surface"><surface type="2D">' +
-							`<init_from>${ processTexture( m.emissiveMap ) }</init_from>` +
+							`<init_from>${processTexture(m.emissiveMap)}</init_from>` +
 							'</surface></newparam>' +
 							'<newparam sid="emissive-sampler"><sampler2D><source>emissive-surface</source></sampler2D></newparam>' :
 							''
@@ -536,7 +536,7 @@ class ColladaExporter {
 					(
 						m.normalMap ?
 							'<newparam sid="bump-surface"><surface type="2D">' +
-							`<init_from>${ processTexture( m.normalMap ) }</init_from>` +
+							`<init_from>${processTexture(m.normalMap)}</init_from>` +
 							'</surface></newparam>' +
 							'<newparam sid="bump-sampler"><sampler2D><source>bump-surface</source></sampler2D></newparam>' :
 							''
@@ -554,12 +554,12 @@ class ColladaExporter {
 
 					'</effect>';
 
-				const materialName = m.name ? ` name="${ m.name }"` : '';
-				const materialNode = `<material id="${ matid }"${ materialName }><instance_effect url="#${ matid }-effect" /></material>`;
+				const materialName = m.name ? ` name="${m.name}"` : '';
+				const materialNode = `<material id="${matid}"${materialName}><instance_effect url="#${matid}-effect" /></material>`;
 
-				libraryMaterials.push( materialNode );
-				libraryEffects.push( effectnode );
-				materialMap.set( m, matid );
+				libraryMaterials.push(materialNode);
+				libraryEffects.push(effectnode);
+				materialMap.set(m, matid);
 
 			}
 
@@ -568,17 +568,17 @@ class ColladaExporter {
 		}
 
 		// Recursively process the object into a scene
-		function processObject( o ) {
+		function processObject(o) {
 
-			let node = `<node name="${ o.name }">`;
+			let node = `<node name="${o.name}">`;
 
-			node += getTransform( o );
+			node += getTransform(o);
 
-			if ( o.isMesh === true && o.geometry !== null ) {
+			if (o.isMesh === true && o.geometry !== null) {
 
 				// function returns the id associated with the mesh and a "BufferGeometry" version
 				// of the geometry in case it's not a geometry.
-				const geomInfo = processGeometry( o.geometry );
+				const geomInfo = processGeometry(o.geometry);
 				const meshid = geomInfo.meshid;
 				const geometry = geomInfo.bufferGeometry;
 
@@ -590,34 +590,34 @@ class ColladaExporter {
 				// If the amount of subgroups is greater than the materials, than reuse
 				// the materials.
 				const mat = o.material || new MeshBasicMaterial();
-				const materials = Array.isArray( mat ) ? mat : [ mat ];
+				const materials = Array.isArray(mat) ? mat : [mat];
 
-				if ( geometry.groups.length > materials.length ) {
+				if (geometry.groups.length > materials.length) {
 
-					matidsArray = new Array( geometry.groups.length );
+					matidsArray = new Array(geometry.groups.length);
 
 				} else {
 
-					matidsArray = new Array( materials.length );
+					matidsArray = new Array(materials.length);
 
 				}
 
-				matids = matidsArray.fill().map( ( v, i ) => processMaterial( materials[ i % materials.length ] ) );
+				matids = matidsArray.fill().map((v, i) => processMaterial(materials[i % materials.length]));
 
 				node +=
-					`<instance_geometry url="#${ meshid }">` +
+					`<instance_geometry url="#${meshid}">` +
 
 					(
 						matids != null ?
 							'<bind_material><technique_common>' +
-							matids.map( ( id, i ) =>
+							matids.map((id, i) =>
 
-								`<instance_material symbol="MESH_MATERIAL_${ i }" target="#${ id }" >` +
+								`<instance_material symbol="MESH_MATERIAL_${i}" target="#${id}" >` +
 
 								'<bind_vertex_input semantic="TEXCOORD" input_semantic="TEXCOORD" input_set="0" />' +
 
 								'</instance_material>'
-							).join( '' ) +
+							).join('') +
 							'</technique_common></bind_material>' :
 							''
 					) +
@@ -626,7 +626,7 @@ class ColladaExporter {
 
 			}
 
-			o.children.forEach( c => node += processObject( c ) );
+			o.children.forEach(c => node += processObject(c));
 
 			node += '</node>';
 
@@ -643,47 +643,47 @@ class ColladaExporter {
 		const libraryGeometries = [];
 		const libraryEffects = [];
 		const libraryMaterials = [];
-		const libraryVisualScenes = processObject( object );
+		const libraryVisualScenes = processObject(object);
 
 		const specLink = version === '1.4.1' ? 'http://www.collada.org/2005/11/COLLADASchema' : 'https://www.khronos.org/collada/';
 		let dae =
 			'<?xml version="1.0" encoding="UTF-8" standalone="no" ?>' +
-			`<COLLADA xmlns="${ specLink }" version="${ version }">` +
+			`<COLLADA xmlns="${specLink}" version="${version}">` +
 			'<asset>' +
 			(
 				'<contributor>' +
 				'<authoring_tool>three.js Collada Exporter</authoring_tool>' +
-				( options.author !== null ? `<author>${ options.author }</author>` : '' ) +
+				(options.author !== null ? `<author>${options.author}</author>` : '') +
 				'</contributor>' +
-				`<created>${ ( new Date() ).toISOString() }</created>` +
-				`<modified>${ ( new Date() ).toISOString() }</modified>` +
-				( options.unitName !== null ? `<unit name="${ options.unitName }" meter="${ options.unitMeter }" />` : '' ) +
-				`<up_axis>${ options.upAxis }</up_axis>`
+				`<created>${(new Date()).toISOString()}</created>` +
+				`<modified>${(new Date()).toISOString()}</modified>` +
+				(options.unitName !== null ? `<unit name="${options.unitName}" meter="${options.unitMeter}" />` : '') +
+				`<up_axis>${options.upAxis}</up_axis>`
 			) +
 			'</asset>';
 
-		dae += `<library_images>${ libraryImages.join( '' ) }</library_images>`;
+		dae += `<library_images>${libraryImages.join('')}</library_images>`;
 
-		dae += `<library_effects>${ libraryEffects.join( '' ) }</library_effects>`;
+		dae += `<library_effects>${libraryEffects.join('')}</library_effects>`;
 
-		dae += `<library_materials>${ libraryMaterials.join( '' ) }</library_materials>`;
+		dae += `<library_materials>${libraryMaterials.join('')}</library_materials>`;
 
-		dae += `<library_geometries>${ libraryGeometries.join( '' ) }</library_geometries>`;
+		dae += `<library_geometries>${libraryGeometries.join('')}</library_geometries>`;
 
-		dae += `<library_visual_scenes><visual_scene id="Scene" name="scene">${ libraryVisualScenes }</visual_scene></library_visual_scenes>`;
+		dae += `<library_visual_scenes><visual_scene id="Scene" name="scene">${libraryVisualScenes}</visual_scene></library_visual_scenes>`;
 
 		dae += '<scene><instance_visual_scene url="#Scene"/></scene>';
 
 		dae += '</COLLADA>';
 
 		const res = {
-			data: format( dae ),
+			data: format(dae),
 			textures
 		};
 
-		if ( typeof onDone === 'function' ) {
+		if (typeof onDone === 'function') {
 
-			requestAnimationFrame( () => onDone( res ) );
+			requestAnimationFrame(() => onDone(res));
 
 		}
 

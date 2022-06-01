@@ -1,6 +1,6 @@
 import {
 	Loader
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 import { GLTFLoader } from '../loaders/GLTFLoader.js';
 
 // VRM Specification: https://dwango.github.io/vrm/vrm_spec/
@@ -10,58 +10,58 @@ import { GLTFLoader } from '../loaders/GLTFLoader.js';
 
 class VRMLoader extends Loader {
 
-	constructor( manager ) {
+	constructor(manager) {
 
-		if ( GLTFLoader === undefined ) {
+		if (GLTFLoader === undefined) {
 
-			throw new Error( 'THREE.VRMLoader: Import GLTFLoader.' );
+			throw new Error('THREE.VRMLoader: Import GLTFLoader.');
 
 		}
 
-		super( manager );
+		super(manager);
 
-		this.gltfLoader = new GLTFLoader( manager );
+		this.gltfLoader = new GLTFLoader(manager);
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load(url, onLoad, onProgress, onError) {
 
 		const scope = this;
 
-		this.gltfLoader.load( url, function ( gltf ) {
+		this.gltfLoader.load(url, function (gltf) {
 
 			try {
 
-				scope.parse( gltf, onLoad );
+				scope.parse(gltf, onLoad);
 
-			} catch ( e ) {
+			} catch (e) {
 
-				if ( onError ) {
+				if (onError) {
 
-					onError( e );
+					onError(e);
 
 				} else {
 
-					console.error( e );
+					console.error(e);
 
 				}
 
-				scope.manager.itemError( url );
+				scope.manager.itemError(url);
 
 			}
 
-		}, onProgress, onError );
+		}, onProgress, onError);
 
 	}
 
-	setDRACOLoader( dracoLoader ) {
+	setDRACOLoader(dracoLoader) {
 
-		this.gltfLoader.setDRACOLoader( dracoLoader );
+		this.gltfLoader.setDRACOLoader(dracoLoader);
 		return this;
 
 	}
 
-	parse( gltf, onLoad ) {
+	parse(gltf, onLoad) {
 
 		// const gltfParser = gltf.parser;
 		// const gltfExtensions = gltf.userData.gltfExtensions || {};
@@ -69,7 +69,7 @@ class VRMLoader extends Loader {
 
 		// handle VRM Extension here
 
-		onLoad( gltf );
+		onLoad(gltf);
 
 	}
 

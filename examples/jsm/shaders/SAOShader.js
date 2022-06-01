@@ -1,7 +1,7 @@
 import {
 	Matrix4,
 	Vector2
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * TODO
@@ -21,7 +21,7 @@ const SAOShader = {
 		'tDepth': { value: null },
 		'tDiffuse': { value: null },
 		'tNormal': { value: null },
-		'size': { value: new Vector2( 512, 512 ) },
+		'size': { value: new Vector2(512, 512) },
 
 		'cameraNear': { value: 1 },
 		'cameraFar': { value: 100 },

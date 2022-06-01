@@ -1,6 +1,6 @@
 import {
 	Vector2
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * Convolution shader
@@ -19,7 +19,7 @@ const ConvolutionShader = {
 	uniforms: {
 
 		'tDiffuse': { value: null },
-		'uImageIncrement': { value: new Vector2( 0.001953125, 0.0 ) },
+		'uImageIncrement': { value: new Vector2(0.001953125, 0.0) },
 		'cKernel': { value: [] }
 
 	},
@@ -62,29 +62,29 @@ const ConvolutionShader = {
 
 		}`,
 
-	buildKernel: function ( sigma ) {
+	buildKernel: function (sigma) {
 
 		// We lop off the sqrt(2 * pi) * sigma term, since we're going to normalize anyway.
 
 		const kMaxKernelSize = 25;
-		let kernelSize = 2 * Math.ceil( sigma * 3.0 ) + 1;
+		let kernelSize = 2 * Math.ceil(sigma * 3.0) + 1;
 
-		if ( kernelSize > kMaxKernelSize ) kernelSize = kMaxKernelSize;
+		if (kernelSize > kMaxKernelSize) kernelSize = kMaxKernelSize;
 
-		const halfWidth = ( kernelSize - 1 ) * 0.5;
+		const halfWidth = (kernelSize - 1) * 0.5;
 
-		const values = new Array( kernelSize );
+		const values = new Array(kernelSize);
 		let sum = 0.0;
-		for ( let i = 0; i < kernelSize; ++ i ) {
+		for (let i = 0; i < kernelSize; ++i) {
 
-			values[ i ] = gauss( i - halfWidth, sigma );
-			sum += values[ i ];
+			values[i] = gauss(i - halfWidth, sigma);
+			sum += values[i];
 
 		}
 
 		// normalize the kernel
 
-		for ( let i = 0; i < kernelSize; ++ i ) values[ i ] /= sum;
+		for (let i = 0; i < kernelSize; ++i) values[i] /= sum;
 
 		return values;
 
@@ -92,9 +92,9 @@ const ConvolutionShader = {
 
 };
 
-function gauss( x, sigma ) {
+function gauss(x, sigma) {
 
-	return Math.exp( - ( x * x ) / ( 2.0 * sigma * sigma ) );
+	return Math.exp(- (x * x) / (2.0 * sigma * sigma));
 
 }
 

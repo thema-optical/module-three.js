@@ -17,25 +17,25 @@ import {
 	DoubleSide,
 	Loader,
 	FileLoader
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 import { mergeBufferGeometries } from '../utils/BufferGeometryUtils.js';
 
 const IdAttrName = 'expressID';
-const merge = ( geoms, createGroups = false ) => {
+const merge = (geoms, createGroups = false) => {
 
-	return mergeBufferGeometries( geoms, createGroups );
-
-};
-
-const newFloatAttr = ( data, size ) => {
-
-	return new BufferAttribute( new Float32Array( data ), size );
+	return mergeBufferGeometries(geoms, createGroups);
 
 };
 
-const newIntAttr = ( data, size ) => {
+const newFloatAttr = (data, size) => {
 
-	return new BufferAttribute( new Uint32Array( data ), size );
+	return new BufferAttribute(new Float32Array(data), size);
+
+};
+
+const newIntAttr = (data, size) => {
+
+	return new BufferAttribute(new Uint32Array(data), size);
 
 };
 
@@ -75,7 +75,7 @@ const PropsNames = {
 
 class IFCParser {
 
-	constructor( state, BVH ) {
+	constructor(state, BVH) {
 
 		this.state = state;
 		this.BVH = BVH;
@@ -85,22 +85,22 @@ class IFCParser {
 
 	}
 
-	async parse( buffer ) {
+	async parse(buffer) {
 
-		if ( this.state.api.wasmModule === undefined )
+		if (this.state.api.wasmModule === undefined)
 			await this.state.api.Init();
-		this.newIfcModel( buffer );
-		this.loadedModels ++;
+		this.newIfcModel(buffer);
+		this.loadedModels++;
 		return this.loadAllGeometry();
 
 	}
 
-	newIfcModel( buffer ) {
+	newIfcModel(buffer) {
 
-		const data = new Uint8Array( buffer );
-		this.currentWebIfcID = this.state.api.OpenModel( data, this.state.webIfcSettings );
+		const data = new Uint8Array(buffer);
+		this.currentWebIfcID = this.state.api.OpenModel(data, this.state.webIfcSettings);
 		this.currentModelID = this.state.useJSON ? this.loadedModels : this.currentWebIfcID;
-		this.state.models[ this.currentModelID ] = {
+		this.state.models[this.currentModelID] = {
 			modelID: this.currentModelID,
 			mesh: {},
 			items: {},
@@ -120,28 +120,28 @@ class IFCParser {
 	generateAllGeometriesByMaterial() {
 
 		const { geometry, materials } = this.getGeometryAndMaterials();
-		this.BVH.applyThreeMeshBVH( geometry );
-		const mesh = new Mesh( geometry, materials );
+		this.BVH.applyThreeMeshBVH(geometry);
+		const mesh = new Mesh(geometry, materials);
 		mesh.modelID = this.currentModelID;
-		this.state.models[ this.currentModelID ].mesh = mesh;
+		this.state.models[this.currentModelID].mesh = mesh;
 		return mesh;
 
 	}
 
 	getGeometryAndMaterials() {
 
-		const items = this.state.models[ this.currentModelID ].items;
+		const items = this.state.models[this.currentModelID].items;
 		const mergedByMaterial = [];
 		const materials = [];
-		for ( const materialID in items ) {
+		for (const materialID in items) {
 
-			materials.push( items[ materialID ].material );
-			const geometries = Object.values( items[ materialID ].geometries );
-			mergedByMaterial.push( merge( geometries ) );
+			materials.push(items[materialID].material);
+			const geometries = Object.values(items[materialID].geometries);
+			mergedByMaterial.push(merge(geometries));
 
 		}
 
-		const geometry = merge( mergedByMaterial, true );
+		const geometry = merge(mergedByMaterial, true);
 		return {
 			geometry,
 			materials
@@ -151,14 +151,14 @@ class IFCParser {
 
 	saveAllPlacedGeometriesByMaterial() {
 
-		const flatMeshes = this.state.api.LoadAllGeometry( this.currentWebIfcID );
-		for ( let i = 0; i < flatMeshes.size(); i ++ ) {
+		const flatMeshes = this.state.api.LoadAllGeometry(this.currentWebIfcID);
+		for (let i = 0; i < flatMeshes.size(); i++) {
 
-			const flatMesh = flatMeshes.get( i );
+			const flatMesh = flatMeshes.get(i);
 			const placedGeom = flatMesh.geometries;
-			for ( let j = 0; j < placedGeom.size(); j ++ ) {
+			for (let j = 0; j < placedGeom.size(); j++) {
 
-				this.savePlacedGeometry( placedGeom.get( j ), flatMesh.expressID );
+				this.savePlacedGeometry(placedGeom.get(j), flatMesh.expressID);
 
 			}
 
@@ -166,70 +166,70 @@ class IFCParser {
 
 	}
 
-	savePlacedGeometry( placedGeometry, id ) {
+	savePlacedGeometry(placedGeometry, id) {
 
-		const geometry = this.getBufferGeometry( placedGeometry );
+		const geometry = this.getBufferGeometry(placedGeometry);
 		geometry.computeVertexNormals();
-		const matrix = this.getMeshMatrix( placedGeometry.flatTransformation );
-		geometry.applyMatrix4( matrix );
-		this.saveGeometryByMaterial( geometry, placedGeometry, id );
+		const matrix = this.getMeshMatrix(placedGeometry.flatTransformation);
+		geometry.applyMatrix4(matrix);
+		this.saveGeometryByMaterial(geometry, placedGeometry, id);
 
 	}
 
-	getBufferGeometry( placed ) {
+	getBufferGeometry(placed) {
 
-		const geometry = this.state.api.GetGeometry( this.currentWebIfcID, placed.geometryExpressID );
-		const vertexData = this.getVertices( geometry );
-		const indices = this.getIndices( geometry );
-		const { vertices, normals } = this.extractVertexData( vertexData );
-		return this.ifcGeomToBufferGeom( vertices, normals, indices );
+		const geometry = this.state.api.GetGeometry(this.currentWebIfcID, placed.geometryExpressID);
+		const vertexData = this.getVertices(geometry);
+		const indices = this.getIndices(geometry);
+		const { vertices, normals } = this.extractVertexData(vertexData);
+		return this.ifcGeomToBufferGeom(vertices, normals, indices);
 
 	}
 
-	getVertices( geometry ) {
+	getVertices(geometry) {
 
 		const vData = geometry.GetVertexData();
 		const vDataSize = geometry.GetVertexDataSize();
-		return this.state.api.GetVertexArray( vData, vDataSize );
+		return this.state.api.GetVertexArray(vData, vDataSize);
 
 	}
 
-	getIndices( geometry ) {
+	getIndices(geometry) {
 
 		const iData = geometry.GetIndexData();
 		const iDataSize = geometry.GetIndexDataSize();
-		return this.state.api.GetIndexArray( iData, iDataSize );
+		return this.state.api.GetIndexArray(iData, iDataSize);
 
 	}
 
-	getMeshMatrix( matrix ) {
+	getMeshMatrix(matrix) {
 
 		const mat = new Matrix4();
-		mat.fromArray( matrix );
+		mat.fromArray(matrix);
 		return mat;
 
 	}
 
-	ifcGeomToBufferGeom( vertices, normals, indexData ) {
+	ifcGeomToBufferGeom(vertices, normals, indexData) {
 
 		const geometry = new BufferGeometry();
-		geometry.setAttribute( 'position', newFloatAttr( vertices, 3 ) );
-		geometry.setAttribute( 'normal', newFloatAttr( normals, 3 ) );
-		geometry.setIndex( new BufferAttribute( indexData, 1 ) );
+		geometry.setAttribute('position', newFloatAttr(vertices, 3));
+		geometry.setAttribute('normal', newFloatAttr(normals, 3));
+		geometry.setIndex(new BufferAttribute(indexData, 1));
 		return geometry;
 
 	}
 
-	extractVertexData( vertexData ) {
+	extractVertexData(vertexData) {
 
 		const vertices = [];
 		const normals = [];
 		let isNormalData = false;
-		for ( let i = 0; i < vertexData.length; i ++ ) {
+		for (let i = 0; i < vertexData.length; i++) {
 
-			isNormalData ? normals.push( vertexData[ i ] ) : vertices.push( vertexData[ i ] );
-			if ( ( i + 1 ) % 3 == 0 )
-				isNormalData = ! isNormalData;
+			isNormalData ? normals.push(vertexData[i]) : vertices.push(vertexData[i]);
+			if ((i + 1) % 3 == 0)
+				isNormalData = !isNormalData;
 
 		}
 
@@ -240,43 +240,43 @@ class IFCParser {
 
 	}
 
-	saveGeometryByMaterial( geom, placedGeom, id ) {
+	saveGeometryByMaterial(geom, placedGeom, id) {
 
 		const color = placedGeom.color;
 		const colorID = `${color.x}${color.y}${color.z}${color.w}`;
-		this.storeGeometryAttribute( id, geom );
-		this.createMaterial( colorID, color );
-		const item = this.state.models[ this.currentModelID ].items[ colorID ];
-		const currentGeom = item.geometries[ id ];
-		if ( ! currentGeom )
-			return ( item.geometries[ id ] = geom );
-		const merged = merge( [ currentGeom, geom ] );
-		item.geometries[ id ] = merged;
+		this.storeGeometryAttribute(id, geom);
+		this.createMaterial(colorID, color);
+		const item = this.state.models[this.currentModelID].items[colorID];
+		const currentGeom = item.geometries[id];
+		if (!currentGeom)
+			return (item.geometries[id] = geom);
+		const merged = merge([currentGeom, geom]);
+		item.geometries[id] = merged;
 
 	}
 
-	storeGeometryAttribute( id, geometry ) {
+	storeGeometryAttribute(id, geometry) {
 
 		const size = geometry.attributes.position.count;
-		const idAttribute = new Array( size ).fill( id );
-		geometry.setAttribute( IdAttrName, newIntAttr( idAttribute, 1 ) );
+		const idAttribute = new Array(size).fill(id);
+		geometry.setAttribute(IdAttrName, newIntAttr(idAttribute, 1));
 
 	}
 
-	createMaterial( colorID, color ) {
+	createMaterial(colorID, color) {
 
-		const items = this.state.models[ this.currentModelID ].items;
-		if ( items[ colorID ] )
+		const items = this.state.models[this.currentModelID].items;
+		if (items[colorID])
 			return;
-		const col = new Color( color.x, color.y, color.z );
-		const newMaterial = new MeshLambertMaterial( {
+		const col = new Color(color.x, color.y, color.z);
+		const newMaterial = new MeshLambertMaterial({
 			color: col,
 			side: DoubleSide
-		} );
+		});
 		newMaterial.transparent = color.w !== 1;
-		if ( newMaterial.transparent )
+		if (newMaterial.transparent)
 			newMaterial.opacity = color.w;
-		items[ colorID ] = {
+		items[colorID] = {
 			material: newMaterial,
 			geometries: {}
 		};
@@ -287,7 +287,7 @@ class IFCParser {
 
 class SubsetManager {
 
-	constructor( state, BVH ) {
+	constructor(state, BVH) {
 
 		this.selected = {};
 		this.state = state;
@@ -295,92 +295,92 @@ class SubsetManager {
 
 	}
 
-	getSubset( modelID, material ) {
+	getSubset(modelID, material) {
 
-		const currentMat = this.matIDNoConfig( modelID, material );
-		if ( ! this.selected[ currentMat ] )
+		const currentMat = this.matIDNoConfig(modelID, material);
+		if (!this.selected[currentMat])
 			return null;
-		return this.selected[ currentMat ].mesh;
+		return this.selected[currentMat].mesh;
 
 	}
 
-	removeSubset( modelID, parent, material ) {
+	removeSubset(modelID, parent, material) {
 
-		const currentMat = this.matIDNoConfig( modelID, material );
-		if ( ! this.selected[ currentMat ] )
+		const currentMat = this.matIDNoConfig(modelID, material);
+		if (!this.selected[currentMat])
 			return;
-		if ( parent )
-			parent.remove( this.selected[ currentMat ].mesh );
-		delete this.selected[ currentMat ];
+		if (parent)
+			parent.remove(this.selected[currentMat].mesh);
+		delete this.selected[currentMat];
 
 	}
 
-	createSubset( config ) {
+	createSubset(config) {
 
-		if ( ! this.isConfigValid( config ) )
+		if (!this.isConfigValid(config))
 			return;
-		if ( this.isPreviousSelection( config ) )
+		if (this.isPreviousSelection(config))
 			return;
-		if ( this.isEasySelection( config ) )
-			return this.addToPreviousSelection( config );
-		this.updatePreviousSelection( config.scene, config );
-		return this.createSelectionInScene( config );
+		if (this.isEasySelection(config))
+			return this.addToPreviousSelection(config);
+		this.updatePreviousSelection(config.scene, config);
+		return this.createSelectionInScene(config);
 
 	}
 
-	createSelectionInScene( config ) {
+	createSelectionInScene(config) {
 
-		const filtered = this.filter( config );
-		const { geomsByMaterial, materials } = this.getGeomAndMat( filtered );
-		const isDefMaterial = this.isDefaultMat( config );
-		const geometry = this.getMergedGeometry( geomsByMaterial, isDefMaterial );
+		const filtered = this.filter(config);
+		const { geomsByMaterial, materials } = this.getGeomAndMat(filtered);
+		const isDefMaterial = this.isDefaultMat(config);
+		const geometry = this.getMergedGeometry(geomsByMaterial, isDefMaterial);
 		const mats = isDefMaterial ? materials : config.material;
-		this.BVH.applyThreeMeshBVH( geometry );
-		const mesh = new Mesh( geometry, mats );
-		this.selected[ this.matID( config ) ].mesh = mesh;
+		this.BVH.applyThreeMeshBVH(geometry);
+		const mesh = new Mesh(geometry, mats);
+		this.selected[this.matID(config)].mesh = mesh;
 		mesh.modelID = config.modelID;
-		config.scene.add( mesh );
+		config.scene.add(mesh);
 		return mesh;
 
 	}
 
-	getMergedGeometry( geomsByMaterial, hasDefaultMaterial ) {
+	getMergedGeometry(geomsByMaterial, hasDefaultMaterial) {
 
 		return geomsByMaterial.length > 0
-			? merge( geomsByMaterial, hasDefaultMaterial )
+			? merge(geomsByMaterial, hasDefaultMaterial)
 			: new BufferGeometry();
 
 	}
 
-	isConfigValid( config ) {
+	isConfigValid(config) {
 
-		return ( this.isValid( config.scene ) &&
-			this.isValid( config.modelID ) &&
-			this.isValid( config.ids ) &&
-			this.isValid( config.removePrevious ) );
+		return (this.isValid(config.scene) &&
+			this.isValid(config.modelID) &&
+			this.isValid(config.ids) &&
+			this.isValid(config.removePrevious));
 
 	}
 
-	isValid( item ) {
+	isValid(item) {
 
 		return item != undefined && item != null;
 
 	}
 
-	getGeomAndMat( filtered ) {
+	getGeomAndMat(filtered) {
 
 		const geomsByMaterial = [];
 		const materials = [];
-		for ( const matID in filtered ) {
+		for (const matID in filtered) {
 
-			const geoms = Object.values( filtered[ matID ].geometries );
-			if ( ! geoms.length )
+			const geoms = Object.values(filtered[matID].geometries);
+			if (!geoms.length)
 				continue;
-			materials.push( filtered[ matID ].material );
-			if ( geoms.length > 1 )
-				geomsByMaterial.push( merge( geoms ) );
+			materials.push(filtered[matID].material);
+			if (geoms.length > 1)
+				geomsByMaterial.push(merge(geoms));
 			else
-				geomsByMaterial.push( ...geoms );
+				geomsByMaterial.push(...geoms);
 
 		}
 
@@ -391,67 +391,67 @@ class SubsetManager {
 
 	}
 
-	updatePreviousSelection( parent, config ) {
+	updatePreviousSelection(parent, config) {
 
-		const previous = this.selected[ this.matID( config ) ];
-		if ( ! previous )
-			return this.newSelectionGroup( config );
-		parent.remove( previous.mesh );
+		const previous = this.selected[this.matID(config)];
+		if (!previous)
+			return this.newSelectionGroup(config);
+		parent.remove(previous.mesh);
 		config.removePrevious
-			? ( previous.ids = new Set( config.ids ) )
-			: config.ids.forEach( ( id ) => previous.ids.add( id ) );
+			? (previous.ids = new Set(config.ids))
+			: config.ids.forEach((id) => previous.ids.add(id));
 
 	}
 
-	newSelectionGroup( config ) {
+	newSelectionGroup(config) {
 
-		this.selected[ this.matID( config ) ] = {
-			ids: new Set( config.ids ),
+		this.selected[this.matID(config)] = {
+			ids: new Set(config.ids),
 			mesh: {}
 		};
 
 	}
 
-	isPreviousSelection( config ) {
+	isPreviousSelection(config) {
 
-		if ( ! this.selected[ this.matID( config ) ] )
+		if (!this.selected[this.matID(config)])
 			return false;
-		if ( this.containsIds( config ) )
+		if (this.containsIds(config))
 			return true;
-		const previousIds = this.selected[ this.matID( config ) ].ids;
-		return JSON.stringify( config.ids ) === JSON.stringify( previousIds );
+		const previousIds = this.selected[this.matID(config)].ids;
+		return JSON.stringify(config.ids) === JSON.stringify(previousIds);
 
 	}
 
-	containsIds( config ) {
+	containsIds(config) {
 
 		const newIds = config.ids;
-		const previous = Array.from( this.selected[ this.matID( config ) ].ids );
-		return newIds.every( ( i => v => ( i = previous.indexOf( v, i ) + 1 ) )( 0 ) );
+		const previous = Array.from(this.selected[this.matID(config)].ids);
+		return newIds.every((i => v => (i = previous.indexOf(v, i) + 1))(0));
 
 	}
 
-	addToPreviousSelection( config ) {
+	addToPreviousSelection(config) {
 
-		const previous = this.selected[ this.matID( config ) ];
-		const filtered = this.filter( config );
-		const geometries = Object.values( filtered ).map( ( i ) => Object.values( i.geometries ) ).flat();
+		const previous = this.selected[this.matID(config)];
+		const filtered = this.filter(config);
+		const geometries = Object.values(filtered).map((i) => Object.values(i.geometries)).flat();
 		const previousGeom = previous.mesh.geometry;
-		previous.mesh.geometry = merge( [ previousGeom, ...geometries ] );
-		config.ids.forEach( ( id ) => previous.ids.add( id ) );
+		previous.mesh.geometry = merge([previousGeom, ...geometries]);
+		config.ids.forEach((id) => previous.ids.add(id));
 
 	}
 
-	filter( config ) {
+	filter(config) {
 
-		const ids = this.selected[ this.matID( config ) ].ids;
-		const items = this.state.models[ config.modelID ].items;
+		const ids = this.selected[this.matID(config)].ids;
+		const items = this.state.models[config.modelID].items;
 		const filtered = {};
-		for ( const matID in items ) {
+		for (const matID in items) {
 
-			filtered[ matID ] = {
-				material: items[ matID ].material,
-				geometries: this.filterGeometries( ids, items[ matID ].geometries )
+			filtered[matID] = {
+				material: items[matID].material,
+				geometries: this.filterGeometries(ids, items[matID].geometries)
 			};
 
 		}
@@ -460,53 +460,53 @@ class SubsetManager {
 
 	}
 
-	filterGeometries( selectedIDs, geometries ) {
+	filterGeometries(selectedIDs, geometries) {
 
-		const ids = Array.from( selectedIDs );
-		return Object.keys( geometries )
-			.filter( ( key ) => ids.includes( parseInt( key, 10 ) ) )
-			.reduce( ( obj, key ) => {
+		const ids = Array.from(selectedIDs);
+		return Object.keys(geometries)
+			.filter((key) => ids.includes(parseInt(key, 10)))
+			.reduce((obj, key) => {
 
 				return {
 					...obj,
-					[ key ]: geometries[ key ]
+					[key]: geometries[key]
 				};
 
-			}, {} );
+			}, {});
 
 	}
 
-	isEasySelection( config ) {
+	isEasySelection(config) {
 
-		const matID = this.matID( config );
-		if ( ! config.removePrevious && ! this.isDefaultMat( config ) && this.selected[ matID ] )
+		const matID = this.matID(config);
+		if (!config.removePrevious && !this.isDefaultMat(config) && this.selected[matID])
 			return true;
 
 	}
 
-	isDefaultMat( config ) {
+	isDefaultMat(config) {
 
-		return this.matIDNoConfig( config.modelID ) === this.matID( config );
+		return this.matIDNoConfig(config.modelID) === this.matID(config);
 
 	}
 
-	matID( config ) {
+	matID(config) {
 
 		let name;
-		if ( ! config.material )
+		if (!config.material)
 			name = DEFAULT;
 		else
 			name = config.material.uuid || DEFAULT;
-		return name.concat( ' - ' ).concat( config.modelID.toString() );
+		return name.concat(' - ').concat(config.modelID.toString());
 
 	}
 
-	matIDNoConfig( modelID, material ) {
+	matIDNoConfig(modelID, material) {
 
 		let name = DEFAULT;
-		if ( material )
+		if (material)
 			name = material.uuid;
-		return name.concat( ' - ' ).concat( modelID.toString() );
+		return name.concat(' - ').concat(modelID.toString());
 
 	}
 
@@ -1473,144 +1473,144 @@ const IfcTypesMap = {
 
 class PropertyManager {
 
-	constructor( state ) {
+	constructor(state) {
 
 		this.state = state;
 
 	}
 
-	getExpressId( geometry, faceIndex ) {
+	getExpressId(geometry, faceIndex) {
 
-		if ( ! geometry.index )
+		if (!geometry.index)
 			return;
 		const geoIndex = geometry.index.array;
-		return geometry.attributes[ IdAttrName ].getX( geoIndex[ 3 * faceIndex ] );
+		return geometry.attributes[IdAttrName].getX(geoIndex[3 * faceIndex]);
 
 	}
 
-	getItemProperties( modelID, id, recursive = false ) {
+	getItemProperties(modelID, id, recursive = false) {
 
 		return this.state.useJSON ?
 			{
-				...this.state.models[ modelID ].jsonData[ id ]
+				...this.state.models[modelID].jsonData[id]
 			} :
-			this.state.api.GetLine( modelID, id, recursive );
+			this.state.api.GetLine(modelID, id, recursive);
 
 	}
 
-	getAllItemsOfType( modelID, type, verbose ) {
+	getAllItemsOfType(modelID, type, verbose) {
 
 		return this.state.useJSON ?
-			this.getAllItemsOfTypeJSON( modelID, type, verbose ) :
-			this.getAllItemsOfTypeWebIfcAPI( modelID, type, verbose );
+			this.getAllItemsOfTypeJSON(modelID, type, verbose) :
+			this.getAllItemsOfTypeWebIfcAPI(modelID, type, verbose);
 
 	}
 
-	getPropertySets( modelID, elementID, recursive = false ) {
+	getPropertySets(modelID, elementID, recursive = false) {
 
 		return this.state.useJSON ?
-			this.getPropertyJSON( modelID, elementID, recursive, PropsNames.psets ) :
-			this.getPropertyWebIfcAPI( modelID, elementID, recursive, PropsNames.psets );
+			this.getPropertyJSON(modelID, elementID, recursive, PropsNames.psets) :
+			this.getPropertyWebIfcAPI(modelID, elementID, recursive, PropsNames.psets);
 
 	}
 
-	getTypeProperties( modelID, elementID, recursive = false ) {
+	getTypeProperties(modelID, elementID, recursive = false) {
 
 		return this.state.useJSON ?
-			this.getPropertyJSON( modelID, elementID, recursive, PropsNames.type ) :
-			this.getPropertyWebIfcAPI( modelID, elementID, recursive, PropsNames.type );
+			this.getPropertyJSON(modelID, elementID, recursive, PropsNames.type) :
+			this.getPropertyWebIfcAPI(modelID, elementID, recursive, PropsNames.type);
 
 	}
 
-	getMaterialsProperties( modelID, elementID, recursive = false ) {
+	getMaterialsProperties(modelID, elementID, recursive = false) {
 
 		return this.state.useJSON ?
-			this.getPropertyJSON( modelID, elementID, recursive, PropsNames.materials ) :
-			this.getPropertyWebIfcAPI( modelID, elementID, recursive, PropsNames.materials );
+			this.getPropertyJSON(modelID, elementID, recursive, PropsNames.materials) :
+			this.getPropertyWebIfcAPI(modelID, elementID, recursive, PropsNames.materials);
 
 	}
 
-	getSpatialStructure( modelID ) {
+	getSpatialStructure(modelID) {
 
 		return this.state.useJSON ?
-			this.getSpatialStructureJSON( modelID ) :
-			this.getSpatialStructureWebIfcAPI( modelID );
+			this.getSpatialStructureJSON(modelID) :
+			this.getSpatialStructureWebIfcAPI(modelID);
 
 	}
 
-	getSpatialStructureJSON( modelID ) {
+	getSpatialStructureJSON(modelID) {
 
-		const chunks = this.getSpatialTreeChunks( modelID );
-		const projectID = this.getAllItemsOfTypeJSON( modelID, IFCPROJECT, false )[ 0 ];
-		const project = this.newIfcProject( projectID );
-		this.getSpatialNode( modelID, project, chunks );
+		const chunks = this.getSpatialTreeChunks(modelID);
+		const projectID = this.getAllItemsOfTypeJSON(modelID, IFCPROJECT, false)[0];
+		const project = this.newIfcProject(projectID);
+		this.getSpatialNode(modelID, project, chunks);
 		return {
 			...project
 		};
 
 	}
 
-	getSpatialStructureWebIfcAPI( modelID ) {
+	getSpatialStructureWebIfcAPI(modelID) {
 
-		const chunks = this.getSpatialTreeChunks( modelID );
-		const projectID = this.state.api.GetLineIDsWithType( modelID, IFCPROJECT ).get( 0 );
-		const project = this.newIfcProject( projectID );
-		this.getSpatialNode( modelID, project, chunks );
+		const chunks = this.getSpatialTreeChunks(modelID);
+		const projectID = this.state.api.GetLineIDsWithType(modelID, IFCPROJECT).get(0);
+		const project = this.newIfcProject(projectID);
+		this.getSpatialNode(modelID, project, chunks);
 		return project;
 
 	}
 
-	getAllItemsOfTypeJSON( modelID, type, verbose ) {
+	getAllItemsOfTypeJSON(modelID, type, verbose) {
 
-		const data = this.state.models[ modelID ].jsonData;
-		const typeName = IfcTypesMap[ type ];
-		if ( ! typeName ) {
+		const data = this.state.models[modelID].jsonData;
+		const typeName = IfcTypesMap[type];
+		if (!typeName) {
 
-			throw new Error( `Type not found: ${type}` );
+			throw new Error(`Type not found: ${type}`);
 
 		}
 
-		return this.filterJSONItemsByType( data, typeName, verbose );
+		return this.filterJSONItemsByType(data, typeName, verbose);
 
 	}
 
-	filterJSONItemsByType( data, typeName, verbose ) {
+	filterJSONItemsByType(data, typeName, verbose) {
 
 		const result = [];
-		Object.keys( data ).forEach( key => {
+		Object.keys(data).forEach(key => {
 
-			const numKey = parseInt( key );
-			if ( data[ numKey ].type.toUpperCase() === typeName ) {
+			const numKey = parseInt(key);
+			if (data[numKey].type.toUpperCase() === typeName) {
 
-				result.push( verbose ? {
-					...data[ numKey ]
-				} : numKey );
+				result.push(verbose ? {
+					...data[numKey]
+				} : numKey);
 
 			}
 
-		} );
+		});
 		return result;
 
 	}
 
-	getItemsByIDJSON( modelID, ids ) {
+	getItemsByIDJSON(modelID, ids) {
 
-		const data = this.state.models[ modelID ].jsonData;
+		const data = this.state.models[modelID].jsonData;
 		const result = [];
-		ids.forEach( id => result.push( {
-			...data[ id ]
-		} ) );
+		ids.forEach(id => result.push({
+			...data[id]
+		}));
 		return result;
 
 	}
 
-	getPropertyJSON( modelID, elementID, recursive = false, propName ) {
+	getPropertyJSON(modelID, elementID, recursive = false, propName) {
 
-		const resultIDs = this.getAllRelatedItemsOfTypeJSON( modelID, elementID, propName );
-		const result = this.getItemsByIDJSON( modelID, resultIDs );
-		if ( recursive ) {
+		const resultIDs = this.getAllRelatedItemsOfTypeJSON(modelID, elementID, propName);
+		const result = this.getItemsByIDJSON(modelID, resultIDs);
+		if (recursive) {
 
-			result.forEach( result => this.getJSONReferencesRecursively( modelID, result ) );
+			result.forEach(result => this.getJSONReferencesRecursively(modelID, result));
 
 		}
 
@@ -1618,74 +1618,74 @@ class PropertyManager {
 
 	}
 
-	getJSONReferencesRecursively( modelID, jsonObject ) {
+	getJSONReferencesRecursively(modelID, jsonObject) {
 
-		if ( jsonObject == undefined )
+		if (jsonObject == undefined)
 			return;
-		const keys = Object.keys( jsonObject );
-		for ( let i = 0; i < keys.length; i ++ ) {
+		const keys = Object.keys(jsonObject);
+		for (let i = 0; i < keys.length; i++) {
 
-			const key = keys[ i ];
-			this.getJSONItem( modelID, jsonObject, key );
-
-		}
-
-	}
-
-	getJSONItem( modelID, jsonObject, key ) {
-
-		if ( Array.isArray( jsonObject[ key ] ) ) {
-
-			return this.getMultipleJSONItems( modelID, jsonObject, key );
-
-		}
-
-		if ( jsonObject[ key ] && jsonObject[ key ].type === 5 ) {
-
-			jsonObject[ key ] = this.getItemsByIDJSON( modelID, [ jsonObject[ key ].value ] )[ 0 ];
-			this.getJSONReferencesRecursively( modelID, jsonObject[ key ] );
+			const key = keys[i];
+			this.getJSONItem(modelID, jsonObject, key);
 
 		}
 
 	}
 
-	getMultipleJSONItems( modelID, jsonObject, key ) {
+	getJSONItem(modelID, jsonObject, key) {
 
-		jsonObject[ key ] = jsonObject[ key ].map( ( item ) => {
+		if (Array.isArray(jsonObject[key])) {
 
-			if ( item.type === 5 ) {
+			return this.getMultipleJSONItems(modelID, jsonObject, key);
 
-				item = this.getItemsByIDJSON( modelID, [ item.value ] )[ 0 ];
-				this.getJSONReferencesRecursively( modelID, item );
+		}
+
+		if (jsonObject[key] && jsonObject[key].type === 5) {
+
+			jsonObject[key] = this.getItemsByIDJSON(modelID, [jsonObject[key].value])[0];
+			this.getJSONReferencesRecursively(modelID, jsonObject[key]);
+
+		}
+
+	}
+
+	getMultipleJSONItems(modelID, jsonObject, key) {
+
+		jsonObject[key] = jsonObject[key].map((item) => {
+
+			if (item.type === 5) {
+
+				item = this.getItemsByIDJSON(modelID, [item.value])[0];
+				this.getJSONReferencesRecursively(modelID, item);
 
 			}
 
 			return item;
 
-		} );
+		});
 
 	}
 
-	getPropertyWebIfcAPI( modelID, elementID, recursive = false, propName ) {
+	getPropertyWebIfcAPI(modelID, elementID, recursive = false, propName) {
 
-		const propSetIds = this.getAllRelatedItemsOfTypeWebIfcAPI( modelID, elementID, propName );
-		return propSetIds.map( ( id ) => this.state.api.GetLine( modelID, id, recursive ) );
+		const propSetIds = this.getAllRelatedItemsOfTypeWebIfcAPI(modelID, elementID, propName);
+		return propSetIds.map((id) => this.state.api.GetLine(modelID, id, recursive));
 
 	}
 
-	getAllItemsOfTypeWebIfcAPI( modelID, type, verbose ) {
+	getAllItemsOfTypeWebIfcAPI(modelID, type, verbose) {
 
 		const items = [];
-		const lines = this.state.api.GetLineIDsWithType( modelID, type );
-		for ( let i = 0; i < lines.size(); i ++ )
-			items.push( lines.get( i ) );
-		if ( verbose )
-			return items.map( ( id ) => this.state.api.GetLine( modelID, id ) );
+		const lines = this.state.api.GetLineIDsWithType(modelID, type);
+		for (let i = 0; i < lines.size(); i++)
+			items.push(lines.get(i));
+		if (verbose)
+			return items.map((id) => this.state.api.GetLine(modelID, id));
 		return items;
 
 	}
 
-	newIfcProject( id ) {
+	newIfcProject(id) {
 
 		return {
 			expressID: id,
@@ -1695,19 +1695,19 @@ class PropertyManager {
 
 	}
 
-	getSpatialTreeChunks( modelID ) {
+	getSpatialTreeChunks(modelID) {
 
 		const treeChunks = {};
 		const json = this.state.useJSON;
-		if ( json ) {
+		if (json) {
 
-			this.getChunksJSON( modelID, treeChunks, PropsNames.aggregates );
-			this.getChunksJSON( modelID, treeChunks, PropsNames.spatial );
+			this.getChunksJSON(modelID, treeChunks, PropsNames.aggregates);
+			this.getChunksJSON(modelID, treeChunks, PropsNames.spatial);
 
 		} else {
 
-			this.getChunksWebIfcAPI( modelID, treeChunks, PropsNames.aggregates );
-			this.getChunksWebIfcAPI( modelID, treeChunks, PropsNames.spatial );
+			this.getChunksWebIfcAPI(modelID, treeChunks, PropsNames.aggregates);
+			this.getChunksWebIfcAPI(modelID, treeChunks, PropsNames.spatial);
 
 		}
 
@@ -1715,71 +1715,71 @@ class PropertyManager {
 
 	}
 
-	getChunksJSON( modelID, chunks, propNames ) {
+	getChunksJSON(modelID, chunks, propNames) {
 
-		const relation = this.getAllItemsOfTypeJSON( modelID, propNames.name, true );
-		relation.forEach( rel => {
+		const relation = this.getAllItemsOfTypeJSON(modelID, propNames.name, true);
+		relation.forEach(rel => {
 
-			this.saveChunk( chunks, propNames, rel );
+			this.saveChunk(chunks, propNames, rel);
 
-		} );
+		});
 
 	}
 
-	getChunksWebIfcAPI( modelID, chunks, propNames ) {
+	getChunksWebIfcAPI(modelID, chunks, propNames) {
 
-		const relation = this.state.api.GetLineIDsWithType( modelID, propNames.name );
-		for ( let i = 0; i < relation.size(); i ++ ) {
+		const relation = this.state.api.GetLineIDsWithType(modelID, propNames.name);
+		for (let i = 0; i < relation.size(); i++) {
 
-			const rel = this.state.api.GetLine( modelID, relation.get( i ), false );
-			this.saveChunk( chunks, propNames, rel );
+			const rel = this.state.api.GetLine(modelID, relation.get(i), false);
+			this.saveChunk(chunks, propNames, rel);
 
 		}
 
 	}
 
-	saveChunk( chunks, propNames, rel ) {
+	saveChunk(chunks, propNames, rel) {
 
-		const relating = rel[ propNames.relating ].value;
-		const related = rel[ propNames.related ].map( ( r ) => r.value );
-		if ( chunks[ relating ] == undefined ) {
+		const relating = rel[propNames.relating].value;
+		const related = rel[propNames.related].map((r) => r.value);
+		if (chunks[relating] == undefined) {
 
-			chunks[ relating ] = related;
+			chunks[relating] = related;
 
 		} else {
 
-			chunks[ relating ] = chunks[ relating ].concat( related );
+			chunks[relating] = chunks[relating].concat(related);
 
 		}
 
 	}
 
-	getSpatialNode( modelID, node, treeChunks ) {
+	getSpatialNode(modelID, node, treeChunks) {
 
-		this.getChildren( modelID, node, treeChunks, PropsNames.aggregates );
-		this.getChildren( modelID, node, treeChunks, PropsNames.spatial );
+		this.getChildren(modelID, node, treeChunks, PropsNames.aggregates);
+		this.getChildren(modelID, node, treeChunks, PropsNames.spatial);
 
 	}
 
-	getChildren( modelID, node, treeChunks, propNames ) {
+	getChildren(modelID, node, treeChunks, propNames) {
 
-		const children = treeChunks[ node.expressID ];
-		if ( children == undefined )
+		const children = treeChunks[node.expressID];
+		if (children == undefined)
 			return;
 		const prop = propNames.key;
-		node[ prop ] = children.map( ( child ) => {
+		node[prop] = children.map((child) => {
 
-			const node = this.newNode( modelID, child );
-			this.getSpatialNode( modelID, node, treeChunks );
+			const node = this.newNode(modelID, child);
+			this.getSpatialNode(modelID, node, treeChunks);
 			return node;
 
-		} );
+		});
 
 	}
 
-	newNode( modelID, id ) {
+	newNode(modelID, id) {
 
-		const typeName = this.getNodeType( modelID, id );
+		const typeName = this.getNodeType(modelID, id);
 		return {
 			expressID: id,
 			type: typeName,
@@ -1788,40 +1788,40 @@ class PropertyManager {
 
 	}
 
-	getNodeType( modelID, id ) {
+	getNodeType(modelID, id) {
 
-		if ( this.state.useJSON )
-			return this.state.models[ modelID ].jsonData[ id ].type;
-		const typeID = this.state.models[ modelID ].types[ id ];
-		return IfcElements[ typeID ];
+		if (this.state.useJSON)
+			return this.state.models[modelID].jsonData[id].type;
+		const typeID = this.state.models[modelID].types[id];
+		return IfcElements[typeID];
 
 	}
 
-	getAllRelatedItemsOfTypeJSON( modelID, id, propNames ) {
+	getAllRelatedItemsOfTypeJSON(modelID, id, propNames) {
 
-		const lines = this.getAllItemsOfTypeJSON( modelID, propNames.name, true );
+		const lines = this.getAllItemsOfTypeJSON(modelID, propNames.name, true);
 		const IDs = [];
-		lines.forEach( line => {
+		lines.forEach(line => {
 
-			const isRelated = this.isRelated( id, line, propNames );
-			if ( isRelated )
-				this.getRelated( line, propNames, IDs );
+			const isRelated = this.isRelated(id, line, propNames);
+			if (isRelated)
+				this.getRelated(line, propNames, IDs);
 
-		} );
+		});
 		return IDs;
 
 	}
 
-	getAllRelatedItemsOfTypeWebIfcAPI( modelID, id, propNames ) {
+	getAllRelatedItemsOfTypeWebIfcAPI(modelID, id, propNames) {
 
-		const lines = this.state.api.GetLineIDsWithType( modelID, propNames.name );
+		const lines = this.state.api.GetLineIDsWithType(modelID, propNames.name);
 		const IDs = [];
-		for ( let i = 0; i < lines.size(); i ++ ) {
+		for (let i = 0; i < lines.size(); i++) {
 
-			const rel = this.state.api.GetLine( modelID, lines.get( i ) );
-			const isRelated = this.isRelated( id, rel, propNames );
-			if ( isRelated )
-				this.getRelated( rel, propNames, IDs );
+			const rel = this.state.api.GetLine(modelID, lines.get(i));
+			const isRelated = this.isRelated(id, rel, propNames);
+			if (isRelated)
+				this.getRelated(rel, propNames, IDs);
 
 		}
 
@@ -1829,23 +1829,23 @@ class PropertyManager {
 
 	}
 
-	getRelated( rel, propNames, IDs ) {
+	getRelated(rel, propNames, IDs) {
 
-		const element = rel[ propNames.relating ];
-		if ( ! Array.isArray( element ) )
-			IDs.push( element.value );
+		const element = rel[propNames.relating];
+		if (!Array.isArray(element))
+			IDs.push(element.value);
 		else
-			element.forEach( ( ele ) => IDs.push( ele.value ) );
+			element.forEach((ele) => IDs.push(ele.value));
 
 	}
 
-	isRelated( id, rel, propNames ) {
+	isRelated(id, rel, propNames) {
 
-		const relatedItems = rel[ propNames.related ];
-		if ( Array.isArray( relatedItems ) ) {
+		const relatedItems = rel[propNames.related];
+		if (Array.isArray(relatedItems)) {
 
-			const values = relatedItems.map( ( item ) => item.value );
-			return values.includes( id );
+			const values = relatedItems.map((item) => item.value);
+			return values.includes(id);
 
 		}
 
@@ -1857,7 +1857,7 @@ class PropertyManager {
 
 class TypeManager {
 
-	constructor( state ) {
+	constructor(state) {
 
 		this.state = state;
 
@@ -1865,28 +1865,28 @@ class TypeManager {
 
 	getAllTypes() {
 
-		for ( const modelID in this.state.models ) {
+		for (const modelID in this.state.models) {
 
-			const types = this.state.models[ modelID ].types;
-			if ( Object.keys( types ).length == 0 )
-				this.getAllTypesOfModel( parseInt( modelID ) );
+			const types = this.state.models[modelID].types;
+			if (Object.keys(types).length == 0)
+				this.getAllTypesOfModel(parseInt(modelID));
 
 		}
 
 	}
 
-	getAllTypesOfModel( modelID ) {
+	getAllTypesOfModel(modelID) {
 
-		this.state.models[ modelID ].types;
-		const elements = Object.keys( IfcElements ).map( ( e ) => parseInt( e ) );
-		const types = this.state.models[ modelID ].types;
-		elements.forEach( ( type ) => {
+		this.state.models[modelID].types;
+		const elements = Object.keys(IfcElements).map((e) => parseInt(e));
+		const types = this.state.models[modelID].types;
+		elements.forEach((type) => {
 
-			const lines = this.state.api.GetLineIDsWithType( modelID, type );
-			for ( let i = 0; i < lines.size(); i ++ )
-				types[ lines.get( i ) ] = type;
+			const lines = this.state.api.GetLineIDsWithType(modelID, type);
+			for (let i = 0; i < lines.size(); i++)
+				types[lines.get(i)] = type;
 
-		} );
+		});
 
 	}
 
@@ -1899,148 +1899,148 @@ class IFCModel extends Mesh {
 
 	constructor() {
 
-		super( ...arguments );
-		this.modelID = modelIdCounter ++;
+		super(...arguments);
+		this.modelID = modelIdCounter++;
 		this.ifcManager = null;
 		this.mesh = this;
 
 	}
 
-	setIFCManager( manager ) {
+	setIFCManager(manager) {
 
 		this.ifcManager = manager;
 
 	}
 
-	setWasmPath( path ) {
+	setWasmPath(path) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.setWasmPath( path );
-
-	}
-
-	close( scene ) {
-
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.close( this.modelID, scene );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.setWasmPath(path);
 
 	}
 
-	getExpressId( geometry, faceIndex ) {
+	close(scene) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getExpressId( geometry, faceIndex );
-
-	}
-
-	getAllItemsOfType( type, verbose ) {
-
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getAllItemsOfType( this.modelID, type, verbose );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.close(this.modelID, scene);
 
 	}
 
-	getItemProperties( id, recursive = false ) {
+	getExpressId(geometry, faceIndex) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getItemProperties( this.modelID, id, recursive );
-
-	}
-
-	getPropertySets( id, recursive = false ) {
-
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getPropertySets( this.modelID, id, recursive );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getExpressId(geometry, faceIndex);
 
 	}
 
-	getTypeProperties( id, recursive = false ) {
+	getAllItemsOfType(type, verbose) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getTypeProperties( this.modelID, id, recursive );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getAllItemsOfType(this.modelID, type, verbose);
 
 	}
 
-	getIfcType( id ) {
+	getItemProperties(id, recursive = false) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getIfcType( this.modelID, id );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getItemProperties(this.modelID, id, recursive);
+
+	}
+
+	getPropertySets(id, recursive = false) {
+
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getPropertySets(this.modelID, id, recursive);
+
+	}
+
+	getTypeProperties(id, recursive = false) {
+
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getTypeProperties(this.modelID, id, recursive);
+
+	}
+
+	getIfcType(id) {
+
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getIfcType(this.modelID, id);
 
 	}
 
 	getSpatialStructure() {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getSpatialStructure( this.modelID );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getSpatialStructure(this.modelID);
 
 	}
 
-	getSubset( material ) {
+	getSubset(material) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		return this.ifcManager.getSubset( this.modelID, material );
-
-	}
-
-	removeSubset( parent, material ) {
-
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.removeSubset( this.modelID, parent, material );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		return this.ifcManager.getSubset(this.modelID, material);
 
 	}
 
-	createSubset( config ) {
+	removeSubset(parent, material) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.removeSubset(this.modelID, parent, material);
+
+	}
+
+	createSubset(config) {
+
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
 		const modelConfig = {
 			...config,
 			modelID: this.modelID
 		};
-		return this.ifcManager.createSubset( modelConfig );
+		return this.ifcManager.createSubset(modelConfig);
 
 	}
 
-	hideItems( ids ) {
+	hideItems(ids) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.hideItems( this.modelID, ids );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.hideItems(this.modelID, ids);
 
 	}
 
 	hideAllItems() {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.hideAllItems( this.modelID );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.hideAllItems(this.modelID);
 
 	}
 
-	showItems( ids ) {
+	showItems(ids) {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.showItems( this.modelID, ids );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.showItems(this.modelID, ids);
 
 	}
 
 	showAllItems() {
 
-		if ( this.ifcManager === null )
-			throw new Error( nullIfcManagerErrorMessage );
-		this.ifcManager.showAllItems( this.modelID );
+		if (this.ifcManager === null)
+			throw new Error(nullIfcManagerErrorMessage);
+		this.ifcManager.showAllItems(this.modelID);
 
 	}
 
@@ -2048,7 +2048,7 @@ class IFCModel extends Mesh {
 
 class BvhManager {
 
-	initializeMeshBVH( computeBoundsTree, disposeBoundsTree, acceleratedRaycast ) {
+	initializeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast) {
 
 		this.computeBoundsTree = computeBoundsTree;
 		this.disposeBoundsTree = disposeBoundsTree;
@@ -2057,16 +2057,16 @@ class BvhManager {
 
 	}
 
-	applyThreeMeshBVH( geometry ) {
+	applyThreeMeshBVH(geometry) {
 
-		if ( this.computeBoundsTree )
+		if (this.computeBoundsTree)
 			geometry.computeBoundsTree();
 
 	}
 
 	setupThreeMeshBVH() {
 
-		if ( ! this.computeBoundsTree || ! this.disposeBoundsTree || ! this.acceleratedRaycast )
+		if (!this.computeBoundsTree || !this.disposeBoundsTree || !this.acceleratedRaycast)
 			return;
 		BufferGeometry.prototype.computeBoundsTree = this.computeBoundsTree;
 		BufferGeometry.prototype.disposeBoundsTree = this.disposeBoundsTree;
@@ -2078,7 +2078,7 @@ class BvhManager {
 
 class ItemsHider {
 
-	constructor( state ) {
+	constructor(state) {
 
 		this.modelCoordinates = {};
 		this.expressIDCoordinatesMap = {};
@@ -2088,105 +2088,105 @@ class ItemsHider {
 
 
 
-	processCoordinates( modelID ) {
+	processCoordinates(modelID) {
 
-		const attributes = this.getAttributes( modelID );
-		const ids = Array.from( attributes.expressID.array );
-		this.expressIDCoordinatesMap[ modelID ] = {};
-		for ( let i = 0; i < ids.length; i ++ ) {
+		const attributes = this.getAttributes(modelID);
+		const ids = Array.from(attributes.expressID.array);
+		this.expressIDCoordinatesMap[modelID] = {};
+		for (let i = 0; i < ids.length; i++) {
 
-			if ( ! this.expressIDCoordinatesMap[ modelID ][ ids[ i ] ] ) {
+			if (!this.expressIDCoordinatesMap[modelID][ids[i]]) {
 
-				this.expressIDCoordinatesMap[ modelID ][ ids[ i ] ] = [];
+				this.expressIDCoordinatesMap[modelID][ids[i]] = [];
 
 			}
 
-			const current = this.expressIDCoordinatesMap[ modelID ];
-			current[ ids[ i ] ].push( 3 * i );
+			const current = this.expressIDCoordinatesMap[modelID];
+			current[ids[i]].push(3 * i);
 
 		}
 
-		this.initializeCoordinates( modelID );
+		this.initializeCoordinates(modelID);
 
 	}
 
-	hideItems( modelID, ids ) {
+	hideItems(modelID, ids) {
 
-		this.editCoordinates( modelID, ids, true );
-
-	}
-
-	showItems( modelID, ids ) {
-
-		this.editCoordinates( modelID, ids, false );
+		this.editCoordinates(modelID, ids, true);
 
 	}
 
-	editCoordinates( modelID, ids, hide ) {
+	showItems(modelID, ids) {
 
-		const current = this.expressIDCoordinatesMap[ modelID ];
+		this.editCoordinates(modelID, ids, false);
+
+	}
+
+	editCoordinates(modelID, ids, hide) {
+
+		const current = this.expressIDCoordinatesMap[modelID];
 		const indices = [];
-		ids.forEach( ( id ) => {
+		ids.forEach((id) => {
 
-			if ( current[ id ] )
-				indices.push( ...current[ id ] );
+			if (current[id])
+				indices.push(...current[id]);
 
-		} );
-		const coords = this.getCoordinates( modelID );
-		const initial = this.modelCoordinates[ modelID ];
-		if ( hide )
-			indices.forEach( i => coords.set( [ 0, 0, 0 ], i ) );
+		});
+		const coords = this.getCoordinates(modelID);
+		const initial = this.modelCoordinates[modelID];
+		if (hide)
+			indices.forEach(i => coords.set([0, 0, 0], i));
 		else
-			indices.forEach( i => coords.set( [ initial[ i ], initial[ i + 1 ], initial[ i + 2 ] ], i ) );
-		this.getAttributes( modelID ).position.needsUpdate = true;
+			indices.forEach(i => coords.set([initial[i], initial[i + 1], initial[i + 2]], i));
+		this.getAttributes(modelID).position.needsUpdate = true;
 
 	}
 
-	showAllItems( modelID ) {
+	showAllItems(modelID) {
 
-		if ( this.modelCoordinates[ modelID ] ) {
+		if (this.modelCoordinates[modelID]) {
 
-			this.resetCoordinates( modelID );
-			this.getAttributes( modelID ).position.needsUpdate = true;
+			this.resetCoordinates(modelID);
+			this.getAttributes(modelID).position.needsUpdate = true;
 
 		}
 
 	}
 
-	hideAllItems( modelID ) {
+	hideAllItems(modelID) {
 
-		this.getCoordinates( modelID ).fill( 0 );
-		this.getAttributes( modelID ).position.needsUpdate = true;
+		this.getCoordinates(modelID).fill(0);
+		this.getAttributes(modelID).position.needsUpdate = true;
 
 	}
 
-	initializeCoordinates( modelID ) {
+	initializeCoordinates(modelID) {
 
-		const coordinates = this.getCoordinates( modelID );
-		if ( ! this.modelCoordinates[ modelID ] ) {
+		const coordinates = this.getCoordinates(modelID);
+		if (!this.modelCoordinates[modelID]) {
 
-			this.modelCoordinates[ modelID ] = new Float32Array( coordinates );
+			this.modelCoordinates[modelID] = new Float32Array(coordinates);
 
 		}
 
 	}
 
-	resetCoordinates( modelID ) {
+	resetCoordinates(modelID) {
 
-		const initial = this.modelCoordinates[ modelID ];
-		this.getCoordinates( modelID ).set( initial );
-
-	}
-
-	getCoordinates( modelID ) {
-
-		return this.getAttributes( modelID ).position.array;
+		const initial = this.modelCoordinates[modelID];
+		this.getCoordinates(modelID).set(initial);
 
 	}
 
-	getAttributes( modelID ) {
+	getCoordinates(modelID) {
 
-		return this.state.models[ modelID ].mesh.geometry.attributes;
+		return this.getAttributes(modelID).position.array;
+
+	}
+
+	getAttributes(modelID) {
+
+		return this.state.models[modelID].mesh.geometry.attributes;
 
 	}
 
@@ -2202,48 +2202,48 @@ class IFCManager {
 			useJSON: false
 		};
 		this.BVH = new BvhManager();
-		this.parser = new IFCParser( this.state, this.BVH );
-		this.subsets = new SubsetManager( this.state, this.BVH );
-		this.properties = new PropertyManager( this.state );
-		this.types = new TypeManager( this.state );
-		this.hider = new ItemsHider( this.state );
+		this.parser = new IFCParser(this.state, this.BVH);
+		this.subsets = new SubsetManager(this.state, this.BVH);
+		this.properties = new PropertyManager(this.state);
+		this.types = new TypeManager(this.state);
+		this.hider = new ItemsHider(this.state);
 
 	}
 
-	async parse( buffer ) {
+	async parse(buffer) {
 
-		const mesh = await this.parser.parse( buffer );
+		const mesh = await this.parser.parse(buffer);
 		this.state.useJSON ? this.disposeMemory() : this.types.getAllTypes();
-		this.hider.processCoordinates( mesh.modelID );
-		const model = new IFCModel( mesh.geometry, mesh.material );
-		model.setIFCManager( this );
+		this.hider.processCoordinates(mesh.modelID);
+		const model = new IFCModel(mesh.geometry, mesh.material);
+		model.setIFCManager(this);
 		return model;
 
 	}
 
-	setWasmPath( path ) {
+	setWasmPath(path) {
 
-		this.state.api.SetWasmPath( path );
+		this.state.api.SetWasmPath(path);
 
 	}
 
-	applyWebIfcConfig( settings ) {
+	applyWebIfcConfig(settings) {
 
 		this.state.webIfcSettings = settings;
 
 	}
 
-	useJSONData( useJSON = true ) {
+	useJSONData(useJSON = true) {
 
 		this.state.useJSON = useJSON;
 		this.disposeMemory();
 
 	}
 
-	addModelJSONData( modelID, data ) {
+	addModelJSONData(modelID, data) {
 
-		const model = this.state.models[ modelID ];
-		if ( model ) {
+		const model = this.state.models[modelID];
+		if (model) {
 
 			model.jsonData = data;
 
@@ -2258,113 +2258,113 @@ class IFCManager {
 
 	}
 
-	setupThreeMeshBVH( computeBoundsTree, disposeBoundsTree, acceleratedRaycast ) {
+	setupThreeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast) {
 
-		this.BVH.initializeMeshBVH( computeBoundsTree, disposeBoundsTree, acceleratedRaycast );
+		this.BVH.initializeMeshBVH(computeBoundsTree, disposeBoundsTree, acceleratedRaycast);
 
 	}
 
-	close( modelID, scene ) {
+	close(modelID, scene) {
 
-		this.state.api.CloseModel( modelID );
-		if ( scene ) {
+		this.state.api.CloseModel(modelID);
+		if (scene) {
 
-			scene.remove( this.state.models[ modelID ].mesh );
+			scene.remove(this.state.models[modelID].mesh);
 
 		}
 
-		delete this.state.models[ modelID ];
+		delete this.state.models[modelID];
 
 	}
 
-	getExpressId( geometry, faceIndex ) {
+	getExpressId(geometry, faceIndex) {
 
-		return this.properties.getExpressId( geometry, faceIndex );
-
-	}
-
-	getAllItemsOfType( modelID, type, verbose ) {
-
-		return this.properties.getAllItemsOfType( modelID, type, verbose );
+		return this.properties.getExpressId(geometry, faceIndex);
 
 	}
 
-	getItemProperties( modelID, id, recursive = false ) {
+	getAllItemsOfType(modelID, type, verbose) {
 
-		return this.properties.getItemProperties( modelID, id, recursive );
-
-	}
-
-	getPropertySets( modelID, id, recursive = false ) {
-
-		return this.properties.getPropertySets( modelID, id, recursive );
+		return this.properties.getAllItemsOfType(modelID, type, verbose);
 
 	}
 
-	getTypeProperties( modelID, id, recursive = false ) {
+	getItemProperties(modelID, id, recursive = false) {
 
-		return this.properties.getTypeProperties( modelID, id, recursive );
-
-	}
-
-	getMaterialsProperties( modelID, id, recursive = false ) {
-
-		return this.properties.getMaterialsProperties( modelID, id, recursive );
+		return this.properties.getItemProperties(modelID, id, recursive);
 
 	}
 
-	getIfcType( modelID, id ) {
+	getPropertySets(modelID, id, recursive = false) {
 
-		const typeID = this.state.models[ modelID ].types[ id ];
-		return IfcElements[ typeID ];
-
-	}
-
-	getSpatialStructure( modelID ) {
-
-		return this.properties.getSpatialStructure( modelID );
+		return this.properties.getPropertySets(modelID, id, recursive);
 
 	}
 
-	getSubset( modelID, material ) {
+	getTypeProperties(modelID, id, recursive = false) {
 
-		return this.subsets.getSubset( modelID, material );
-
-	}
-
-	removeSubset( modelID, parent, material ) {
-
-		this.subsets.removeSubset( modelID, parent, material );
+		return this.properties.getTypeProperties(modelID, id, recursive);
 
 	}
 
-	createSubset( config ) {
+	getMaterialsProperties(modelID, id, recursive = false) {
 
-		return this.subsets.createSubset( config );
-
-	}
-
-	hideItems( modelID, ids ) {
-
-		this.hider.hideItems( modelID, ids );
+		return this.properties.getMaterialsProperties(modelID, id, recursive);
 
 	}
 
-	hideAllItems( modelID ) {
+	getIfcType(modelID, id) {
 
-		this.hider.hideAllItems( modelID );
-
-	}
-
-	showItems( modelID, ids ) {
-
-		this.hider.showItems( modelID, ids );
+		const typeID = this.state.models[modelID].types[id];
+		return IfcElements[typeID];
 
 	}
 
-	showAllItems( modelID ) {
+	getSpatialStructure(modelID) {
 
-		this.hider.showAllItems( modelID );
+		return this.properties.getSpatialStructure(modelID);
+
+	}
+
+	getSubset(modelID, material) {
+
+		return this.subsets.getSubset(modelID, material);
+
+	}
+
+	removeSubset(modelID, parent, material) {
+
+		this.subsets.removeSubset(modelID, parent, material);
+
+	}
+
+	createSubset(config) {
+
+		return this.subsets.createSubset(config);
+
+	}
+
+	hideItems(modelID, ids) {
+
+		this.hider.hideItems(modelID, ids);
+
+	}
+
+	hideAllItems(modelID) {
+
+		this.hider.hideAllItems(modelID);
+
+	}
+
+	showItems(modelID, ids) {
+
+		this.hider.showItems(modelID, ids);
+
+	}
+
+	showAllItems(modelID) {
+
+		this.hider.showAllItems(modelID);
 
 	}
 
@@ -2372,56 +2372,56 @@ class IFCManager {
 
 class IFCLoader extends Loader {
 
-	constructor( manager ) {
+	constructor(manager) {
 
-		super( manager );
+		super(manager);
 		this.ifcManager = new IFCManager();
 
 	}
 
-	load( url, onLoad, onProgress, onError ) {
+	load(url, onLoad, onProgress, onError) {
 
 		const scope = this;
-		const loader = new FileLoader( scope.manager );
-		loader.setPath( scope.path );
-		loader.setResponseType( 'arraybuffer' );
-		loader.setRequestHeader( scope.requestHeader );
-		loader.setWithCredentials( scope.withCredentials );
-		loader.load( url, async function ( buffer ) {
+		const loader = new FileLoader(scope.manager);
+		loader.setPath(scope.path);
+		loader.setResponseType('arraybuffer');
+		loader.setRequestHeader(scope.requestHeader);
+		loader.setWithCredentials(scope.withCredentials);
+		loader.load(url, async function (buffer) {
 
 			try {
 
-				if ( typeof buffer == 'string' ) {
+				if (typeof buffer == 'string') {
 
-					throw new Error( 'IFC files must be given as a buffer!' );
+					throw new Error('IFC files must be given as a buffer!');
 
 				}
 
-				onLoad( await scope.parse( buffer ) );
+				onLoad(await scope.parse(buffer));
 
-			} catch ( e ) {
+			} catch (e) {
 
-				if ( onError ) {
+				if (onError) {
 
-					onError( e );
+					onError(e);
 
 				} else {
 
-					console.error( e );
+					console.error(e);
 
 				}
 
-				scope.manager.itemError( url );
+				scope.manager.itemError(url);
 
 			}
 
-		}, onProgress, onError );
+		}, onProgress, onError);
 
 	}
 
-	parse( buffer ) {
+	parse(buffer) {
 
-		return this.ifcManager.parse( buffer );
+		return this.ifcManager.parse(buffer);
 
 	}
 

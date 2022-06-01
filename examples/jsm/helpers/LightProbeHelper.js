@@ -2,13 +2,13 @@ import {
 	Mesh,
 	ShaderMaterial,
 	SphereGeometry
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 class LightProbeHelper extends Mesh {
 
-	constructor( lightProbe, size ) {
+	constructor(lightProbe, size) {
 
-		const material = new ShaderMaterial( {
+		const material = new ShaderMaterial({
 
 			type: 'LightProbeHelperMaterial',
 
@@ -32,7 +32,7 @@ class LightProbeHelper extends Mesh {
 
 				'}',
 
-			].join( '\n' ),
+			].join('\n'),
 
 			fragmentShader: [
 
@@ -92,13 +92,13 @@ class LightProbeHelper extends Mesh {
 
 				'}'
 
-			].join( '\n' )
+			].join('\n')
 
-		} );
+		});
 
-		const geometry = new SphereGeometry( 1, 32, 16 );
+		const geometry = new SphereGeometry(1, 32, 16);
 
-		super( geometry, material );
+		super(geometry, material);
 
 		this.lightProbe = lightProbe;
 		this.size = size;
@@ -117,9 +117,9 @@ class LightProbeHelper extends Mesh {
 
 	onBeforeRender() {
 
-		this.position.copy( this.lightProbe.position );
+		this.position.copy(this.lightProbe.position);
 
-		this.scale.set( 1, 1, 1 ).multiplyScalar( this.size );
+		this.scale.set(1, 1, 1).multiplyScalar(this.size);
 
 		this.material.uniforms.intensity.value = this.lightProbe.intensity;
 

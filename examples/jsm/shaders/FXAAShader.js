@@ -1,6 +1,6 @@
 import {
 	Vector2
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * NVIDIA FXAA by Timothy Lottes
@@ -14,7 +14,7 @@ const FXAAShader = {
 	uniforms: {
 
 		'tDiffuse': { value: null },
-		'resolution': { value: new Vector2( 1 / 1024, 1 / 512 ) }
+		'resolution': { value: new Vector2(1 / 1024, 1 / 512) }
 
 	},
 

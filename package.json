@@ -2,8 +2,8 @@
   "name": "three",
   "version": "0.136.0",
   "description": "JavaScript 3D library",
-  "main": "build/three.js",
-  "module": "build/three.module.js",
+  "main": "src/Three.js",
+  "module": "src/Three.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/mrdoob/three.js"
@@ -41,7 +41,6 @@
     "globals": {
       "__THREE_DEVTOOLS__": "readonly",
       "WebGL2ComputeRenderingContext": "readonly",
-
       "potpack": "readonly",
       "fflate": "readonly",
       "bodymovin": "readonly",
@@ -49,7 +48,6 @@
       "Stats": "readonly",
       "XRWebGLBinding": "readonly",
       "XRWebGLLayer": "readonly",
-
       "GPUShaderStage": "readonly",
       "GPUBufferUsage": "readonly",
       "GPUTextureUsage": "readonly"

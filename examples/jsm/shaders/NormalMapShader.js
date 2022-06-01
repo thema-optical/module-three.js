@@ -1,6 +1,6 @@
 import {
 	Vector2
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * Normal map shader
@@ -12,8 +12,8 @@ const NormalMapShader = {
 	uniforms: {
 
 		'heightMap': { value: null },
-		'resolution': { value: new Vector2( 512, 512 ) },
-		'scale': { value: new Vector2( 1, 1 ) },
+		'resolution': { value: new Vector2(512, 512) },
+		'scale': { value: new Vector2(1, 1) },
 		'height': { value: 0.05 }
 
 	},

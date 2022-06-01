@@ -2,17 +2,17 @@ import {
 	AnimationClip,
 	AnimationMixer,
 	Mesh
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 class MorphAnimMesh extends Mesh {
 
-	constructor( geometry, material ) {
+	constructor(geometry, material) {
 
-		super( geometry, material );
+		super(geometry, material);
 
 		this.type = 'MorphAnimMesh';
 
-		this.mixer = new AnimationMixer( this );
+		this.mixer = new AnimationMixer(this);
 		this.activeAction = null;
 
 	}
@@ -29,42 +29,42 @@ class MorphAnimMesh extends Mesh {
 
 	}
 
-	playAnimation( label, fps ) {
+	playAnimation(label, fps) {
 
-		if ( this.activeAction ) {
+		if (this.activeAction) {
 
 			this.activeAction.stop();
 			this.activeAction = null;
 
 		}
 
-		const clip = AnimationClip.findByName( this, label );
+		const clip = AnimationClip.findByName(this, label);
 
-		if ( clip ) {
+		if (clip) {
 
-			const action = this.mixer.clipAction( clip );
-			action.timeScale = ( clip.tracks.length * fps ) / clip.duration;
+			const action = this.mixer.clipAction(clip);
+			action.timeScale = (clip.tracks.length * fps) / clip.duration;
 			this.activeAction = action.play();
 
 		} else {
 
-			throw new Error( 'THREE.MorphAnimMesh: animations[' + label + '] undefined in .playAnimation()' );
+			throw new Error('THREE.MorphAnimMesh: animations[' + label + '] undefined in .playAnimation()');
 
 		}
 
 	}
 
-	updateAnimation( delta ) {
+	updateAnimation(delta) {
 
-		this.mixer.update( delta );
+		this.mixer.update(delta);
 
 	}
 
-	copy( source ) {
+	copy(source) {
 
-		super.copy( source );
+		super.copy(source);
 
-		this.mixer = new AnimationMixer( this );
+		this.mixer = new AnimationMixer(this);
 
 		return this;
 

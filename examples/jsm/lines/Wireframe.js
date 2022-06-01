@@ -3,7 +3,7 @@ import {
 	InterleavedBufferAttribute,
 	Mesh,
 	Vector3
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 import { LineSegmentsGeometry } from '../lines/LineSegmentsGeometry.js';
 import { LineMaterial } from '../lines/LineMaterial.js';
 
@@ -12,9 +12,9 @@ const _end = new Vector3();
 
 class Wireframe extends Mesh {
 
-	constructor( geometry = new LineSegmentsGeometry(), material = new LineMaterial( { color: Math.random() * 0xffffff } ) ) {
+	constructor(geometry = new LineSegmentsGeometry(), material = new LineMaterial({ color: Math.random() * 0xffffff })) {
 
-		super( geometry, material );
+		super(geometry, material);
 
 		this.type = 'Wireframe';
 
@@ -28,22 +28,22 @@ class Wireframe extends Mesh {
 
 		const instanceStart = geometry.attributes.instanceStart;
 		const instanceEnd = geometry.attributes.instanceEnd;
-		const lineDistances = new Float32Array( 2 * instanceStart.count );
+		const lineDistances = new Float32Array(2 * instanceStart.count);
 
-		for ( let i = 0, j = 0, l = instanceStart.count; i < l; i ++, j += 2 ) {
+		for (let i = 0, j = 0, l = instanceStart.count; i < l; i++, j += 2) {
 
-			_start.fromBufferAttribute( instanceStart, i );
-			_end.fromBufferAttribute( instanceEnd, i );
+			_start.fromBufferAttribute(instanceStart, i);
+			_end.fromBufferAttribute(instanceEnd, i);
 
-			lineDistances[ j ] = ( j === 0 ) ? 0 : lineDistances[ j - 1 ];
-			lineDistances[ j + 1 ] = lineDistances[ j ] + _start.distanceTo( _end );
+			lineDistances[j] = (j === 0) ? 0 : lineDistances[j - 1];
+			lineDistances[j + 1] = lineDistances[j] + _start.distanceTo(_end);
 
 		}
 
-		const instanceDistanceBuffer = new InstancedInterleavedBuffer( lineDistances, 2, 1 ); // d0, d1
+		const instanceDistanceBuffer = new InstancedInterleavedBuffer(lineDistances, 2, 1); // d0, d1
 
-		geometry.setAttribute( 'instanceDistanceStart', new InterleavedBufferAttribute( instanceDistanceBuffer, 1, 0 ) ); // d0
-		geometry.setAttribute( 'instanceDistanceEnd', new InterleavedBufferAttribute( instanceDistanceBuffer, 1, 1 ) ); // d1
+		geometry.setAttribute('instanceDistanceStart', new InterleavedBufferAttribute(instanceDistanceBuffer, 1, 0)); // d0
+		geometry.setAttribute('instanceDistanceEnd', new InterleavedBufferAttribute(instanceDistanceBuffer, 1, 1)); // d1
 
 		return this;
 

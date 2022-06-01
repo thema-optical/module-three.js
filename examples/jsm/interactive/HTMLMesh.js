@@ -5,29 +5,29 @@ import {
 	MeshBasicMaterial,
 	PlaneGeometry,
 	sRGBEncoding
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 class HTMLMesh extends Mesh {
 
-	constructor( dom ) {
+	constructor(dom) {
 
-		const texture = new HTMLTexture( dom );
+		const texture = new HTMLTexture(dom);
 
-		const geometry = new PlaneGeometry( texture.image.width * 0.001, texture.image.height * 0.001 );
-		const material = new MeshBasicMaterial( { map: texture, toneMapped: false } );
+		const geometry = new PlaneGeometry(texture.image.width * 0.001, texture.image.height * 0.001);
+		const material = new MeshBasicMaterial({ map: texture, toneMapped: false });
 
-		super( geometry, material );
+		super(geometry, material);
 
-		function onEvent( event ) {
+		function onEvent(event) {
 
-			material.map.dispatchEvent( event );
+			material.map.dispatchEvent(event);
 
 		}
 
-		this.addEventListener( 'mousedown', onEvent );
-		this.addEventListener( 'mousemove', onEvent );
-		this.addEventListener( 'mouseup', onEvent );
-		this.addEventListener( 'click', onEvent );
+		this.addEventListener('mousedown', onEvent);
+		this.addEventListener('mousemove', onEvent);
+		this.addEventListener('mouseup', onEvent);
+		this.addEventListener('click', onEvent);
 
 	}
 
@@ -35,9 +35,9 @@ class HTMLMesh extends Mesh {
 
 class HTMLTexture extends CanvasTexture {
 
-	constructor( dom ) {
+	constructor(dom) {
 
-		super( html2canvas( dom ) );
+		super(html2canvas(dom));
 
 		this.dom = dom;
 
@@ -48,9 +48,9 @@ class HTMLTexture extends CanvasTexture {
 
 	}
 
-	dispatchEvent( event ) {
+	dispatchEvent(event) {
 
-		htmlevent( this.dom, event.type, event.data.x, event.data.y );
+		htmlevent(this.dom, event.type, event.data.x, event.data.y);
 
 		this.update();
 
@@ -58,7 +58,7 @@ class HTMLTexture extends CanvasTexture {
 
 	update() {
 
-		this.image = html2canvas( this.dom );
+		this.image = html2canvas(this.dom);
 		this.needsUpdate = true;
 
 	}
@@ -69,43 +69,43 @@ class HTMLTexture extends CanvasTexture {
 
 const canvases = new WeakMap();
 
-function html2canvas( element ) {
+function html2canvas(element) {
 
 	var range = document.createRange();
 
-	function Clipper( context ) {
+	function Clipper(context) {
 
 		var clips = [];
 		var isClipping = false;
 
 		function doClip() {
 
-			if ( isClipping ) {
+			if (isClipping) {
 
 				isClipping = false;
 				context.restore();
 
 			}
 
-			if ( clips.length === 0 ) return;
+			if (clips.length === 0) return;
 
 			var minX = - Infinity, minY = - Infinity;
 			var maxX = Infinity, maxY = Infinity;
 
-			for ( var i = 0; i < clips.length; i ++ ) {
+			for (var i = 0; i < clips.length; i++) {
 
-				var clip = clips[ i ];
+				var clip = clips[i];
 
-				minX = Math.max( minX, clip.x );
-				minY = Math.max( minY, clip.y );
-				maxX = Math.min( maxX, clip.x + clip.width );
-				maxY = Math.min( maxY, clip.y + clip.height );
+				minX = Math.max(minX, clip.x);
+				minY = Math.max(minY, clip.y);
+				maxX = Math.min(maxX, clip.x + clip.width);
+				maxY = Math.min(maxY, clip.y + clip.height);
 
 			}
 
 			context.save();
 			context.beginPath();
-			context.rect( minX, minY, maxX - minX, maxY - minY );
+			context.rect(minX, minY, maxX - minX, maxY - minY);
 			context.clip();
 
 			isClipping = true;
@@ -114,9 +114,9 @@ function html2canvas( element ) {
 
 		return {
 
-			add: function ( clip ) {
+			add: function (clip) {
 
-				clips.push( clip );
+				clips.push(clip);
 				doClip();
 
 			},
@@ -132,11 +132,11 @@ function html2canvas( element ) {
 
 	}
 
-	function drawText( style, x, y, string ) {
+	function drawText(style, x, y, string) {
 
-		if ( string !== '' ) {
+		if (string !== '') {
 
-			if ( style.textTransform === 'uppercase' ) {
+			if (style.textTransform === 'uppercase') {
 
 				string = string.toUpperCase();
 
@@ -145,39 +145,39 @@ function html2canvas( element ) {
 			context.font = style.fontSize + ' ' + style.fontFamily;
 			context.textBaseline = 'top';
 			context.fillStyle = style.color;
-			context.fillText( string, x, y );
+			context.fillText(string, x, y);
 
 		}
 
 	}
 
-	function drawBorder( style, which, x, y, width, height ) {
+	function drawBorder(style, which, x, y, width, height) {
 
-		var borderWidth = style[ which + 'Width' ];
-		var borderStyle = style[ which + 'Style' ];
-		var borderColor = style[ which + 'Color' ];
+		var borderWidth = style[which + 'Width'];
+		var borderStyle = style[which + 'Style'];
+		var borderColor = style[which + 'Color'];
 
-		if ( borderWidth !== '0px' && borderStyle !== 'none' && borderColor !== 'transparent' && borderColor !== 'rgba(0, 0, 0, 0)' ) {
+		if (borderWidth !== '0px' && borderStyle !== 'none' && borderColor !== 'transparent' && borderColor !== 'rgba(0, 0, 0, 0)') {
 
 			context.strokeStyle = borderColor;
 			context.beginPath();
-			context.moveTo( x, y );
-			context.lineTo( x + width, y + height );
+			context.moveTo(x, y);
+			context.lineTo(x + width, y + height);
 			context.stroke();
 
 		}
 
 	}
 
-	function drawElement( element, style ) {
+	function drawElement(element, style) {
 
 		var x = 0, y = 0, width = 0, height = 0;
 
-		if ( element.nodeType === 3 ) {
+		if (element.nodeType === 3) {
 
 			// text
 
-			range.selectNode( element );
+			range.selectNode(element);
 
 			var rect = range.getBoundingClientRect();
 
@@ -186,11 +186,11 @@ function html2canvas( element ) {
 			width = rect.width;
 			height = rect.height;
 
-			drawText( style, x, y, element.nodeValue.trim() );
+			drawText(style, x, y, element.nodeValue.trim());
 
 		} else {
 
-			if ( element.style.display === 'none' ) return;
+			if (element.style.display === 'none') return;
 
 			var rect = element.getBoundingClientRect();
 
@@ -199,27 +199,27 @@ function html2canvas( element ) {
 			width = rect.width;
 			height = rect.height;
 
-			style = window.getComputedStyle( element );
+			style = window.getComputedStyle(element);
 
 			var backgroundColor = style.backgroundColor;
 
-			if ( backgroundColor !== 'transparent' && backgroundColor !== 'rgba(0, 0, 0, 0)' ) {
+			if (backgroundColor !== 'transparent' && backgroundColor !== 'rgba(0, 0, 0, 0)') {
 
 				context.fillStyle = backgroundColor;
-				context.fillRect( x, y, width, height );
+				context.fillRect(x, y, width, height);
 
 			}
 
-			drawBorder( style, 'borderTop', x, y, width, 0 );
-			drawBorder( style, 'borderLeft', x, y, 0, height );
-			drawBorder( style, 'borderBottom', x, y + height, width, 0 );
-			drawBorder( style, 'borderRight', x + width, y, 0, height );
+			drawBorder(style, 'borderTop', x, y, width, 0);
+			drawBorder(style, 'borderLeft', x, y, 0, height);
+			drawBorder(style, 'borderBottom', x, y + height, width, 0);
+			drawBorder(style, 'borderRight', x + width, y, 0, height);
 
-			if ( element.type === 'color' || element.type === 'text' ) {
+			if (element.type === 'color' || element.type === 'text') {
 
-				clipper.add( { x: x, y: y, width: width, height: height } );
+				clipper.add({ x: x, y: y, width: width, height: height });
 
-				drawText( style, x + parseInt( style.paddingLeft ), y + parseInt( style.paddingTop ), element.value );
+				drawText(style, x + parseInt(style.paddingLeft), y + parseInt(style.paddingTop), element.value);
 
 				clipper.remove();
 
@@ -235,15 +235,15 @@ function html2canvas( element ) {
 
 		var isClipping = style.overflow === 'auto' || style.overflow === 'hidden';
 
-		if ( isClipping ) clipper.add( { x: x, y: y, width: width, height: height } );
+		if (isClipping) clipper.add({ x: x, y: y, width: width, height: height });
 
-		for ( var i = 0; i < element.childNodes.length; i ++ ) {
+		for (var i = 0; i < element.childNodes.length; i++) {
 
-			drawElement( element.childNodes[ i ], style );
+			drawElement(element.childNodes[i], style);
 
 		}
 
-		if ( isClipping ) clipper.remove();
+		if (isClipping) clipper.remove();
 
 	}
 
@@ -251,25 +251,25 @@ function html2canvas( element ) {
 
 	let canvas;
 
-	if ( canvases.has( element ) ) {
+	if (canvases.has(element)) {
 
-		canvas = canvases.get( element );
+		canvas = canvases.get(element);
 
 	} else {
 
-		canvas = document.createElement( 'canvas' );
+		canvas = document.createElement('canvas');
 		canvas.width = offset.width;
 		canvas.height = offset.height;
 
 	}
 
-	const context = canvas.getContext( '2d'/*, { alpha: false }*/ );
+	const context = canvas.getContext('2d'/*, { alpha: false }*/);
 
-	const clipper = new Clipper( context );
+	const clipper = new Clipper(context);
 
 	// console.time( 'drawElement' );
 
-	drawElement( element );
+	drawElement(element);
 
 	// console.timeEnd( 'drawElement' );
 
@@ -277,36 +277,36 @@ function html2canvas( element ) {
 
 }
 
-function htmlevent( element, event, x, y ) {
+function htmlevent(element, event, x, y) {
 
 	const mouseEventInit = {
-		clientX: ( x * element.offsetWidth ) + element.offsetLeft,
-		clientY: ( y * element.offsetHeight ) + element.offsetTop,
+		clientX: (x * element.offsetWidth) + element.offsetLeft,
+		clientY: (y * element.offsetHeight) + element.offsetTop,
 		view: element.ownerDocument.defaultView
 	};
 
-	window.dispatchEvent( new MouseEvent( event, mouseEventInit ) );
+	window.dispatchEvent(new MouseEvent(event, mouseEventInit));
 
 	const rect = element.getBoundingClientRect();
 
 	x = x * rect.width + rect.left;
 	y = y * rect.height + rect.top;
 
-	function traverse( element ) {
+	function traverse(element) {
 
-		if ( element.nodeType !== 3 ) {
+		if (element.nodeType !== 3) {
 
 			const rect = element.getBoundingClientRect();
 
-			if ( x > rect.left && x < rect.right && y > rect.top && y < rect.bottom ) {
+			if (x > rect.left && x < rect.right && y > rect.top && y < rect.bottom) {
 
-				element.dispatchEvent( new MouseEvent( event, mouseEventInit ) );
+				element.dispatchEvent(new MouseEvent(event, mouseEventInit));
 
 			}
 
-			for ( var i = 0; i < element.childNodes.length; i ++ ) {
+			for (var i = 0; i < element.childNodes.length; i++) {
 
-				traverse( element.childNodes[ i ] );
+				traverse(element.childNodes[i]);
 
 			}
 
@@ -314,7 +314,7 @@ function htmlevent( element, event, x, y ) {
 
 	}
 
-	traverse( element );
+	traverse(element);
 
 }
 

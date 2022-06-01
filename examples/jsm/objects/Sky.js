@@ -5,7 +5,7 @@ import {
 	ShaderMaterial,
 	UniformsUtils,
 	Vector3
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * Based on "A Practical Analytic Model for Daylight"
@@ -27,16 +27,16 @@ class Sky extends Mesh {
 
 		const shader = Sky.SkyShader;
 
-		const material = new ShaderMaterial( {
+		const material = new ShaderMaterial({
 			name: 'SkyShader',
 			fragmentShader: shader.fragmentShader,
 			vertexShader: shader.vertexShader,
-			uniforms: UniformsUtils.clone( shader.uniforms ),
+			uniforms: UniformsUtils.clone(shader.uniforms),
 			side: BackSide,
 			depthWrite: false
-		} );
+		});
 
-		super( new BoxGeometry( 1, 1, 1 ), material );
+		super(new BoxGeometry(1, 1, 1), material);
 
 	}
 
@@ -52,7 +52,7 @@ Sky.SkyShader = {
 		'mieCoefficient': { value: 0.005 },
 		'mieDirectionalG': { value: 0.8 },
 		'sunPosition': { value: new Vector3() },
-		'up': { value: new Vector3( 0, 1, 0 ) }
+		'up': { value: new Vector3(0, 1, 0) }
 	},
 
 	vertexShader: /* glsl */`

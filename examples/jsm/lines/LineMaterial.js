@@ -17,14 +17,14 @@ import {
 	UniformsLib,
 	UniformsUtils,
 	Vector2
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 
 UniformsLib.line = {
 
 	worldUnits: { value: 1 },
 	linewidth: { value: 1 },
-	resolution: { value: new Vector2( 1, 1 ) },
+	resolution: { value: new Vector2(1, 1) },
 	dashOffset: { value: 0 },
 	dashScale: { value: 1 },
 	dashSize: { value: 1 },
@@ -32,13 +32,13 @@ UniformsLib.line = {
 
 };
 
-ShaderLib[ 'line' ] = {
+ShaderLib['line'] = {
 
-	uniforms: UniformsUtils.merge( [
+	uniforms: UniformsUtils.merge([
 		UniformsLib.common,
 		UniformsLib.fog,
 		UniformsLib.line
-	] ),
+	]),
 
 	vertexShader:
 	/* glsl */`
@@ -436,22 +436,22 @@ ShaderLib[ 'line' ] = {
 
 class LineMaterial extends ShaderMaterial {
 
-	constructor( parameters ) {
+	constructor(parameters) {
 
-		super( {
+		super({
 
 			type: 'LineMaterial',
 
-			uniforms: UniformsUtils.clone( ShaderLib[ 'line' ].uniforms ),
+			uniforms: UniformsUtils.clone(ShaderLib['line'].uniforms),
 
-			vertexShader: ShaderLib[ 'line' ].vertexShader,
-			fragmentShader: ShaderLib[ 'line' ].fragmentShader,
+			vertexShader: ShaderLib['line'].vertexShader,
+			fragmentShader: ShaderLib['line'].fragmentShader,
 
 			clipping: true // required for clipping support
 
-		} );
+		});
 
-		Object.defineProperties( this, {
+		Object.defineProperties(this, {
 
 			color: {
 
@@ -463,7 +463,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.diffuse.value = value;
 
@@ -481,9 +481,9 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
-					if ( value === true ) {
+					if (value === true) {
 
 						this.defines.WORLD_UNITS = '';
 
@@ -507,7 +507,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.linewidth.value = value;
 
@@ -521,19 +521,19 @@ class LineMaterial extends ShaderMaterial {
 
 				get: function () {
 
-					return Boolean( 'USE_DASH' in this.defines );
+					return Boolean('USE_DASH' in this.defines);
 
 				},
 
-				set( value ) {
+				set(value) {
 
-					if ( Boolean( value ) !== Boolean( 'USE_DASH' in this.defines ) ) {
+					if (Boolean(value) !== Boolean('USE_DASH' in this.defines)) {
 
 						this.needsUpdate = true;
 
 					}
 
-					if ( value === true ) {
+					if (value === true) {
 
 						this.defines.USE_DASH = '';
 
@@ -557,7 +557,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.dashScale.value = value;
 
@@ -575,7 +575,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.dashSize.value = value;
 
@@ -593,7 +593,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.dashOffset.value = value;
 
@@ -611,7 +611,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.gapSize.value = value;
 
@@ -629,7 +629,7 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
 					this.uniforms.opacity.value = value;
 
@@ -647,9 +647,9 @@ class LineMaterial extends ShaderMaterial {
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
-					this.uniforms.resolution.value.copy( value );
+					this.uniforms.resolution.value.copy(value);
 
 				}
 
@@ -661,19 +661,19 @@ class LineMaterial extends ShaderMaterial {
 
 				get: function () {
 
-					return Boolean( 'USE_ALPHA_TO_COVERAGE' in this.defines );
+					return Boolean('USE_ALPHA_TO_COVERAGE' in this.defines);
 
 				},
 
-				set: function ( value ) {
+				set: function (value) {
 
-					if ( Boolean( value ) !== Boolean( 'USE_ALPHA_TO_COVERAGE' in this.defines ) ) {
+					if (Boolean(value) !== Boolean('USE_ALPHA_TO_COVERAGE' in this.defines)) {
 
 						this.needsUpdate = true;
 
 					}
 
-					if ( value === true ) {
+					if (value === true) {
 
 						this.defines.USE_ALPHA_TO_COVERAGE = '';
 						this.extensions.derivatives = true;
@@ -689,9 +689,9 @@ class LineMaterial extends ShaderMaterial {
 
 			}
 
-		} );
+		});
 
-		this.setValues( parameters );
+		this.setValues(parameters);
 
 	}
 

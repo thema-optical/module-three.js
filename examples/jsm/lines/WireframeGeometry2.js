@@ -1,17 +1,17 @@
 import {
 	WireframeGeometry
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 import { LineSegmentsGeometry } from '../lines/LineSegmentsGeometry.js';
 
 class WireframeGeometry2 extends LineSegmentsGeometry {
 
-	constructor( geometry ) {
+	constructor(geometry) {
 
 		super();
 
 		this.type = 'WireframeGeometry2';
 
-		this.fromWireframeGeometry( new WireframeGeometry( geometry ) );
+		this.fromWireframeGeometry(new WireframeGeometry(geometry));
 
 		// set colors, maybe
 

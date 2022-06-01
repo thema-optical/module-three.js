@@ -1,6 +1,6 @@
 import {
 	Vector2
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * Edge Detection Shader using Frei-Chen filter
@@ -14,7 +14,7 @@ var FreiChenShader = {
 	uniforms: {
 
 		'tDiffuse': { value: null },
-		'aspect': { value: new Vector2( 512, 512 ) }
+		'aspect': { value: new Vector2(512, 512) }
 	},
 
 	vertexShader: /* glsl */`

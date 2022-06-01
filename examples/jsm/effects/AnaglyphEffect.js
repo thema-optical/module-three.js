@@ -10,27 +10,27 @@ import {
 	ShaderMaterial,
 	StereoCamera,
 	WebGLRenderTarget
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 class AnaglyphEffect {
 
-	constructor( renderer, width = 512, height = 512 ) {
+	constructor(renderer, width = 512, height = 512) {
 
 		// Dubois matrices from https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.7.6968&rep=rep1&type=pdf#page=4
 
-		this.colorMatrixLeft = new Matrix3().fromArray( [
+		this.colorMatrixLeft = new Matrix3().fromArray([
 			0.456100, - 0.0400822, - 0.0152161,
 			0.500484, - 0.0378246, - 0.0205971,
 			0.176381, - 0.0157589, - 0.00546856
-		] );
+		]);
 
-		this.colorMatrixRight = new Matrix3().fromArray( [
+		this.colorMatrixRight = new Matrix3().fromArray([
 			- 0.0434706, 0.378476, - 0.0721527,
 			- 0.0879388, 0.73364, - 0.112961,
 			- 0.00155529, - 0.0184503, 1.2264
-		] );
+		]);
 
-		const _camera = new OrthographicCamera( - 1, 1, 1, - 1, 0, 1 );
+		const _camera = new OrthographicCamera(- 1, 1, 1, - 1, 0, 1);
 
 		const _scene = new Scene();
 
@@ -38,10 +38,10 @@ class AnaglyphEffect {
 
 		const _params = { minFilter: LinearFilter, magFilter: NearestFilter, format: RGBAFormat };
 
-		const _renderTargetL = new WebGLRenderTarget( width, height, _params );
-		const _renderTargetR = new WebGLRenderTarget( width, height, _params );
+		const _renderTargetL = new WebGLRenderTarget(width, height, _params);
+		const _renderTargetR = new WebGLRenderTarget(width, height, _params);
 
-		const _material = new ShaderMaterial( {
+		const _material = new ShaderMaterial({
 
 			uniforms: {
 
@@ -64,7 +64,7 @@ class AnaglyphEffect {
 
 				'}'
 
-			].join( '\n' ),
+			].join('\n'),
 
 			fragmentShader: [
 
@@ -109,55 +109,55 @@ class AnaglyphEffect {
 
 				'}'
 
-			].join( '\n' )
+			].join('\n')
 
-		} );
+		});
 
-		const _mesh = new Mesh( new PlaneGeometry( 2, 2 ), _material );
-		_scene.add( _mesh );
+		const _mesh = new Mesh(new PlaneGeometry(2, 2), _material);
+		_scene.add(_mesh);
 
-		this.setSize = function ( width, height ) {
+		this.setSize = function (width, height) {
 
-			renderer.setSize( width, height );
+			renderer.setSize(width, height);
 
 			const pixelRatio = renderer.getPixelRatio();
 
-			_renderTargetL.setSize( width * pixelRatio, height * pixelRatio );
-			_renderTargetR.setSize( width * pixelRatio, height * pixelRatio );
+			_renderTargetL.setSize(width * pixelRatio, height * pixelRatio);
+			_renderTargetR.setSize(width * pixelRatio, height * pixelRatio);
 
 		};
 
-		this.render = function ( scene, camera ) {
+		this.render = function (scene, camera) {
 
 			const currentRenderTarget = renderer.getRenderTarget();
 
 			scene.updateMatrixWorld();
 
-			if ( camera.parent === null ) camera.updateMatrixWorld();
+			if (camera.parent === null) camera.updateMatrixWorld();
 
-			_stereo.update( camera );
+			_stereo.update(camera);
 
-			renderer.setRenderTarget( _renderTargetL );
+			renderer.setRenderTarget(_renderTargetL);
 			renderer.clear();
-			renderer.render( scene, _stereo.cameraL );
+			renderer.render(scene, _stereo.cameraL);
 
-			renderer.setRenderTarget( _renderTargetR );
+			renderer.setRenderTarget(_renderTargetR);
 			renderer.clear();
-			renderer.render( scene, _stereo.cameraR );
+			renderer.render(scene, _stereo.cameraR);
 
-			renderer.setRenderTarget( null );
-			renderer.render( _scene, _camera );
+			renderer.setRenderTarget(null);
+			renderer.render(_scene, _camera);
 
-			renderer.setRenderTarget( currentRenderTarget );
+			renderer.setRenderTarget(currentRenderTarget);
 
 		};
 
 		this.dispose = function () {
 
-			if ( _renderTargetL ) _renderTargetL.dispose();
-			if ( _renderTargetR ) _renderTargetR.dispose();
-			if ( _mesh ) _mesh.geometry.dispose();
-			if ( _material ) _material.dispose();
+			if (_renderTargetL) _renderTargetL.dispose();
+			if (_renderTargetR) _renderTargetR.dispose();
+			if (_mesh) _mesh.geometry.dispose();
+			if (_material) _material.dispose();
 
 		};
 

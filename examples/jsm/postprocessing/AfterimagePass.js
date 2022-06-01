@@ -6,77 +6,77 @@ import {
 	ShaderMaterial,
 	UniformsUtils,
 	WebGLRenderTarget
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 import { Pass, FullScreenQuad } from './Pass.js';
 import { AfterimageShader } from '../shaders/AfterimageShader.js';
 
 class AfterimagePass extends Pass {
 
-	constructor( damp = 0.96 ) {
+	constructor(damp = 0.96) {
 
 		super();
 
-		if ( AfterimageShader === undefined ) console.error( 'THREE.AfterimagePass relies on AfterimageShader' );
+		if (AfterimageShader === undefined) console.error('THREE.AfterimagePass relies on AfterimageShader');
 
 		this.shader = AfterimageShader;
 
-		this.uniforms = UniformsUtils.clone( this.shader.uniforms );
+		this.uniforms = UniformsUtils.clone(this.shader.uniforms);
 
-		this.uniforms[ 'damp' ].value = damp;
+		this.uniforms['damp'].value = damp;
 
-		this.textureComp = new WebGLRenderTarget( window.innerWidth, window.innerHeight, {
-
-			minFilter: LinearFilter,
-			magFilter: NearestFilter,
-			format: RGBAFormat
-
-		} );
-
-		this.textureOld = new WebGLRenderTarget( window.innerWidth, window.innerHeight, {
+		this.textureComp = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
 
 			minFilter: LinearFilter,
 			magFilter: NearestFilter,
 			format: RGBAFormat
 
-		} );
+		});
 
-		this.shaderMaterial = new ShaderMaterial( {
+		this.textureOld = new WebGLRenderTarget(window.innerWidth, window.innerHeight, {
+
+			minFilter: LinearFilter,
+			magFilter: NearestFilter,
+			format: RGBAFormat
+
+		});
+
+		this.shaderMaterial = new ShaderMaterial({
 
 			uniforms: this.uniforms,
 			vertexShader: this.shader.vertexShader,
 			fragmentShader: this.shader.fragmentShader
 
-		} );
+		});
 
-		this.compFsQuad = new FullScreenQuad( this.shaderMaterial );
+		this.compFsQuad = new FullScreenQuad(this.shaderMaterial);
 
 		const material = new MeshBasicMaterial();
-		this.copyFsQuad = new FullScreenQuad( material );
+		this.copyFsQuad = new FullScreenQuad(material);
 
 	}
 
-	render( renderer, writeBuffer, readBuffer/*, deltaTime, maskActive*/ ) {
+	render(renderer, writeBuffer, readBuffer/*, deltaTime, maskActive*/) {
 
-		this.uniforms[ 'tOld' ].value = this.textureOld.texture;
-		this.uniforms[ 'tNew' ].value = readBuffer.texture;
+		this.uniforms['tOld'].value = this.textureOld.texture;
+		this.uniforms['tNew'].value = readBuffer.texture;
 
-		renderer.setRenderTarget( this.textureComp );
-		this.compFsQuad.render( renderer );
+		renderer.setRenderTarget(this.textureComp);
+		this.compFsQuad.render(renderer);
 
 		this.copyFsQuad.material.map = this.textureComp.texture;
 
-		if ( this.renderToScreen ) {
+		if (this.renderToScreen) {
 
-			renderer.setRenderTarget( null );
-			this.copyFsQuad.render( renderer );
+			renderer.setRenderTarget(null);
+			this.copyFsQuad.render(renderer);
 
 		} else {
 
-			renderer.setRenderTarget( writeBuffer );
+			renderer.setRenderTarget(writeBuffer);
 
-			if ( this.clear ) renderer.clear();
+			if (this.clear) renderer.clear();
 
-			this.copyFsQuad.render( renderer );
+			this.copyFsQuad.render(renderer);
 
 		}
 
@@ -88,10 +88,10 @@ class AfterimagePass extends Pass {
 
 	}
 
-	setSize( width, height ) {
+	setSize(width, height) {
 
-		this.textureComp.setSize( width, height );
-		this.textureOld.setSize( width, height );
+		this.textureComp.setSize(width, height);
+		this.textureOld.setSize(width, height);
 
 	}
 

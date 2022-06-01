@@ -107,7 +107,7 @@ export { DiscreteInterpolant } from './math/interpolants/DiscreteInterpolant.js'
 export { CubicInterpolant } from './math/interpolants/CubicInterpolant.js';
 export { Interpolant } from './math/Interpolant.js';
 export { Triangle } from './math/Triangle.js';
-export * as MathUtils from './math/MathUtils.js';
+export * from './math/MathUtils.js';
 export { Spherical } from './math/Spherical.js';
 export { Cylindrical } from './math/Cylindrical.js';
 export { Plane } from './math/Plane.js';
@@ -153,19 +153,21 @@ export { WebGLUtils } from './renderers/webgl/WebGLUtils.js';
 export * from './constants.js';
 export * from './Three.Legacy.js';
 
-if ( typeof __THREE_DEVTOOLS__ !== 'undefined' ) {
+if (typeof __THREE_DEVTOOLS__ !== 'undefined') {
 
-	__THREE_DEVTOOLS__.dispatchEvent( new CustomEvent( 'register', { detail: {
-		revision: REVISION,
-	} } ) );
+	__THREE_DEVTOOLS__.dispatchEvent(new CustomEvent('register', {
+		detail: {
+			revision: REVISION,
+		}
+	}));
 
 }
 
-if ( typeof window !== 'undefined' ) {
+if (typeof window !== 'undefined') {
 
-	if ( window.__THREE__ ) {
+	if (window.__THREE__) {
 
-		console.warn( 'WARNING: Multiple instances of Three.js being imported.' );
+		console.warn('WARNING: Multiple instances of Three.js being imported.');
 
 	} else {
 

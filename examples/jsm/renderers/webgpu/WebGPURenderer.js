@@ -12,45 +12,45 @@ import WebGPUTextures from './WebGPUTextures.js';
 import WebGPUBackground from './WebGPUBackground.js';
 import WebGPUNodes from './nodes/WebGPUNodes.js';
 
-import { Frustum, Matrix4, Vector3, Color, LinearEncoding } from 'three';
+import { Frustum, Matrix4, Vector3, Color, LinearEncoding } from '../../../src/Three.js';
 
-console.info( 'THREE.WebGPURenderer: Modified Matrix4.makePerspective() and Matrix4.makeOrtographic() to work with WebGPU, see https://github.com/mrdoob/three.js/issues/20276.' );
+console.info('THREE.WebGPURenderer: Modified Matrix4.makePerspective() and Matrix4.makeOrtographic() to work with WebGPU, see https://github.com/mrdoob/three.js/issues/20276.');
 
-Matrix4.prototype.makePerspective = function ( left, right, top, bottom, near, far ) {
+Matrix4.prototype.makePerspective = function (left, right, top, bottom, near, far) {
 
 	const te = this.elements;
-	const x = 2 * near / ( right - left );
-	const y = 2 * near / ( top - bottom );
+	const x = 2 * near / (right - left);
+	const y = 2 * near / (top - bottom);
 
-	const a = ( right + left ) / ( right - left );
-	const b = ( top + bottom ) / ( top - bottom );
-	const c = - far / ( far - near );
-	const d = - far * near / ( far - near );
+	const a = (right + left) / (right - left);
+	const b = (top + bottom) / (top - bottom);
+	const c = - far / (far - near);
+	const d = - far * near / (far - near);
 
-	te[ 0 ] = x;	te[ 4 ] = 0;	te[ 8 ] = a;	te[ 12 ] = 0;
-	te[ 1 ] = 0;	te[ 5 ] = y;	te[ 9 ] = b;	te[ 13 ] = 0;
-	te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = c;	te[ 14 ] = d;
-	te[ 3 ] = 0;	te[ 7 ] = 0;	te[ 11 ] = - 1;	te[ 15 ] = 0;
+	te[0] = x; te[4] = 0; te[8] = a; te[12] = 0;
+	te[1] = 0; te[5] = y; te[9] = b; te[13] = 0;
+	te[2] = 0; te[6] = 0; te[10] = c; te[14] = d;
+	te[3] = 0; te[7] = 0; te[11] = - 1; te[15] = 0;
 
 	return this;
 
 };
 
-Matrix4.prototype.makeOrthographic = function ( left, right, top, bottom, near, far ) {
+Matrix4.prototype.makeOrthographic = function (left, right, top, bottom, near, far) {
 
 	const te = this.elements;
-	const w = 1.0 / ( right - left );
-	const h = 1.0 / ( top - bottom );
-	const p = 1.0 / ( far - near );
+	const w = 1.0 / (right - left);
+	const h = 1.0 / (top - bottom);
+	const p = 1.0 / (far - near);
 
-	const x = ( right + left ) * w;
-	const y = ( top + bottom ) * h;
+	const x = (right + left) * w;
+	const y = (top + bottom) * h;
 	const z = near * p;
 
-	te[ 0 ] = 2 * w;	te[ 4 ] = 0;	te[ 8 ] = 0;	te[ 12 ] = - x;
-	te[ 1 ] = 0;	te[ 5 ] = 2 * h;	te[ 9 ] = 0;	te[ 13 ] = - y;
-	te[ 2 ] = 0;	te[ 6 ] = 0;	te[ 10 ] = - 1 * p;	te[ 14 ] = - z;
-	te[ 3 ] = 0;	te[ 7 ] = 0;	te[ 11 ] = 0;	te[ 15 ] = 1;
+	te[0] = 2 * w; te[4] = 0; te[8] = 0; te[12] = - x;
+	te[1] = 0; te[5] = 2 * h; te[9] = 0; te[13] = - y;
+	te[2] = 0; te[6] = 0; te[10] = - 1 * p; te[14] = - z;
+	te[3] = 0; te[7] = 0; te[11] = 0; te[15] = 1;
 
 	return this;
 
@@ -63,11 +63,11 @@ const _vector3 = new Vector3();
 
 class WebGPURenderer {
 
-	constructor( parameters = {} ) {
+	constructor(parameters = {}) {
 
 		// public
 
-		this.domElement = ( parameters.canvas !== undefined ) ? parameters.canvas : this._createCanvasElement();
+		this.domElement = (parameters.canvas !== undefined) ? parameters.canvas : this._createCanvasElement();
 
 		this.autoClear = true;
 		this.autoClearColor = true;
@@ -80,7 +80,7 @@ class WebGPURenderer {
 
 		// internals
 
-		this._parameters = Object.assign( {}, parameters );
+		this._parameters = Object.assign({}, parameters);
 
 		this._pixelRatio = 1;
 		this._width = this.domElement.width;
@@ -116,7 +116,7 @@ class WebGPURenderer {
 		this._transparentSort = null;
 
 		this._clearAlpha = 1;
-		this._clearColor = new Color( 0x000000 );
+		this._clearColor = new Color(0x000000);
 		this._clearDepth = 1;
 		this._clearStencil = 0;
 
@@ -124,11 +124,11 @@ class WebGPURenderer {
 
 		// some parameters require default values other than "undefined"
 
-		this._parameters.antialias = ( parameters.antialias === true );
+		this._parameters.antialias = (parameters.antialias === true);
 
-		if ( this._parameters.antialias === true ) {
+		if (this._parameters.antialias === true) {
 
-			this._parameters.sampleCount = ( parameters.sampleCount === undefined ) ? 4 : parameters.sampleCount;
+			this._parameters.sampleCount = (parameters.sampleCount === undefined) ? 4 : parameters.sampleCount;
 
 		} else {
 
@@ -136,8 +136,8 @@ class WebGPURenderer {
 
 		}
 
-		this._parameters.requiredFeatures = ( parameters.requiredFeatures === undefined ) ? [] : parameters.requiredFeatures;
-		this._parameters.requiredLimits = ( parameters.requiredLimits === undefined ) ? {} : parameters.requiredLimits;
+		this._parameters.requiredFeatures = (parameters.requiredFeatures === undefined) ? [] : parameters.requiredFeatures;
+		this._parameters.requiredLimits = (parameters.requiredLimits === undefined) ? {} : parameters.requiredLimits;
 
 	}
 
@@ -149,11 +149,11 @@ class WebGPURenderer {
 			powerPreference: parameters.powerPreference
 		};
 
-		const adapter = await navigator.gpu.requestAdapter( adapterOptions );
+		const adapter = await navigator.gpu.requestAdapter(adapterOptions);
 
-		if ( adapter === null ) {
+		if (adapter === null) {
 
-			throw new Error( 'WebGPURenderer: Unable to create WebGPU adapter.' );
+			throw new Error('WebGPURenderer: Unable to create WebGPU adapter.');
 
 		}
 
@@ -162,14 +162,14 @@ class WebGPURenderer {
 			requiredLimits: parameters.requiredLimits
 		};
 
-		const device = await adapter.requestDevice( deviceDescriptor );
+		const device = await adapter.requestDevice(deviceDescriptor);
 
-		const context = ( parameters.context !== undefined ) ? parameters.context : this.domElement.getContext( 'webgpu' );
+		const context = (parameters.context !== undefined) ? parameters.context : this.domElement.getContext('webgpu');
 
-		const swapChain = context.configure( {
+		const swapChain = context.configure({
 			device: device,
 			format: GPUTextureFormat.BGRA8Unorm // this is the only valid swap chain format right now (r121)
-		} );
+		});
 
 		this._adapter = adapter;
 		this._device = device;
@@ -178,24 +178,24 @@ class WebGPURenderer {
 
 		this._info = new WebGPUInfo();
 		this._properties = new WebGPUProperties();
-		this._attributes = new WebGPUAttributes( device );
-		this._geometries = new WebGPUGeometries( this._attributes, this._info );
-		this._textures = new WebGPUTextures( device, this._properties, this._info );
-		this._objects = new WebGPUObjects( this._geometries, this._info );
-		this._nodes = new WebGPUNodes( this );
-		this._computePipelines = new WebGPUComputePipelines( device );
-		this._renderPipelines = new WebGPURenderPipelines( this, device, parameters.sampleCount, this._nodes );
-		this._bindings = this._renderPipelines.bindings = new WebGPUBindings( device, this._info, this._properties, this._textures, this._renderPipelines, this._computePipelines, this._attributes, this._nodes );
+		this._attributes = new WebGPUAttributes(device);
+		this._geometries = new WebGPUGeometries(this._attributes, this._info);
+		this._textures = new WebGPUTextures(device, this._properties, this._info);
+		this._objects = new WebGPUObjects(this._geometries, this._info);
+		this._nodes = new WebGPUNodes(this);
+		this._computePipelines = new WebGPUComputePipelines(device);
+		this._renderPipelines = new WebGPURenderPipelines(this, device, parameters.sampleCount, this._nodes);
+		this._bindings = this._renderPipelines.bindings = new WebGPUBindings(device, this._info, this._properties, this._textures, this._renderPipelines, this._computePipelines, this._attributes, this._nodes);
 		this._renderLists = new WebGPURenderLists();
-		this._background = new WebGPUBackground( this );
+		this._background = new WebGPUBackground(this);
 
 		//
 
 		this._renderPassDescriptor = {
-			colorAttachments: [ {
+			colorAttachments: [{
 				view: null
-			} ],
-			 depthStencilAttachment: {
+			}],
+			depthStencilAttachment: {
 				view: null,
 				depthStoreOp: GPUStoreOp.Store,
 				stencilStoreOp: GPUStoreOp.Store
@@ -207,7 +207,7 @@ class WebGPURenderer {
 
 	}
 
-	render( scene, camera ) {
+	render(scene, camera) {
 
 		// @TODO: move this to animation loop
 
@@ -215,47 +215,47 @@ class WebGPURenderer {
 
 		//
 
-		if ( scene.autoUpdate === true ) scene.updateMatrixWorld();
+		if (scene.autoUpdate === true) scene.updateMatrixWorld();
 
-		if ( camera.parent === null ) camera.updateMatrixWorld();
+		if (camera.parent === null) camera.updateMatrixWorld();
 
-		if ( this._info.autoReset === true ) this._info.reset();
+		if (this._info.autoReset === true) this._info.reset();
 
-		_projScreenMatrix.multiplyMatrices( camera.projectionMatrix, camera.matrixWorldInverse );
-		_frustum.setFromProjectionMatrix( _projScreenMatrix );
+		_projScreenMatrix.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse);
+		_frustum.setFromProjectionMatrix(_projScreenMatrix);
 
-		this._currentRenderList = this._renderLists.get( scene, camera );
+		this._currentRenderList = this._renderLists.get(scene, camera);
 		this._currentRenderList.init();
 
-		this._projectObject( scene, camera, 0 );
+		this._projectObject(scene, camera, 0);
 
 		this._currentRenderList.finish();
 
-		if ( this.sortObjects === true ) {
+		if (this.sortObjects === true) {
 
-			this._currentRenderList.sort( this._opaqueSort, this._transparentSort );
+			this._currentRenderList.sort(this._opaqueSort, this._transparentSort);
 
 		}
 
 		// prepare render pass descriptor
 
-		const colorAttachment = this._renderPassDescriptor.colorAttachments[ 0 ];
+		const colorAttachment = this._renderPassDescriptor.colorAttachments[0];
 		const depthStencilAttachment = this._renderPassDescriptor.depthStencilAttachment;
 
 		const renderTarget = this._renderTarget;
 
-		if ( renderTarget !== null ) {
+		if (renderTarget !== null) {
 
 			// @TODO: Support RenderTarget with antialiasing.
 
-			const renderTargetProperties = this._properties.get( renderTarget );
+			const renderTargetProperties = this._properties.get(renderTarget);
 
 			colorAttachment.view = renderTargetProperties.colorTextureGPU.createView();
 			depthStencilAttachment.view = renderTargetProperties.depthTextureGPU.createView();
 
 		} else {
 
-			if ( this._parameters.antialias === true ) {
+			if (this._parameters.antialias === true) {
 
 				colorAttachment.view = this._colorBuffer.createView();
 				colorAttachment.resolveTarget = this._context.getCurrentTexture().createView();
@@ -273,35 +273,35 @@ class WebGPURenderer {
 
 		//
 
-		this._background.update( scene );
+		this._background.update(scene);
 
 		// start render pass
 
 		const device = this._device;
-		const cmdEncoder = device.createCommandEncoder( {} );
-		const passEncoder = cmdEncoder.beginRenderPass( this._renderPassDescriptor );
+		const cmdEncoder = device.createCommandEncoder({});
+		const passEncoder = cmdEncoder.beginRenderPass(this._renderPassDescriptor);
 
 		// global rasterization settings for all renderable objects
 
 		const vp = this._viewport;
 
-		if ( vp !== null ) {
+		if (vp !== null) {
 
-			const width = Math.floor( vp.width * this._pixelRatio );
-			const height = Math.floor( vp.height * this._pixelRatio );
+			const width = Math.floor(vp.width * this._pixelRatio);
+			const height = Math.floor(vp.height * this._pixelRatio);
 
-			passEncoder.setViewport( vp.x, vp.y, width, height, vp.minDepth, vp.maxDepth );
+			passEncoder.setViewport(vp.x, vp.y, width, height, vp.minDepth, vp.maxDepth);
 
 		}
 
 		const sc = this._scissor;
 
-		if ( sc !== null ) {
+		if (sc !== null) {
 
-			const width = Math.floor( sc.width * this._pixelRatio );
-			const height = Math.floor( sc.height * this._pixelRatio );
+			const width = Math.floor(sc.width * this._pixelRatio);
+			const height = Math.floor(sc.height * this._pixelRatio);
 
-			passEncoder.setScissorRect( sc.x, sc.y, width, height );
+			passEncoder.setScissorRect(sc.x, sc.y, width, height);
 
 		}
 
@@ -310,13 +310,13 @@ class WebGPURenderer {
 		const opaqueObjects = this._currentRenderList.opaque;
 		const transparentObjects = this._currentRenderList.transparent;
 
-		if ( opaqueObjects.length > 0 ) this._renderObjects( opaqueObjects, camera, passEncoder );
-		if ( transparentObjects.length > 0 ) this._renderObjects( transparentObjects, camera, passEncoder );
+		if (opaqueObjects.length > 0) this._renderObjects(opaqueObjects, camera, passEncoder);
+		if (transparentObjects.length > 0) this._renderObjects(transparentObjects, camera, passEncoder);
 
 		// finish render pass
 
 		passEncoder.endPass();
-		device.queue.submit( [ cmdEncoder.finish() ] );
+		device.queue.submit([cmdEncoder.finish()]);
 
 	}
 
@@ -332,35 +332,35 @@ class WebGPURenderer {
 
 	}
 
-	getDrawingBufferSize( target ) {
+	getDrawingBufferSize(target) {
 
-		return target.set( this._width * this._pixelRatio, this._height * this._pixelRatio ).floor();
-
-	}
-
-	getSize( target ) {
-
-		return target.set( this._width, this._height );
+		return target.set(this._width * this._pixelRatio, this._height * this._pixelRatio).floor();
 
 	}
 
-	setPixelRatio( value = 1 ) {
+	getSize(target) {
+
+		return target.set(this._width, this._height);
+
+	}
+
+	setPixelRatio(value = 1) {
 
 		this._pixelRatio = value;
 
-		this.setSize( this._width, this._height, false );
+		this.setSize(this._width, this._height, false);
 
 	}
 
-	setDrawingBufferSize( width, height, pixelRatio ) {
+	setDrawingBufferSize(width, height, pixelRatio) {
 
 		this._width = width;
 		this._height = height;
 
 		this._pixelRatio = pixelRatio;
 
-		this.domElement.width = Math.floor( width * pixelRatio );
-		this.domElement.height = Math.floor( height * pixelRatio );
+		this.domElement.width = Math.floor(width * pixelRatio);
+		this.domElement.height = Math.floor(height * pixelRatio);
 
 		this._configureContext();
 		this._setupColorBuffer();
@@ -368,15 +368,15 @@ class WebGPURenderer {
 
 	}
 
-	setSize( width, height, updateStyle = true ) {
+	setSize(width, height, updateStyle = true) {
 
 		this._width = width;
 		this._height = height;
 
-		this.domElement.width = Math.floor( width * this._pixelRatio );
-		this.domElement.height = Math.floor( height * this._pixelRatio );
+		this.domElement.width = Math.floor(width * this._pixelRatio);
+		this.domElement.height = Math.floor(height * this._pixelRatio);
 
-		if ( updateStyle === true ) {
+		if (updateStyle === true) {
 
 			this.domElement.style.width = width + 'px';
 			this.domElement.style.height = height + 'px';
@@ -389,19 +389,19 @@ class WebGPURenderer {
 
 	}
 
-	setOpaqueSort( method ) {
+	setOpaqueSort(method) {
 
 		this._opaqueSort = method;
 
 	}
 
-	setTransparentSort( method ) {
+	setTransparentSort(method) {
 
 		this._transparentSort = method;
 
 	}
 
-	getScissor( target ) {
+	getScissor(target) {
 
 		const scissor = this._scissor;
 
@@ -414,9 +414,9 @@ class WebGPURenderer {
 
 	}
 
-	setScissor( x, y, width, height ) {
+	setScissor(x, y, width, height) {
 
-		if ( x === null ) {
+		if (x === null) {
 
 			this._scissor = null;
 
@@ -433,7 +433,7 @@ class WebGPURenderer {
 
 	}
 
-	getViewport( target ) {
+	getViewport(target) {
 
 		const viewport = this._viewport;
 
@@ -448,9 +448,9 @@ class WebGPURenderer {
 
 	}
 
-	setViewport( x, y, width, height, minDepth = 0, maxDepth = 1 ) {
+	setViewport(x, y, width, height, minDepth = 0, maxDepth = 1) {
 
-		if ( x === null ) {
+		if (x === null) {
 
 			this._viewport = null;
 
@@ -472,7 +472,7 @@ class WebGPURenderer {
 	getCurrentEncoding() {
 
 		const renderTarget = this.getRenderTarget();
-		return ( renderTarget !== null ) ? renderTarget.texture.encoding : this.outputEncoding;
+		return (renderTarget !== null) ? renderTarget.texture.encoding : this.outputEncoding;
 
 	}
 
@@ -482,9 +482,9 @@ class WebGPURenderer {
 
 		const renderTarget = this.getRenderTarget();
 
-		if ( renderTarget !== null ) {
+		if (renderTarget !== null) {
 
-			const renderTargetProperties = this._properties.get( renderTarget );
+			const renderTargetProperties = this._properties.get(renderTarget);
 			format = renderTargetProperties.colorTextureFormat;
 
 		} else {
@@ -503,9 +503,9 @@ class WebGPURenderer {
 
 		const renderTarget = this.getRenderTarget();
 
-		if ( renderTarget !== null ) {
+		if (renderTarget !== null) {
 
-			const renderTargetProperties = this._properties.get( renderTarget );
+			const renderTargetProperties = this._properties.get(renderTarget);
 			format = renderTargetProperties.depthTextureFormat;
 
 		} else {
@@ -518,15 +518,15 @@ class WebGPURenderer {
 
 	}
 
-	getClearColor( target ) {
+	getClearColor(target) {
 
-		return target.copy( this._clearColor );
+		return target.copy(this._clearColor);
 
 	}
 
-	setClearColor( color, alpha = 1 ) {
+	setClearColor(color, alpha = 1) {
 
-		this._clearColor.set( color );
+		this._clearColor.set(color);
 		this._clearAlpha = alpha;
 
 	}
@@ -537,7 +537,7 @@ class WebGPURenderer {
 
 	}
 
-	setClearAlpha( alpha ) {
+	setClearAlpha(alpha) {
 
 		this._clearAlpha = alpha;
 
@@ -549,7 +549,7 @@ class WebGPURenderer {
 
 	}
 
-	setClearDepth( depth ) {
+	setClearDepth(depth) {
 
 		this._clearDepth = depth;
 
@@ -561,7 +561,7 @@ class WebGPURenderer {
 
 	}
 
-	setClearStencil( stencil ) {
+	setClearStencil(stencil) {
 
 		this._clearStencil = stencil;
 
@@ -587,43 +587,43 @@ class WebGPURenderer {
 
 	}
 
-	setRenderTarget( renderTarget ) {
+	setRenderTarget(renderTarget) {
 
 		this._renderTarget = renderTarget;
 
-		if ( renderTarget !== null ) {
+		if (renderTarget !== null) {
 
-			this._textures.initRenderTarget( renderTarget );
+			this._textures.initRenderTarget(renderTarget);
 
 		}
 
 	}
 
-	compute( computeParams ) {
+	compute(computeParams) {
 
 		const device = this._device;
-		const cmdEncoder = device.createCommandEncoder( {} );
+		const cmdEncoder = device.createCommandEncoder({});
 		const passEncoder = cmdEncoder.beginComputePass();
 
-		for ( const param of computeParams ) {
+		for (const param of computeParams) {
 
 			// pipeline
 
-			const pipeline = this._computePipelines.get( param );
-			passEncoder.setPipeline( pipeline );
+			const pipeline = this._computePipelines.get(param);
+			passEncoder.setPipeline(pipeline);
 
 			// bind group
 
-			const bindGroup = this._bindings.getForCompute( param ).group;
-			this._bindings.update( param );
-			passEncoder.setBindGroup( 0, bindGroup );
+			const bindGroup = this._bindings.getForCompute(param).group;
+			this._bindings.update(param);
+			passEncoder.setBindGroup(0, bindGroup);
 
-			passEncoder.dispatch( param.num );
+			passEncoder.dispatch(param.num);
 
 		}
 
 		passEncoder.endPass();
-		device.queue.submit( [ cmdEncoder.finish() ] );
+		device.queue.submit([cmdEncoder.finish()]);
 
 	}
 
@@ -633,92 +633,92 @@ class WebGPURenderer {
 
 	}
 
-	_projectObject( object, camera, groupOrder ) {
+	_projectObject(object, camera, groupOrder) {
 
 		const currentRenderList = this._currentRenderList;
 
-		if ( object.visible === false ) return;
+		if (object.visible === false) return;
 
-		const visible = object.layers.test( camera.layers );
+		const visible = object.layers.test(camera.layers);
 
-		if ( visible ) {
+		if (visible) {
 
-			if ( object.isGroup ) {
+			if (object.isGroup) {
 
 				groupOrder = object.renderOrder;
 
-			} else if ( object.isLOD ) {
+			} else if (object.isLOD) {
 
-				if ( object.autoUpdate === true ) object.update( camera );
+				if (object.autoUpdate === true) object.update(camera);
 
-			} else if ( object.isLight ) {
+			} else if (object.isLight) {
 
 				//currentRenderState.pushLight( object );
 
-				if ( object.castShadow ) {
+				if (object.castShadow) {
 
 					//currentRenderState.pushShadow( object );
 
 				}
 
-			} else if ( object.isSprite ) {
+			} else if (object.isSprite) {
 
-				if ( ! object.frustumCulled || _frustum.intersectsSprite( object ) ) {
+				if (!object.frustumCulled || _frustum.intersectsSprite(object)) {
 
-					if ( this.sortObjects === true ) {
+					if (this.sortObjects === true) {
 
-						_vector3.setFromMatrixPosition( object.matrixWorld ).applyMatrix4( _projScreenMatrix );
+						_vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
 
 					}
 
 					const geometry = object.geometry;
 					const material = object.material;
 
-					if ( material.visible ) {
+					if (material.visible) {
 
-						currentRenderList.push( object, geometry, material, groupOrder, _vector3.z, null );
+						currentRenderList.push(object, geometry, material, groupOrder, _vector3.z, null);
 
 					}
 
 				}
 
-			} else if ( object.isLineLoop ) {
+			} else if (object.isLineLoop) {
 
-				console.error( 'THREE.WebGPURenderer: Objects of type THREE.LineLoop are not supported. Please use THREE.Line or THREE.LineSegments.' );
+				console.error('THREE.WebGPURenderer: Objects of type THREE.LineLoop are not supported. Please use THREE.Line or THREE.LineSegments.');
 
-			} else if ( object.isMesh || object.isLine || object.isPoints ) {
+			} else if (object.isMesh || object.isLine || object.isPoints) {
 
-				if ( ! object.frustumCulled || _frustum.intersectsObject( object ) ) {
+				if (!object.frustumCulled || _frustum.intersectsObject(object)) {
 
-					if ( this.sortObjects === true ) {
+					if (this.sortObjects === true) {
 
-						_vector3.setFromMatrixPosition( object.matrixWorld ).applyMatrix4( _projScreenMatrix );
+						_vector3.setFromMatrixPosition(object.matrixWorld).applyMatrix4(_projScreenMatrix);
 
 					}
 
 					const geometry = object.geometry;
 					const material = object.material;
 
-					if ( Array.isArray( material ) ) {
+					if (Array.isArray(material)) {
 
 						const groups = geometry.groups;
 
-						for ( let i = 0, l = groups.length; i < l; i ++ ) {
+						for (let i = 0, l = groups.length; i < l; i++) {
 
-							const group = groups[ i ];
-							const groupMaterial = material[ group.materialIndex ];
+							const group = groups[i];
+							const groupMaterial = material[group.materialIndex];
 
-							if ( groupMaterial && groupMaterial.visible ) {
+							if (groupMaterial && groupMaterial.visible) {
 
-								currentRenderList.push( object, geometry, groupMaterial, groupOrder, _vector3.z, group );
+								currentRenderList.push(object, geometry, groupMaterial, groupOrder, _vector3.z, group);
 
 							}
 
 						}
 
-					} else if ( material.visible ) {
+					} else if (material.visible) {
 
-						currentRenderList.push( object, geometry, material, groupOrder, _vector3.z, null );
+						currentRenderList.push(object, geometry, material, groupOrder, _vector3.z, null);
 
 					}
 
@@ -730,51 +730,51 @@ class WebGPURenderer {
 
 		const children = object.children;
 
-		for ( let i = 0, l = children.length; i < l; i ++ ) {
+		for (let i = 0, l = children.length; i < l; i++) {
 
-			this._projectObject( children[ i ], camera, groupOrder );
+			this._projectObject(children[i], camera, groupOrder);
 
 		}
 
 	}
 
-	_renderObjects( renderList, camera, passEncoder ) {
+	_renderObjects(renderList, camera, passEncoder) {
 
 		// process renderable objects
 
-		for ( let i = 0, il = renderList.length; i < il; i ++ ) {
+		for (let i = 0, il = renderList.length; i < il; i++) {
 
-			const renderItem = renderList[ i ];
+			const renderItem = renderList[i];
 
 			// @TODO: Add support for multiple materials per object. This will require to extract
 			// the material from the renderItem object and pass it with its group data to _renderObject().
 
 			const object = renderItem.object;
 
-			object.modelViewMatrix.multiplyMatrices( camera.matrixWorldInverse, object.matrixWorld );
-			object.normalMatrix.getNormalMatrix( object.modelViewMatrix );
+			object.modelViewMatrix.multiplyMatrices(camera.matrixWorldInverse, object.matrixWorld);
+			object.normalMatrix.getNormalMatrix(object.modelViewMatrix);
 
-			this._objects.update( object );
+			this._objects.update(object);
 
-			if ( camera.isArrayCamera ) {
+			if (camera.isArrayCamera) {
 
 				const cameras = camera.cameras;
 
-				for ( let j = 0, jl = cameras.length; j < jl; j ++ ) {
+				for (let j = 0, jl = cameras.length; j < jl; j++) {
 
-					const camera2 = cameras[ j ];
+					const camera2 = cameras[j];
 
-					if ( object.layers.test( camera2.layers ) ) {
+					if (object.layers.test(camera2.layers)) {
 
 						const vp = camera2.viewport;
-						const minDepth = ( vp.minDepth === undefined ) ? 0 : vp.minDepth;
-						const maxDepth = ( vp.maxDepth === undefined ) ? 1 : vp.maxDepth;
+						const minDepth = (vp.minDepth === undefined) ? 0 : vp.minDepth;
+						const maxDepth = (vp.maxDepth === undefined) ? 1 : vp.maxDepth;
 
-						passEncoder.setViewport( vp.x, vp.y, vp.width, vp.height, minDepth, maxDepth );
+						passEncoder.setViewport(vp.x, vp.y, vp.width, vp.height, minDepth, maxDepth);
 
-						this._nodes.update( object, camera2 );
-						this._bindings.update( object );
-						this._renderObject( object, passEncoder );
+						this._nodes.update(object, camera2);
+						this._bindings.update(object);
+						this._renderObject(object, passEncoder);
 
 					}
 
@@ -782,9 +782,9 @@ class WebGPURenderer {
 
 			} else {
 
-				this._nodes.update( object, camera );
-				this._bindings.update( object );
-				this._renderObject( object, passEncoder );
+				this._nodes.update(object, camera);
+				this._bindings.update(object);
+				this._renderObject(object, passEncoder);
 
 			}
 
@@ -792,88 +792,88 @@ class WebGPURenderer {
 
 	}
 
-	_renderObject( object, passEncoder ) {
+	_renderObject(object, passEncoder) {
 
 		const info = this._info;
 
 		// pipeline
 
-		const renderPipeline = this._renderPipelines.get( object );
-		passEncoder.setPipeline( renderPipeline.pipeline );
+		const renderPipeline = this._renderPipelines.get(object);
+		passEncoder.setPipeline(renderPipeline.pipeline);
 
 		// bind group
 
-		const bindGroup = this._bindings.get( object ).group;
-		passEncoder.setBindGroup( 0, bindGroup );
+		const bindGroup = this._bindings.get(object).group;
+		passEncoder.setBindGroup(0, bindGroup);
 
 		// index
 
 		const geometry = object.geometry;
 		const index = geometry.index;
 
-		const hasIndex = ( index !== null );
+		const hasIndex = (index !== null);
 
-		if ( hasIndex === true ) {
+		if (hasIndex === true) {
 
-			this._setupIndexBuffer( index, passEncoder );
+			this._setupIndexBuffer(index, passEncoder);
 
 		}
 
 		// vertex buffers
 
-		this._setupVertexBuffers( geometry.attributes, passEncoder, renderPipeline );
+		this._setupVertexBuffers(geometry.attributes, passEncoder, renderPipeline);
 
 		// draw
 
 		const drawRange = geometry.drawRange;
 		const firstVertex = drawRange.start;
-		const instanceCount = ( geometry.isInstancedBufferGeometry ) ? geometry.instanceCount : 1;
+		const instanceCount = (geometry.isInstancedBufferGeometry) ? geometry.instanceCount : 1;
 
-		if ( hasIndex === true ) {
+		if (hasIndex === true) {
 
-			const indexCount = ( drawRange.count !== Infinity ) ? drawRange.count : index.count;
+			const indexCount = (drawRange.count !== Infinity) ? drawRange.count : index.count;
 
-			passEncoder.drawIndexed( indexCount, instanceCount, firstVertex, 0, 0 );
+			passEncoder.drawIndexed(indexCount, instanceCount, firstVertex, 0, 0);
 
-			info.update( object, indexCount, instanceCount );
+			info.update(object, indexCount, instanceCount);
 
 		} else {
 
 			const positionAttribute = geometry.attributes.position;
-			const vertexCount = ( drawRange.count !== Infinity ) ? drawRange.count : positionAttribute.count;
+			const vertexCount = (drawRange.count !== Infinity) ? drawRange.count : positionAttribute.count;
 
-			passEncoder.draw( vertexCount, instanceCount, firstVertex, 0 );
+			passEncoder.draw(vertexCount, instanceCount, firstVertex, 0);
 
-			info.update( object, vertexCount, instanceCount );
+			info.update(object, vertexCount, instanceCount);
 
 		}
 
 	}
 
-	_setupIndexBuffer( index, encoder ) {
+	_setupIndexBuffer(index, encoder) {
 
-		const buffer = this._attributes.get( index ).buffer;
-		const indexFormat = ( index.array instanceof Uint16Array ) ? GPUIndexFormat.Uint16 : GPUIndexFormat.Uint32;
+		const buffer = this._attributes.get(index).buffer;
+		const indexFormat = (index.array instanceof Uint16Array) ? GPUIndexFormat.Uint16 : GPUIndexFormat.Uint32;
 
-		encoder.setIndexBuffer( buffer, indexFormat );
+		encoder.setIndexBuffer(buffer, indexFormat);
 
 	}
 
-	_setupVertexBuffers( geometryAttributes, encoder, renderPipeline ) {
+	_setupVertexBuffers(geometryAttributes, encoder, renderPipeline) {
 
 		const shaderAttributes = renderPipeline.shaderAttributes;
 
-		for ( const shaderAttribute of shaderAttributes ) {
+		for (const shaderAttribute of shaderAttributes) {
 
 			const name = shaderAttribute.name;
 			const slot = shaderAttribute.slot;
 
-			const attribute = geometryAttributes[ name ];
+			const attribute = geometryAttributes[name];
 
-			if ( attribute !== undefined ) {
+			if (attribute !== undefined) {
 
-				const buffer = this._attributes.get( attribute ).buffer;
-				encoder.setVertexBuffer( slot, buffer );
+				const buffer = this._attributes.get(attribute).buffer;
+				encoder.setVertexBuffer(slot, buffer);
 
 			}
 
@@ -885,20 +885,20 @@ class WebGPURenderer {
 
 		const device = this._device;
 
-		if ( device ) {
+		if (device) {
 
-			if ( this._colorBuffer ) this._colorBuffer.destroy();
+			if (this._colorBuffer) this._colorBuffer.destroy();
 
-			this._colorBuffer = this._device.createTexture( {
+			this._colorBuffer = this._device.createTexture({
 				size: {
-					width: Math.floor( this._width * this._pixelRatio ),
-					height: Math.floor( this._height * this._pixelRatio ),
+					width: Math.floor(this._width * this._pixelRatio),
+					height: Math.floor(this._height * this._pixelRatio),
 					depthOrArrayLayers: 1
 				},
 				sampleCount: this._parameters.sampleCount,
 				format: GPUTextureFormat.BGRA8Unorm,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT
-			} );
+			});
 
 		}
 
@@ -908,20 +908,20 @@ class WebGPURenderer {
 
 		const device = this._device;
 
-		if ( device ) {
+		if (device) {
 
-			if ( this._depthBuffer ) this._depthBuffer.destroy();
+			if (this._depthBuffer) this._depthBuffer.destroy();
 
-			this._depthBuffer = this._device.createTexture( {
+			this._depthBuffer = this._device.createTexture({
 				size: {
-					width: Math.floor( this._width * this._pixelRatio ),
-					height: Math.floor( this._height * this._pixelRatio ),
+					width: Math.floor(this._width * this._pixelRatio),
+					height: Math.floor(this._height * this._pixelRatio),
 					depthOrArrayLayers: 1
 				},
 				sampleCount: this._parameters.sampleCount,
 				format: GPUTextureFormat.Depth24PlusStencil8,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT
-			} );
+			});
 
 		}
 
@@ -931,18 +931,18 @@ class WebGPURenderer {
 
 		const device = this._device;
 
-		if ( device ) {
+		if (device) {
 
-			this._context.configure( {
+			this._context.configure({
 				device: device,
 				format: GPUTextureFormat.BGRA8Unorm,
 				usage: GPUTextureUsage.RENDER_ATTACHMENT,
 				size: {
-					width: Math.floor( this._width * this._pixelRatio ),
-					height: Math.floor( this._height * this._pixelRatio ),
+					width: Math.floor(this._width * this._pixelRatio),
+					height: Math.floor(this._height * this._pixelRatio),
 					depthOrArrayLayers: 1
 				},
-			} );
+			});
 
 		}
 
@@ -950,7 +950,7 @@ class WebGPURenderer {
 
 	_createCanvasElement() {
 
-		const canvas = document.createElementNS( 'http://www.w3.org/1999/xhtml', 'canvas' );
+		const canvas = document.createElementNS('http://www.w3.org/1999/xhtml', 'canvas');
 		canvas.style.display = 'block';
 		return canvas;
 

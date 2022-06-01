@@ -19,7 +19,7 @@ import {
 	RepeatWrapping,
 	Scene,
 	Vector3
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 
 class GLTFExporter {
@@ -28,49 +28,49 @@ class GLTFExporter {
 
 		this.pluginCallbacks = [];
 
-		this.register( function ( writer ) {
+		this.register(function (writer) {
 
-			return new GLTFLightExtension( writer );
+			return new GLTFLightExtension(writer);
 
-		} );
+		});
 
-		this.register( function ( writer ) {
+		this.register(function (writer) {
 
-			return new GLTFMaterialsUnlitExtension( writer );
+			return new GLTFMaterialsUnlitExtension(writer);
 
-		} );
+		});
 
-		this.register( function ( writer ) {
+		this.register(function (writer) {
 
-			return new GLTFMaterialsPBRSpecularGlossiness( writer );
+			return new GLTFMaterialsPBRSpecularGlossiness(writer);
 
-		} );
+		});
 
-		this.register( function ( writer ) {
+		this.register(function (writer) {
 
-			return new GLTFMaterialsTransmissionExtension( writer );
+			return new GLTFMaterialsTransmissionExtension(writer);
 
-		} );
+		});
 
-		this.register( function ( writer ) {
+		this.register(function (writer) {
 
-			return new GLTFMaterialsVolumeExtension( writer );
+			return new GLTFMaterialsVolumeExtension(writer);
 
-		} );
+		});
 
-		this.register( function ( writer ) {
+		this.register(function (writer) {
 
-			return new GLTFMaterialsClearcoatExtension( writer );
+			return new GLTFMaterialsClearcoatExtension(writer);
 
-		} );
+		});
 
 	}
 
-	register( callback ) {
+	register(callback) {
 
-		if ( this.pluginCallbacks.indexOf( callback ) === - 1 ) {
+		if (this.pluginCallbacks.indexOf(callback) === - 1) {
 
-			this.pluginCallbacks.push( callback );
+			this.pluginCallbacks.push(callback);
 
 		}
 
@@ -78,11 +78,11 @@ class GLTFExporter {
 
 	}
 
-	unregister( callback ) {
+	unregister(callback) {
 
-		if ( this.pluginCallbacks.indexOf( callback ) !== - 1 ) {
+		if (this.pluginCallbacks.indexOf(callback) !== - 1) {
 
-			this.pluginCallbacks.splice( this.pluginCallbacks.indexOf( callback ), 1 );
+			this.pluginCallbacks.splice(this.pluginCallbacks.indexOf(callback), 1);
 
 		}
 
@@ -97,11 +97,11 @@ class GLTFExporter {
 	 * @param  {Function} onError  Callback on errors
 	 * @param  {Object} options options
 	 */
-	parse( input, onDone, onError, options ) {
+	parse(input, onDone, onError, options) {
 
-		if ( typeof onError === 'object' ) {
+		if (typeof onError === 'object') {
 
-			console.warn( 'THREE.GLTFExporter: parse() expects options as the fourth argument now.' );
+			console.warn('THREE.GLTFExporter: parse() expects options as the fourth argument now.');
 
 			options = onError;
 
@@ -110,26 +110,26 @@ class GLTFExporter {
 		const writer = new GLTFWriter();
 		const plugins = [];
 
-		for ( let i = 0, il = this.pluginCallbacks.length; i < il; i ++ ) {
+		for (let i = 0, il = this.pluginCallbacks.length; i < il; i++) {
 
-			plugins.push( this.pluginCallbacks[ i ]( writer ) );
+			plugins.push(this.pluginCallbacks[i](writer));
 
 		}
 
-		writer.setPlugins( plugins );
-		writer.write( input, onDone, options ).catch( onError );
+		writer.setPlugins(plugins);
+		writer.write(input, onDone, options).catch(onError);
 
 	}
 
-	parseAsync( input, options ) {
+	parseAsync(input, options) {
 
 		const scope = this;
 
-		return new Promise( function ( resolve, reject ) {
+		return new Promise(function (resolve, reject) {
 
-			scope.parse( input, resolve, reject, options );
+			scope.parse(input, resolve, reject, options);
 
-		} );
+		});
 
 	}
 
@@ -169,16 +169,16 @@ const WEBGL_CONSTANTS = {
 
 const THREE_TO_WEBGL = {};
 
-THREE_TO_WEBGL[ NearestFilter ] = WEBGL_CONSTANTS.NEAREST;
-THREE_TO_WEBGL[ NearestMipmapNearestFilter ] = WEBGL_CONSTANTS.NEAREST_MIPMAP_NEAREST;
-THREE_TO_WEBGL[ NearestMipmapLinearFilter ] = WEBGL_CONSTANTS.NEAREST_MIPMAP_LINEAR;
-THREE_TO_WEBGL[ LinearFilter ] = WEBGL_CONSTANTS.LINEAR;
-THREE_TO_WEBGL[ LinearMipmapNearestFilter ] = WEBGL_CONSTANTS.LINEAR_MIPMAP_NEAREST;
-THREE_TO_WEBGL[ LinearMipmapLinearFilter ] = WEBGL_CONSTANTS.LINEAR_MIPMAP_LINEAR;
+THREE_TO_WEBGL[NearestFilter] = WEBGL_CONSTANTS.NEAREST;
+THREE_TO_WEBGL[NearestMipmapNearestFilter] = WEBGL_CONSTANTS.NEAREST_MIPMAP_NEAREST;
+THREE_TO_WEBGL[NearestMipmapLinearFilter] = WEBGL_CONSTANTS.NEAREST_MIPMAP_LINEAR;
+THREE_TO_WEBGL[LinearFilter] = WEBGL_CONSTANTS.LINEAR;
+THREE_TO_WEBGL[LinearMipmapNearestFilter] = WEBGL_CONSTANTS.LINEAR_MIPMAP_NEAREST;
+THREE_TO_WEBGL[LinearMipmapLinearFilter] = WEBGL_CONSTANTS.LINEAR_MIPMAP_LINEAR;
 
-THREE_TO_WEBGL[ ClampToEdgeWrapping ] = WEBGL_CONSTANTS.CLAMP_TO_EDGE;
-THREE_TO_WEBGL[ RepeatWrapping ] = WEBGL_CONSTANTS.REPEAT;
-THREE_TO_WEBGL[ MirroredRepeatWrapping ] = WEBGL_CONSTANTS.MIRRORED_REPEAT;
+THREE_TO_WEBGL[ClampToEdgeWrapping] = WEBGL_CONSTANTS.CLAMP_TO_EDGE;
+THREE_TO_WEBGL[RepeatWrapping] = WEBGL_CONSTANTS.REPEAT;
+THREE_TO_WEBGL[MirroredRepeatWrapping] = WEBGL_CONSTANTS.MIRRORED_REPEAT;
 
 const PATH_PROPERTIES = {
 	scale: 'scale',
@@ -208,13 +208,13 @@ const GLB_CHUNK_TYPE_BIN = 0x004E4942;
  * @param  {Array} array2 Array 2 to compare
  * @return {Boolean}        Returns true if both arrays are equal
  */
-function equalArray( array1, array2 ) {
+function equalArray(array1, array2) {
 
-	return ( array1.length === array2.length ) && array1.every( function ( element, index ) {
+	return (array1.length === array2.length) && array1.every(function (element, index) {
 
-		return element === array2[ index ];
+		return element === array2[index];
 
-	} );
+	});
 
 }
 
@@ -223,22 +223,22 @@ function equalArray( array1, array2 ) {
  * @param  {string} text
  * @return {ArrayBuffer}
  */
-function stringToArrayBuffer( text ) {
+function stringToArrayBuffer(text) {
 
-	if ( window.TextEncoder !== undefined ) {
+	if (window.TextEncoder !== undefined) {
 
-		return new TextEncoder().encode( text ).buffer;
+		return new TextEncoder().encode(text).buffer;
 
 	}
 
-	const array = new Uint8Array( new ArrayBuffer( text.length ) );
+	const array = new Uint8Array(new ArrayBuffer(text.length));
 
-	for ( let i = 0, il = text.length; i < il; i ++ ) {
+	for (let i = 0, il = text.length; i < il; i++) {
 
-		const value = text.charCodeAt( i );
+		const value = text.charCodeAt(i);
 
 		// Replacing multi-byte character with space(0x20).
-		array[ i ] = value > 0xFF ? 0x20 : value;
+		array[i] = value > 0xFF ? 0x20 : value;
 
 	}
 
@@ -252,9 +252,9 @@ function stringToArrayBuffer( text ) {
  * @param {Matrix4} matrix
  * @returns {Boolean} Returns true, if parameter is identity matrix
  */
-function isIdentityMatrix( matrix ) {
+function isIdentityMatrix(matrix) {
 
-	return equalArray( matrix.elements, [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1 ] );
+	return equalArray(matrix.elements, [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
 
 }
 
@@ -265,38 +265,38 @@ function isIdentityMatrix( matrix ) {
  * @param  {Integer} count
  * @return {Object} Object containing the `min` and `max` values (As an array of attribute.itemSize components)
  */
-function getMinMax( attribute, start, count ) {
+function getMinMax(attribute, start, count) {
 
 	const output = {
 
-		min: new Array( attribute.itemSize ).fill( Number.POSITIVE_INFINITY ),
-		max: new Array( attribute.itemSize ).fill( Number.NEGATIVE_INFINITY )
+		min: new Array(attribute.itemSize).fill(Number.POSITIVE_INFINITY),
+		max: new Array(attribute.itemSize).fill(Number.NEGATIVE_INFINITY)
 
 	};
 
-	for ( let i = start; i < start + count; i ++ ) {
+	for (let i = start; i < start + count; i++) {
 
-		for ( let a = 0; a < attribute.itemSize; a ++ ) {
+		for (let a = 0; a < attribute.itemSize; a++) {
 
 			let value;
 
-			if ( attribute.itemSize > 4 ) {
+			if (attribute.itemSize > 4) {
 
-				 // no support for interleaved data for itemSize > 4
+				// no support for interleaved data for itemSize > 4
 
-				value = attribute.array[ i * attribute.itemSize + a ];
+				value = attribute.array[i * attribute.itemSize + a];
 
 			} else {
 
-				if ( a === 0 ) value = attribute.getX( i );
-				else if ( a === 1 ) value = attribute.getY( i );
-				else if ( a === 2 ) value = attribute.getZ( i );
-				else if ( a === 3 ) value = attribute.getW( i );
+				if (a === 0) value = attribute.getX(i);
+				else if (a === 1) value = attribute.getY(i);
+				else if (a === 2) value = attribute.getZ(i);
+				else if (a === 3) value = attribute.getW(i);
 
 			}
 
-			output.min[ a ] = Math.min( output.min[ a ], value );
-			output.max[ a ] = Math.max( output.max[ a ], value );
+			output.min[a] = Math.min(output.min[a], value);
+			output.max[a] = Math.max(output.max[a], value);
 
 		}
 
@@ -314,9 +314,9 @@ function getMinMax( attribute, start, count ) {
  * @returns {Integer} new buffer size with required padding.
  *
  */
-function getPaddedBufferSize( bufferSize ) {
+function getPaddedBufferSize(bufferSize) {
 
-	return Math.ceil( bufferSize / 4 ) * 4;
+	return Math.ceil(bufferSize / 4) * 4;
 
 }
 
@@ -327,20 +327,20 @@ function getPaddedBufferSize( bufferSize ) {
  * @param {Integer} paddingByte (Optional)
  * @returns {ArrayBuffer} The same buffer if it's already aligned to 4-byte boundary or a new buffer
  */
-function getPaddedArrayBuffer( arrayBuffer, paddingByte = 0 ) {
+function getPaddedArrayBuffer(arrayBuffer, paddingByte = 0) {
 
-	const paddedLength = getPaddedBufferSize( arrayBuffer.byteLength );
+	const paddedLength = getPaddedBufferSize(arrayBuffer.byteLength);
 
-	if ( paddedLength !== arrayBuffer.byteLength ) {
+	if (paddedLength !== arrayBuffer.byteLength) {
 
-		const array = new Uint8Array( paddedLength );
-		array.set( new Uint8Array( arrayBuffer ) );
+		const array = new Uint8Array(paddedLength);
+		array.set(new Uint8Array(arrayBuffer));
 
-		if ( paddingByte !== 0 ) {
+		if (paddingByte !== 0) {
 
-			for ( let i = arrayBuffer.byteLength; i < paddedLength; i ++ ) {
+			for (let i = arrayBuffer.byteLength; i < paddedLength; i++) {
 
-				array[ i ] = paddingByte;
+				array[i] = paddingByte;
 
 			}
 
@@ -396,7 +396,7 @@ class GLTFWriter {
 
 	}
 
-	setPlugins( plugins ) {
+	setPlugins(plugins) {
 
 		this.plugins = plugins;
 
@@ -408,9 +408,9 @@ class GLTFWriter {
 	 * @param  {Function} onDone  Callback on completed
 	 * @param  {Object} options options
 	 */
-	async write( input, onDone, options ) {
+	async write(input, onDone, options) {
 
-		this.options = Object.assign( {}, {
+		this.options = Object.assign({}, {
 			// default options
 			binary: false,
 			trs: false,
@@ -420,18 +420,18 @@ class GLTFWriter {
 			maxTextureSize: Infinity,
 			animations: [],
 			includeCustomExtensions: false
-		}, options );
+		}, options);
 
-		if ( this.options.animations.length > 0 ) {
+		if (this.options.animations.length > 0) {
 
 			// Only TRS properties, and not matrices, may be targeted by animation.
 			this.options.trs = true;
 
 		}
 
-		this.processInput( input );
+		this.processInput(input);
 
-		await Promise.all( this.pending );
+		await Promise.all(this.pending);
 
 		const writer = this;
 		const buffers = writer.buffers;
@@ -440,59 +440,59 @@ class GLTFWriter {
 		const extensionsUsed = writer.extensionsUsed;
 
 		// Merge buffers.
-		const blob = new Blob( buffers, { type: 'application/octet-stream' } );
+		const blob = new Blob(buffers, { type: 'application/octet-stream' });
 
 		// Declare extensions.
-		const extensionsUsedList = Object.keys( extensionsUsed );
+		const extensionsUsedList = Object.keys(extensionsUsed);
 
-		if ( extensionsUsedList.length > 0 ) json.extensionsUsed = extensionsUsedList;
+		if (extensionsUsedList.length > 0) json.extensionsUsed = extensionsUsedList;
 
 		// Update bytelength of the single buffer.
-		if ( json.buffers && json.buffers.length > 0 ) json.buffers[ 0 ].byteLength = blob.size;
+		if (json.buffers && json.buffers.length > 0) json.buffers[0].byteLength = blob.size;
 
-		if ( options.binary === true ) {
+		if (options.binary === true) {
 
 			// https://github.com/KhronosGroup/glTF/blob/master/specification/2.0/README.md#glb-file-format-specification
 
 			const reader = new window.FileReader();
-			reader.readAsArrayBuffer( blob );
+			reader.readAsArrayBuffer(blob);
 			reader.onloadend = function () {
 
 				// Binary chunk.
-				const binaryChunk = getPaddedArrayBuffer( reader.result );
-				const binaryChunkPrefix = new DataView( new ArrayBuffer( GLB_CHUNK_PREFIX_BYTES ) );
-				binaryChunkPrefix.setUint32( 0, binaryChunk.byteLength, true );
-				binaryChunkPrefix.setUint32( 4, GLB_CHUNK_TYPE_BIN, true );
+				const binaryChunk = getPaddedArrayBuffer(reader.result);
+				const binaryChunkPrefix = new DataView(new ArrayBuffer(GLB_CHUNK_PREFIX_BYTES));
+				binaryChunkPrefix.setUint32(0, binaryChunk.byteLength, true);
+				binaryChunkPrefix.setUint32(4, GLB_CHUNK_TYPE_BIN, true);
 
 				// JSON chunk.
-				const jsonChunk = getPaddedArrayBuffer( stringToArrayBuffer( JSON.stringify( json ) ), 0x20 );
-				const jsonChunkPrefix = new DataView( new ArrayBuffer( GLB_CHUNK_PREFIX_BYTES ) );
-				jsonChunkPrefix.setUint32( 0, jsonChunk.byteLength, true );
-				jsonChunkPrefix.setUint32( 4, GLB_CHUNK_TYPE_JSON, true );
+				const jsonChunk = getPaddedArrayBuffer(stringToArrayBuffer(JSON.stringify(json)), 0x20);
+				const jsonChunkPrefix = new DataView(new ArrayBuffer(GLB_CHUNK_PREFIX_BYTES));
+				jsonChunkPrefix.setUint32(0, jsonChunk.byteLength, true);
+				jsonChunkPrefix.setUint32(4, GLB_CHUNK_TYPE_JSON, true);
 
 				// GLB header.
-				const header = new ArrayBuffer( GLB_HEADER_BYTES );
-				const headerView = new DataView( header );
-				headerView.setUint32( 0, GLB_HEADER_MAGIC, true );
-				headerView.setUint32( 4, GLB_VERSION, true );
+				const header = new ArrayBuffer(GLB_HEADER_BYTES);
+				const headerView = new DataView(header);
+				headerView.setUint32(0, GLB_HEADER_MAGIC, true);
+				headerView.setUint32(4, GLB_VERSION, true);
 				const totalByteLength = GLB_HEADER_BYTES
 					+ jsonChunkPrefix.byteLength + jsonChunk.byteLength
 					+ binaryChunkPrefix.byteLength + binaryChunk.byteLength;
-				headerView.setUint32( 8, totalByteLength, true );
+				headerView.setUint32(8, totalByteLength, true);
 
-				const glbBlob = new Blob( [
+				const glbBlob = new Blob([
 					header,
 					jsonChunkPrefix,
 					jsonChunk,
 					binaryChunkPrefix,
 					binaryChunk
-				], { type: 'application/octet-stream' } );
+				], { type: 'application/octet-stream' });
 
 				const glbReader = new window.FileReader();
-				glbReader.readAsArrayBuffer( glbBlob );
+				glbReader.readAsArrayBuffer(glbBlob);
 				glbReader.onloadend = function () {
 
-					onDone( glbReader.result );
+					onDone(glbReader.result);
 
 				};
 
@@ -500,21 +500,21 @@ class GLTFWriter {
 
 		} else {
 
-			if ( json.buffers && json.buffers.length > 0 ) {
+			if (json.buffers && json.buffers.length > 0) {
 
 				const reader = new window.FileReader();
-				reader.readAsDataURL( blob );
+				reader.readAsDataURL(blob);
 				reader.onloadend = function () {
 
 					const base64data = reader.result;
-					json.buffers[ 0 ].uri = base64data;
-					onDone( json );
+					json.buffers[0].uri = base64data;
+					onDone(json);
 
 				};
 
 			} else {
 
-				onDone( json );
+				onDone(json);
 
 			}
 
@@ -529,25 +529,25 @@ class GLTFWriter {
 	 * @param {THREE.Object3D|THREE.Material} object
 	 * @param {Object} objectDef
 	 */
-	serializeUserData( object, objectDef ) {
+	serializeUserData(object, objectDef) {
 
-		if ( Object.keys( object.userData ).length === 0 ) return;
+		if (Object.keys(object.userData).length === 0) return;
 
 		const options = this.options;
 		const extensionsUsed = this.extensionsUsed;
 
 		try {
 
-			const json = JSON.parse( JSON.stringify( object.userData ) );
+			const json = JSON.parse(JSON.stringify(object.userData));
 
-			if ( options.includeCustomExtensions && json.gltfExtensions ) {
+			if (options.includeCustomExtensions && json.gltfExtensions) {
 
-				if ( objectDef.extensions === undefined ) objectDef.extensions = {};
+				if (objectDef.extensions === undefined) objectDef.extensions = {};
 
-				for ( const extensionName in json.gltfExtensions ) {
+				for (const extensionName in json.gltfExtensions) {
 
-					objectDef.extensions[ extensionName ] = json.gltfExtensions[ extensionName ];
-					extensionsUsed[ extensionName ] = true;
+					objectDef.extensions[extensionName] = json.gltfExtensions[extensionName];
+					extensionsUsed[extensionName] = true;
 
 				}
 
@@ -555,12 +555,12 @@ class GLTFWriter {
 
 			}
 
-			if ( Object.keys( json ).length > 0 ) objectDef.extras = json;
+			if (Object.keys(json).length > 0) objectDef.extras = json;
 
-		} catch ( error ) {
+		} catch (error) {
 
-			console.warn( 'THREE.GLTFExporter: userData of \'' + object.name + '\' ' +
-				'won\'t be serialized because of JSON.stringify error - ' + error.message );
+			console.warn('THREE.GLTFExporter: userData of \'' + object.name + '\' ' +
+				'won\'t be serialized because of JSON.stringify error - ' + error.message);
 
 		}
 
@@ -572,11 +572,11 @@ class GLTFWriter {
 	 * @param  {Object} object
 	 * @return {Integer}
 	 */
-	getUID( object ) {
+	getUID(object) {
 
-		if ( ! this.uids.has( object ) ) this.uids.set( object, this.uid ++ );
+		if (!this.uids.has(object)) this.uids.set(object, this.uid++);
 
-		return this.uids.get( object );
+		return this.uids.get(object);
 
 	}
 
@@ -586,18 +586,18 @@ class GLTFWriter {
 	 * @param {BufferAttribute} normal
 	 * @returns {Boolean}
 	 */
-	isNormalizedNormalAttribute( normal ) {
+	isNormalizedNormalAttribute(normal) {
 
 		const cache = this.cache;
 
-		if ( cache.attributesNormalized.has( normal ) ) return false;
+		if (cache.attributesNormalized.has(normal)) return false;
 
 		const v = new Vector3();
 
-		for ( let i = 0, il = normal.count; i < il; i ++ ) {
+		for (let i = 0, il = normal.count; i < il; i++) {
 
 			// 0.0005 is from glTF-validator
-			if ( Math.abs( v.fromBufferAttribute( normal, i ).length() - 1.0 ) > 0.0005 ) return false;
+			if (Math.abs(v.fromBufferAttribute(normal, i).length() - 1.0) > 0.0005) return false;
 
 		}
 
@@ -612,23 +612,23 @@ class GLTFWriter {
 	 * @returns {BufferAttribute}
 	 *
 	 */
-	createNormalizedNormalAttribute( normal ) {
+	createNormalizedNormalAttribute(normal) {
 
 		const cache = this.cache;
 
-		if ( cache.attributesNormalized.has( normal ) )	return cache.attributesNormalized.get( normal );
+		if (cache.attributesNormalized.has(normal)) return cache.attributesNormalized.get(normal);
 
 		const attribute = normal.clone();
 		const v = new Vector3();
 
-		for ( let i = 0, il = attribute.count; i < il; i ++ ) {
+		for (let i = 0, il = attribute.count; i < il; i++) {
 
-			v.fromBufferAttribute( attribute, i );
+			v.fromBufferAttribute(attribute, i);
 
-			if ( v.x === 0 && v.y === 0 && v.z === 0 ) {
+			if (v.x === 0 && v.y === 0 && v.z === 0) {
 
 				// if values can't be normalized set (1, 0, 0)
-				v.setX( 1.0 );
+				v.setX(1.0);
 
 			} else {
 
@@ -636,11 +636,11 @@ class GLTFWriter {
 
 			}
 
-			attribute.setXYZ( i, v.x, v.y, v.z );
+			attribute.setXYZ(i, v.x, v.y, v.z);
 
 		}
 
-		cache.attributesNormalized.set( normal, attribute );
+		cache.attributesNormalized.set(normal, attribute);
 
 		return attribute;
 
@@ -653,37 +653,37 @@ class GLTFWriter {
 	 * @param {Object} mapDef
 	 * @param {THREE.Texture} texture
 	 */
-	applyTextureTransform( mapDef, texture ) {
+	applyTextureTransform(mapDef, texture) {
 
 		let didTransform = false;
 		const transformDef = {};
 
-		if ( texture.offset.x !== 0 || texture.offset.y !== 0 ) {
+		if (texture.offset.x !== 0 || texture.offset.y !== 0) {
 
 			transformDef.offset = texture.offset.toArray();
 			didTransform = true;
 
 		}
 
-		if ( texture.rotation !== 0 ) {
+		if (texture.rotation !== 0) {
 
 			transformDef.rotation = texture.rotation;
 			didTransform = true;
 
 		}
 
-		if ( texture.repeat.x !== 1 || texture.repeat.y !== 1 ) {
+		if (texture.repeat.x !== 1 || texture.repeat.y !== 1) {
 
 			transformDef.scale = texture.repeat.toArray();
 			didTransform = true;
 
 		}
 
-		if ( didTransform ) {
+		if (didTransform) {
 
 			mapDef.extensions = mapDef.extensions || {};
-			mapDef.extensions[ 'KHR_texture_transform' ] = transformDef;
-			this.extensionsUsed[ 'KHR_texture_transform' ] = true;
+			mapDef.extensions['KHR_texture_transform'] = transformDef;
+			this.extensionsUsed['KHR_texture_transform'] = true;
 
 		}
 
@@ -694,15 +694,15 @@ class GLTFWriter {
 	 * @param  {ArrayBuffer} buffer
 	 * @return {Integer}
 	 */
-	processBuffer( buffer ) {
+	processBuffer(buffer) {
 
 		const json = this.json;
 		const buffers = this.buffers;
 
-		if ( ! json.buffers ) json.buffers = [ { byteLength: 0 } ];
+		if (!json.buffers) json.buffers = [{ byteLength: 0 }];
 
 		// All buffers are merged before export.
-		buffers.push( buffer );
+		buffers.push(buffer);
 
 		return 0;
 
@@ -717,21 +717,21 @@ class GLTFWriter {
 	 * @param  {number} target (Optional) Target usage of the BufferView
 	 * @return {Object}
 	 */
-	processBufferView( attribute, componentType, start, count, target ) {
+	processBufferView(attribute, componentType, start, count, target) {
 
 		const json = this.json;
 
-		if ( ! json.bufferViews ) json.bufferViews = [];
+		if (!json.bufferViews) json.bufferViews = [];
 
 		// Create a new dataview and dump the attribute's array into it
 
 		let componentSize;
 
-		if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE ) {
+		if (componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE) {
 
 			componentSize = 1;
 
-		} else if ( componentType === WEBGL_CONSTANTS.UNSIGNED_SHORT ) {
+		} else if (componentType === WEBGL_CONSTANTS.UNSIGNED_SHORT) {
 
 			componentSize = 2;
 
@@ -741,46 +741,46 @@ class GLTFWriter {
 
 		}
 
-		const byteLength = getPaddedBufferSize( count * attribute.itemSize * componentSize );
-		const dataView = new DataView( new ArrayBuffer( byteLength ) );
+		const byteLength = getPaddedBufferSize(count * attribute.itemSize * componentSize);
+		const dataView = new DataView(new ArrayBuffer(byteLength));
 		let offset = 0;
 
-		for ( let i = start; i < start + count; i ++ ) {
+		for (let i = start; i < start + count; i++) {
 
-			for ( let a = 0; a < attribute.itemSize; a ++ ) {
+			for (let a = 0; a < attribute.itemSize; a++) {
 
 				let value;
 
-				if ( attribute.itemSize > 4 ) {
+				if (attribute.itemSize > 4) {
 
-					 // no support for interleaved data for itemSize > 4
+					// no support for interleaved data for itemSize > 4
 
-					value = attribute.array[ i * attribute.itemSize + a ];
+					value = attribute.array[i * attribute.itemSize + a];
 
 				} else {
 
-					if ( a === 0 ) value = attribute.getX( i );
-					else if ( a === 1 ) value = attribute.getY( i );
-					else if ( a === 2 ) value = attribute.getZ( i );
-					else if ( a === 3 ) value = attribute.getW( i );
+					if (a === 0) value = attribute.getX(i);
+					else if (a === 1) value = attribute.getY(i);
+					else if (a === 2) value = attribute.getZ(i);
+					else if (a === 3) value = attribute.getW(i);
 
 				}
 
-				if ( componentType === WEBGL_CONSTANTS.FLOAT ) {
+				if (componentType === WEBGL_CONSTANTS.FLOAT) {
 
-					dataView.setFloat32( offset, value, true );
+					dataView.setFloat32(offset, value, true);
 
-				} else if ( componentType === WEBGL_CONSTANTS.UNSIGNED_INT ) {
+				} else if (componentType === WEBGL_CONSTANTS.UNSIGNED_INT) {
 
-					dataView.setUint32( offset, value, true );
+					dataView.setUint32(offset, value, true);
 
-				} else if ( componentType === WEBGL_CONSTANTS.UNSIGNED_SHORT ) {
+				} else if (componentType === WEBGL_CONSTANTS.UNSIGNED_SHORT) {
 
-					dataView.setUint16( offset, value, true );
+					dataView.setUint16(offset, value, true);
 
-				} else if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE ) {
+				} else if (componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE) {
 
-					dataView.setUint8( offset, value );
+					dataView.setUint8(offset, value);
 
 				}
 
@@ -792,15 +792,15 @@ class GLTFWriter {
 
 		const bufferViewDef = {
 
-			buffer: this.processBuffer( dataView.buffer ),
+			buffer: this.processBuffer(dataView.buffer),
 			byteOffset: this.byteOffset,
 			byteLength: byteLength
 
 		};
 
-		if ( target !== undefined ) bufferViewDef.target = target;
+		if (target !== undefined) bufferViewDef.target = target;
 
-		if ( target === WEBGL_CONSTANTS.ARRAY_BUFFER ) {
+		if (target === WEBGL_CONSTANTS.ARRAY_BUFFER) {
 
 			// Only define byteStride for vertex attributes.
 			bufferViewDef.byteStride = attribute.itemSize * componentSize;
@@ -809,7 +809,7 @@ class GLTFWriter {
 
 		this.byteOffset += byteLength;
 
-		json.bufferViews.push( bufferViewDef );
+		json.bufferViews.push(bufferViewDef);
 
 		// @TODO Merge bufferViews where possible.
 		const output = {
@@ -828,33 +828,33 @@ class GLTFWriter {
 	 * @param {Blob} blob
 	 * @return {Promise<Integer>}
 	 */
-	processBufferViewImage( blob ) {
+	processBufferViewImage(blob) {
 
 		const writer = this;
 		const json = writer.json;
 
-		if ( ! json.bufferViews ) json.bufferViews = [];
+		if (!json.bufferViews) json.bufferViews = [];
 
-		return new Promise( function ( resolve ) {
+		return new Promise(function (resolve) {
 
 			const reader = new window.FileReader();
-			reader.readAsArrayBuffer( blob );
+			reader.readAsArrayBuffer(blob);
 			reader.onloadend = function () {
 
-				const buffer = getPaddedArrayBuffer( reader.result );
+				const buffer = getPaddedArrayBuffer(reader.result);
 
 				const bufferViewDef = {
-					buffer: writer.processBuffer( buffer ),
+					buffer: writer.processBuffer(buffer),
 					byteOffset: writer.byteOffset,
 					byteLength: buffer.byteLength
 				};
 
 				writer.byteOffset += buffer.byteLength;
-				resolve( json.bufferViews.push( bufferViewDef ) - 1 );
+				resolve(json.bufferViews.push(bufferViewDef) - 1);
 
 			};
 
-		} );
+		});
 
 	}
 
@@ -866,7 +866,7 @@ class GLTFWriter {
 	 * @param  {Integer} count (Optional)
 	 * @return {Integer|null} Index of the processed accessor on the "accessors" array
 	 */
-	processAccessor( attribute, geometry, start, count ) {
+	processAccessor(attribute, geometry, start, count) {
 
 		const options = this.options;
 		const json = this.json;
@@ -884,61 +884,61 @@ class GLTFWriter {
 		let componentType;
 
 		// Detect the component type of the attribute array (float, uint or ushort)
-		if ( attribute.array.constructor === Float32Array ) {
+		if (attribute.array.constructor === Float32Array) {
 
 			componentType = WEBGL_CONSTANTS.FLOAT;
 
-		} else if ( attribute.array.constructor === Uint32Array ) {
+		} else if (attribute.array.constructor === Uint32Array) {
 
 			componentType = WEBGL_CONSTANTS.UNSIGNED_INT;
 
-		} else if ( attribute.array.constructor === Uint16Array ) {
+		} else if (attribute.array.constructor === Uint16Array) {
 
 			componentType = WEBGL_CONSTANTS.UNSIGNED_SHORT;
 
-		} else if ( attribute.array.constructor === Uint8Array ) {
+		} else if (attribute.array.constructor === Uint8Array) {
 
 			componentType = WEBGL_CONSTANTS.UNSIGNED_BYTE;
 
 		} else {
 
-			throw new Error( 'THREE.GLTFExporter: Unsupported bufferAttribute component type.' );
+			throw new Error('THREE.GLTFExporter: Unsupported bufferAttribute component type.');
 
 		}
 
-		if ( start === undefined ) start = 0;
-		if ( count === undefined ) count = attribute.count;
+		if (start === undefined) start = 0;
+		if (count === undefined) count = attribute.count;
 
 		// @TODO Indexed buffer geometry with drawRange not supported yet
-		if ( options.truncateDrawRange && geometry !== undefined && geometry.index === null ) {
+		if (options.truncateDrawRange && geometry !== undefined && geometry.index === null) {
 
 			const end = start + count;
 			const end2 = geometry.drawRange.count === Infinity
 				? attribute.count
 				: geometry.drawRange.start + geometry.drawRange.count;
 
-			start = Math.max( start, geometry.drawRange.start );
-			count = Math.min( end, end2 ) - start;
+			start = Math.max(start, geometry.drawRange.start);
+			count = Math.min(end, end2) - start;
 
-			if ( count < 0 ) count = 0;
+			if (count < 0) count = 0;
 
 		}
 
 		// Skip creating an accessor if the attribute doesn't have data to export
-		if ( count === 0 ) return null;
+		if (count === 0) return null;
 
-		const minMax = getMinMax( attribute, start, count );
+		const minMax = getMinMax(attribute, start, count);
 		let bufferViewTarget;
 
 		// If geometry isn't provided, don't infer the target usage of the bufferView. For
 		// animation samplers, target must not be set.
-		if ( geometry !== undefined ) {
+		if (geometry !== undefined) {
 
 			bufferViewTarget = attribute === geometry.index ? WEBGL_CONSTANTS.ELEMENT_ARRAY_BUFFER : WEBGL_CONSTANTS.ARRAY_BUFFER;
 
 		}
 
-		const bufferView = this.processBufferView( attribute, componentType, start, count, bufferViewTarget );
+		const bufferView = this.processBufferView(attribute, componentType, start, count, bufferViewTarget);
 
 		const accessorDef = {
 
@@ -948,14 +948,14 @@ class GLTFWriter {
 			count: count,
 			max: minMax.max,
 			min: minMax.min,
-			type: types[ attribute.itemSize ]
+			type: types[attribute.itemSize]
 
 		};
 
-		if ( attribute.normalized === true ) accessorDef.normalized = true;
-		if ( ! json.accessors ) json.accessors = [];
+		if (attribute.normalized === true) accessorDef.normalized = true;
+		if (!json.accessors) json.accessors = [];
 
-		return json.accessors.push( accessorDef ) - 1;
+		return json.accessors.push(accessorDef) - 1;
 
 	}
 
@@ -966,7 +966,7 @@ class GLTFWriter {
 	 * @param  {Boolean} flipY before writing out the image
 	 * @return {Integer}     Index of the processed texture in the "images" array
 	 */
-	processImage( image, format, flipY ) {
+	processImage(image, format, flipY) {
 
 		const writer = this;
 		const cache = writer.cache;
@@ -974,105 +974,105 @@ class GLTFWriter {
 		const options = writer.options;
 		const pending = writer.pending;
 
-		if ( ! cache.images.has( image ) ) cache.images.set( image, {} );
+		if (!cache.images.has(image)) cache.images.set(image, {});
 
-		const cachedImages = cache.images.get( image );
+		const cachedImages = cache.images.get(image);
 		const mimeType = format === RGBAFormat ? 'image/png' : 'image/jpeg';
 		const key = mimeType + ':flipY/' + flipY.toString();
 
-		if ( cachedImages[ key ] !== undefined ) return cachedImages[ key ];
+		if (cachedImages[key] !== undefined) return cachedImages[key];
 
-		if ( ! json.images ) json.images = [];
+		if (!json.images) json.images = [];
 
 		const imageDef = { mimeType: mimeType };
 
-		if ( options.embedImages ) {
+		if (options.embedImages) {
 
-			const canvas = cachedCanvas = cachedCanvas || document.createElement( 'canvas' );
+			const canvas = cachedCanvas = cachedCanvas || document.createElement('canvas');
 
-			canvas.width = Math.min( image.width, options.maxTextureSize );
-			canvas.height = Math.min( image.height, options.maxTextureSize );
+			canvas.width = Math.min(image.width, options.maxTextureSize);
+			canvas.height = Math.min(image.height, options.maxTextureSize);
 
-			const ctx = canvas.getContext( '2d' );
+			const ctx = canvas.getContext('2d');
 
-			if ( flipY === true ) {
+			if (flipY === true) {
 
-				ctx.translate( 0, canvas.height );
-				ctx.scale( 1, - 1 );
+				ctx.translate(0, canvas.height);
+				ctx.scale(1, - 1);
 
 			}
 
-			if ( ( typeof HTMLImageElement !== 'undefined' && image instanceof HTMLImageElement ) ||
-				( typeof HTMLCanvasElement !== 'undefined' && image instanceof HTMLCanvasElement ) ||
-				( typeof OffscreenCanvas !== 'undefined' && image instanceof OffscreenCanvas ) ||
-				( typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap ) ) {
+			if ((typeof HTMLImageElement !== 'undefined' && image instanceof HTMLImageElement) ||
+				(typeof HTMLCanvasElement !== 'undefined' && image instanceof HTMLCanvasElement) ||
+				(typeof OffscreenCanvas !== 'undefined' && image instanceof OffscreenCanvas) ||
+				(typeof ImageBitmap !== 'undefined' && image instanceof ImageBitmap)) {
 
-				ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
+				ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
 			} else {
 
-				if ( format !== RGBAFormat && format !== RGBFormat ) {
+				if (format !== RGBAFormat && format !== RGBFormat) {
 
-					console.error( 'GLTFExporter: Only RGB and RGBA formats are supported.' );
-
-				}
-
-				if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
-
-					console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
+					console.error('GLTFExporter: Only RGB and RGBA formats are supported.');
 
 				}
 
-				const data = new Uint8ClampedArray( image.height * image.width * 4 );
+				if (image.width > options.maxTextureSize || image.height > options.maxTextureSize) {
 
-				if ( format === RGBAFormat ) {
+					console.warn('GLTFExporter: Image size is bigger than maxTextureSize', image);
 
-					for ( let i = 0; i < data.length; i += 4 ) {
+				}
 
-						data[ i + 0 ] = image.data[ i + 0 ];
-						data[ i + 1 ] = image.data[ i + 1 ];
-						data[ i + 2 ] = image.data[ i + 2 ];
-						data[ i + 3 ] = image.data[ i + 3 ];
+				const data = new Uint8ClampedArray(image.height * image.width * 4);
+
+				if (format === RGBAFormat) {
+
+					for (let i = 0; i < data.length; i += 4) {
+
+						data[i + 0] = image.data[i + 0];
+						data[i + 1] = image.data[i + 1];
+						data[i + 2] = image.data[i + 2];
+						data[i + 3] = image.data[i + 3];
 
 					}
 
 				} else {
 
-					for ( let i = 0, j = 0; i < data.length; i += 4, j += 3 ) {
+					for (let i = 0, j = 0; i < data.length; i += 4, j += 3) {
 
-						data[ i + 0 ] = image.data[ j + 0 ];
-						data[ i + 1 ] = image.data[ j + 1 ];
-						data[ i + 2 ] = image.data[ j + 2 ];
-						data[ i + 3 ] = 255;
+						data[i + 0] = image.data[j + 0];
+						data[i + 1] = image.data[j + 1];
+						data[i + 2] = image.data[j + 2];
+						data[i + 3] = 255;
 
 					}
 
 				}
 
-				ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
+				ctx.putImageData(new ImageData(data, image.width, image.height), 0, 0);
 
 			}
 
-			if ( options.binary === true ) {
+			if (options.binary === true) {
 
-				pending.push( new Promise( function ( resolve ) {
+				pending.push(new Promise(function (resolve) {
 
-					canvas.toBlob( function ( blob ) {
+					canvas.toBlob(function (blob) {
 
-						writer.processBufferViewImage( blob ).then( function ( bufferViewIndex ) {
+						writer.processBufferViewImage(blob).then(function (bufferViewIndex) {
 
 							imageDef.bufferView = bufferViewIndex;
 							resolve();
 
-						} );
+						});
 
-					}, mimeType );
+					}, mimeType);
 
-				} ) );
+				}));
 
 			} else {
 
-				imageDef.uri = canvas.toDataURL( mimeType );
+				imageDef.uri = canvas.toDataURL(mimeType);
 
 			}
 
@@ -1082,8 +1082,8 @@ class GLTFWriter {
 
 		}
 
-		const index = json.images.push( imageDef ) - 1;
-		cachedImages[ key ] = index;
+		const index = json.images.push(imageDef) - 1;
+		cachedImages[key] = index;
 		return index;
 
 	}
@@ -1093,20 +1093,20 @@ class GLTFWriter {
 	 * @param  {Texture} map Texture to process
 	 * @return {Integer}     Index of the processed texture in the "samplers" array
 	 */
-	processSampler( map ) {
+	processSampler(map) {
 
 		const json = this.json;
 
-		if ( ! json.samplers ) json.samplers = [];
+		if (!json.samplers) json.samplers = [];
 
 		const samplerDef = {
-			magFilter: THREE_TO_WEBGL[ map.magFilter ],
-			minFilter: THREE_TO_WEBGL[ map.minFilter ],
-			wrapS: THREE_TO_WEBGL[ map.wrapS ],
-			wrapT: THREE_TO_WEBGL[ map.wrapT ]
+			magFilter: THREE_TO_WEBGL[map.magFilter],
+			minFilter: THREE_TO_WEBGL[map.minFilter],
+			wrapS: THREE_TO_WEBGL[map.wrapS],
+			wrapT: THREE_TO_WEBGL[map.wrapT]
 		};
 
-		return json.samplers.push( samplerDef ) - 1;
+		return json.samplers.push(samplerDef) - 1;
 
 	}
 
@@ -1115,30 +1115,30 @@ class GLTFWriter {
 	 * @param  {Texture} map Map to process
 	 * @return {Integer} Index of the processed texture in the "textures" array
 	 */
-	processTexture( map ) {
+	processTexture(map) {
 
 		const cache = this.cache;
 		const json = this.json;
 
-		if ( cache.textures.has( map ) ) return cache.textures.get( map );
+		if (cache.textures.has(map)) return cache.textures.get(map);
 
-		if ( ! json.textures ) json.textures = [];
+		if (!json.textures) json.textures = [];
 
 		const textureDef = {
-			sampler: this.processSampler( map ),
-			source: this.processImage( map.image, map.format, map.flipY )
+			sampler: this.processSampler(map),
+			source: this.processImage(map.image, map.format, map.flipY)
 		};
 
-		if ( map.name ) textureDef.name = map.name;
+		if (map.name) textureDef.name = map.name;
 
-		this._invokeAll( function ( ext ) {
+		this._invokeAll(function (ext) {
 
-			ext.writeTexture && ext.writeTexture( map, textureDef );
+			ext.writeTexture && ext.writeTexture(map, textureDef);
 
-		} );
+		});
 
-		const index = json.textures.push( textureDef ) - 1;
-		cache.textures.set( map, index );
+		const index = json.textures.push(textureDef) - 1;
+		cache.textures.set(map, index);
 		return index;
 
 	}
@@ -1148,41 +1148,41 @@ class GLTFWriter {
 	 * @param  {THREE.Material} material Material to process
 	 * @return {Integer|null} Index of the processed material in the "materials" array
 	 */
-	processMaterial( material ) {
+	processMaterial(material) {
 
 		const cache = this.cache;
 		const json = this.json;
 
-		if ( cache.materials.has( material ) ) return cache.materials.get( material );
+		if (cache.materials.has(material)) return cache.materials.get(material);
 
-		if ( material.isShaderMaterial ) {
+		if (material.isShaderMaterial) {
 
-			console.warn( 'GLTFExporter: THREE.ShaderMaterial not supported.' );
+			console.warn('GLTFExporter: THREE.ShaderMaterial not supported.');
 			return null;
 
 		}
 
-		if ( ! json.materials ) json.materials = [];
+		if (!json.materials) json.materials = [];
 
 		// @QUESTION Should we avoid including any attribute that has the default value?
-		const materialDef = {	pbrMetallicRoughness: {} };
+		const materialDef = { pbrMetallicRoughness: {} };
 
-		if ( material.isMeshStandardMaterial !== true && material.isMeshBasicMaterial !== true ) {
+		if (material.isMeshStandardMaterial !== true && material.isMeshBasicMaterial !== true) {
 
-			console.warn( 'GLTFExporter: Use MeshStandardMaterial or MeshBasicMaterial for best results.' );
+			console.warn('GLTFExporter: Use MeshStandardMaterial or MeshBasicMaterial for best results.');
 
 		}
 
 		// pbrMetallicRoughness.baseColorFactor
-		const color = material.color.toArray().concat( [ material.opacity ] );
+		const color = material.color.toArray().concat([material.opacity]);
 
-		if ( ! equalArray( color, [ 1, 1, 1, 1 ] ) ) {
+		if (!equalArray(color, [1, 1, 1, 1])) {
 
 			materialDef.pbrMetallicRoughness.baseColorFactor = color;
 
 		}
 
-		if ( material.isMeshStandardMaterial ) {
+		if (material.isMeshStandardMaterial) {
 
 			materialDef.pbrMetallicRoughness.metallicFactor = material.metalness;
 			materialDef.pbrMetallicRoughness.roughnessFactor = material.roughness;
@@ -1195,56 +1195,56 @@ class GLTFWriter {
 		}
 
 		// pbrMetallicRoughness.metallicRoughnessTexture
-		if ( material.metalnessMap || material.roughnessMap ) {
+		if (material.metalnessMap || material.roughnessMap) {
 
-			if ( material.metalnessMap === material.roughnessMap ) {
+			if (material.metalnessMap === material.roughnessMap) {
 
-				const metalRoughMapDef = { index: this.processTexture( material.metalnessMap ) };
-				this.applyTextureTransform( metalRoughMapDef, material.metalnessMap );
+				const metalRoughMapDef = { index: this.processTexture(material.metalnessMap) };
+				this.applyTextureTransform(metalRoughMapDef, material.metalnessMap);
 				materialDef.pbrMetallicRoughness.metallicRoughnessTexture = metalRoughMapDef;
 
 			} else {
 
-				console.warn( 'THREE.GLTFExporter: Ignoring metalnessMap and roughnessMap because they are not the same Texture.' );
+				console.warn('THREE.GLTFExporter: Ignoring metalnessMap and roughnessMap because they are not the same Texture.');
 
 			}
 
 		}
 
 		// pbrMetallicRoughness.baseColorTexture or pbrSpecularGlossiness diffuseTexture
-		if ( material.map ) {
+		if (material.map) {
 
-			const baseColorMapDef = { index: this.processTexture( material.map ) };
-			this.applyTextureTransform( baseColorMapDef, material.map );
+			const baseColorMapDef = { index: this.processTexture(material.map) };
+			this.applyTextureTransform(baseColorMapDef, material.map);
 			materialDef.pbrMetallicRoughness.baseColorTexture = baseColorMapDef;
 
 		}
 
-		if ( material.emissive ) {
+		if (material.emissive) {
 
 			// note: emissive components are limited to stay within the 0 - 1 range to accommodate glTF spec. see #21849 and #22000.
-			const emissive = material.emissive.clone().multiplyScalar( material.emissiveIntensity );
-			const maxEmissiveComponent = Math.max( emissive.r, emissive.g, emissive.b );
+			const emissive = material.emissive.clone().multiplyScalar(material.emissiveIntensity);
+			const maxEmissiveComponent = Math.max(emissive.r, emissive.g, emissive.b);
 
-			if ( maxEmissiveComponent > 1 ) {
+			if (maxEmissiveComponent > 1) {
 
-				emissive.multiplyScalar( 1 / maxEmissiveComponent );
+				emissive.multiplyScalar(1 / maxEmissiveComponent);
 
-				console.warn( 'THREE.GLTFExporter: Some emissive components exceed 1; emissive has been limited' );
+				console.warn('THREE.GLTFExporter: Some emissive components exceed 1; emissive has been limited');
 
 			}
 
-			if ( maxEmissiveComponent > 0 ) {
+			if (maxEmissiveComponent > 0) {
 
 				materialDef.emissiveFactor = emissive.toArray();
 
 			}
 
 			// emissiveTexture
-			if ( material.emissiveMap ) {
+			if (material.emissiveMap) {
 
-				const emissiveMapDef = { index: this.processTexture( material.emissiveMap ) };
-				this.applyTextureTransform( emissiveMapDef, material.emissiveMap );
+				const emissiveMapDef = { index: this.processTexture(material.emissiveMap) };
+				this.applyTextureTransform(emissiveMapDef, material.emissiveMap);
 				materialDef.emissiveTexture = emissiveMapDef;
 
 			}
@@ -1252,11 +1252,11 @@ class GLTFWriter {
 		}
 
 		// normalTexture
-		if ( material.normalMap ) {
+		if (material.normalMap) {
 
-			const normalMapDef = { index: this.processTexture( material.normalMap ) };
+			const normalMapDef = { index: this.processTexture(material.normalMap) };
 
-			if ( material.normalScale && material.normalScale.x !== 1 ) {
+			if (material.normalScale && material.normalScale.x !== 1) {
 
 				// glTF normal scale is univariate. Ignore `y`, which may be flipped.
 				// Context: https://github.com/mrdoob/three.js/issues/11438#issuecomment-507003995
@@ -1264,38 +1264,38 @@ class GLTFWriter {
 
 			}
 
-			this.applyTextureTransform( normalMapDef, material.normalMap );
+			this.applyTextureTransform(normalMapDef, material.normalMap);
 			materialDef.normalTexture = normalMapDef;
 
 		}
 
 		// occlusionTexture
-		if ( material.aoMap ) {
+		if (material.aoMap) {
 
 			const occlusionMapDef = {
-				index: this.processTexture( material.aoMap ),
+				index: this.processTexture(material.aoMap),
 				texCoord: 1
 			};
 
-			if ( material.aoMapIntensity !== 1.0 ) {
+			if (material.aoMapIntensity !== 1.0) {
 
 				occlusionMapDef.strength = material.aoMapIntensity;
 
 			}
 
-			this.applyTextureTransform( occlusionMapDef, material.aoMap );
+			this.applyTextureTransform(occlusionMapDef, material.aoMap);
 			materialDef.occlusionTexture = occlusionMapDef;
 
 		}
 
 		// alphaMode
-		if ( material.transparent ) {
+		if (material.transparent) {
 
 			materialDef.alphaMode = 'BLEND';
 
 		} else {
 
-			if ( material.alphaTest > 0.0 ) {
+			if (material.alphaTest > 0.0) {
 
 				materialDef.alphaMode = 'MASK';
 				materialDef.alphaCutoff = material.alphaTest;
@@ -1305,19 +1305,19 @@ class GLTFWriter {
 		}
 
 		// doubleSided
-		if ( material.side === DoubleSide ) materialDef.doubleSided = true;
-		if ( material.name !== '' ) materialDef.name = material.name;
+		if (material.side === DoubleSide) materialDef.doubleSided = true;
+		if (material.name !== '') materialDef.name = material.name;
 
-		this.serializeUserData( material, materialDef );
+		this.serializeUserData(material, materialDef);
 
-		this._invokeAll( function ( ext ) {
+		this._invokeAll(function (ext) {
 
-			ext.writeMaterial && ext.writeMaterial( material, materialDef );
+			ext.writeMaterial && ext.writeMaterial(material, materialDef);
 
-		} );
+		});
 
-		const index = json.materials.push( materialDef ) - 1;
-		cache.materials.set( material, index );
+		const index = json.materials.push(materialDef) - 1;
+		cache.materials.set(material, index);
 		return index;
 
 	}
@@ -1327,48 +1327,48 @@ class GLTFWriter {
 	 * @param  {THREE.Mesh} mesh Mesh to process
 	 * @return {Integer|null} Index of the processed mesh in the "meshes" array
 	 */
-	processMesh( mesh ) {
+	processMesh(mesh) {
 
 		const cache = this.cache;
 		const json = this.json;
 
-		const meshCacheKeyParts = [ mesh.geometry.uuid ];
+		const meshCacheKeyParts = [mesh.geometry.uuid];
 
-		if ( Array.isArray( mesh.material ) ) {
+		if (Array.isArray(mesh.material)) {
 
-			for ( let i = 0, l = mesh.material.length; i < l; i ++ ) {
+			for (let i = 0, l = mesh.material.length; i < l; i++) {
 
-				meshCacheKeyParts.push( mesh.material[ i ].uuid	);
+				meshCacheKeyParts.push(mesh.material[i].uuid);
 
 			}
 
 		} else {
 
-			meshCacheKeyParts.push( mesh.material.uuid );
+			meshCacheKeyParts.push(mesh.material.uuid);
 
 		}
 
-		const meshCacheKey = meshCacheKeyParts.join( ':' );
+		const meshCacheKey = meshCacheKeyParts.join(':');
 
-		if ( cache.meshes.has( meshCacheKey ) ) return cache.meshes.get( meshCacheKey );
+		if (cache.meshes.has(meshCacheKey)) return cache.meshes.get(meshCacheKey);
 
 		const geometry = mesh.geometry;
 		let mode;
 
 		// Use the correct mode
-		if ( mesh.isLineSegments ) {
+		if (mesh.isLineSegments) {
 
 			mode = WEBGL_CONSTANTS.LINES;
 
-		} else if ( mesh.isLineLoop ) {
+		} else if (mesh.isLineLoop) {
 
 			mode = WEBGL_CONSTANTS.LINE_LOOP;
 
-		} else if ( mesh.isLine ) {
+		} else if (mesh.isLine) {
 
 			mode = WEBGL_CONSTANTS.LINE_STRIP;
 
-		} else if ( mesh.isPoints ) {
+		} else if (mesh.isPoints) {
 
 			mode = WEBGL_CONSTANTS.POINTS;
 
@@ -1378,9 +1378,9 @@ class GLTFWriter {
 
 		}
 
-		if ( geometry.isBufferGeometry !== true ) {
+		if (geometry.isBufferGeometry !== true) {
 
-			throw new Error( 'THREE.GLTFExporter: Geometry is not of type THREE.BufferGeometry.' );
+			throw new Error('THREE.GLTFExporter: Geometry is not of type THREE.BufferGeometry.');
 
 		}
 
@@ -1398,13 +1398,13 @@ class GLTFWriter {
 			skinIndex: 'JOINTS_0'
 		};
 
-		const originalNormal = geometry.getAttribute( 'normal' );
+		const originalNormal = geometry.getAttribute('normal');
 
-		if ( originalNormal !== undefined && ! this.isNormalizedNormalAttribute( originalNormal ) ) {
+		if (originalNormal !== undefined && !this.isNormalizedNormalAttribute(originalNormal)) {
 
-			console.warn( 'THREE.GLTFExporter: Creating normalized normal attribute from the non-normalized one.' );
+			console.warn('THREE.GLTFExporter: Creating normalized normal attribute from the non-normalized one.');
 
-			geometry.setAttribute( 'normal', this.createNormalizedNormalAttribute( originalNormal ) );
+			geometry.setAttribute('normal', this.createNormalizedNormalAttribute(originalNormal));
 
 		}
 
@@ -1412,24 +1412,24 @@ class GLTFWriter {
 		// For every attribute create an accessor
 		let modifiedAttribute = null;
 
-		for ( let attributeName in geometry.attributes ) {
+		for (let attributeName in geometry.attributes) {
 
 			// Ignore morph target attributes, which are exported later.
-			if ( attributeName.substr( 0, 5 ) === 'morph' ) continue;
+			if (attributeName.substr(0, 5) === 'morph') continue;
 
-			const attribute = geometry.attributes[ attributeName ];
-			attributeName = nameConversion[ attributeName ] || attributeName.toUpperCase();
+			const attribute = geometry.attributes[attributeName];
+			attributeName = nameConversion[attributeName] || attributeName.toUpperCase();
 
 			// Prefix all geometry attributes except the ones specifically
 			// listed in the spec; non-spec attributes are considered custom.
 			const validVertexAttributes =
-					/^(POSITION|NORMAL|TANGENT|TEXCOORD_\d+|COLOR_\d+|JOINTS_\d+|WEIGHTS_\d+)$/;
+				/^(POSITION|NORMAL|TANGENT|TEXCOORD_\d+|COLOR_\d+|JOINTS_\d+|WEIGHTS_\d+)$/;
 
-			if ( ! validVertexAttributes.test( attributeName ) ) attributeName = '_' + attributeName;
+			if (!validVertexAttributes.test(attributeName)) attributeName = '_' + attributeName;
 
-			if ( cache.attributes.has( this.getUID( attribute ) ) ) {
+			if (cache.attributes.has(this.getUID(attribute))) {
 
-				attributes[ attributeName ] = cache.attributes.get( this.getUID( attribute ) );
+				attributes[attributeName] = cache.attributes.get(this.getUID(attribute));
 				continue;
 
 			}
@@ -1438,63 +1438,63 @@ class GLTFWriter {
 			modifiedAttribute = null;
 			const array = attribute.array;
 
-			if ( attributeName === 'JOINTS_0' &&
-				! ( array instanceof Uint16Array ) &&
-				! ( array instanceof Uint8Array ) ) {
+			if (attributeName === 'JOINTS_0' &&
+				!(array instanceof Uint16Array) &&
+				!(array instanceof Uint8Array)) {
 
-				console.warn( 'GLTFExporter: Attribute "skinIndex" converted to type UNSIGNED_SHORT.' );
-				modifiedAttribute = new BufferAttribute( new Uint16Array( array ), attribute.itemSize, attribute.normalized );
+				console.warn('GLTFExporter: Attribute "skinIndex" converted to type UNSIGNED_SHORT.');
+				modifiedAttribute = new BufferAttribute(new Uint16Array(array), attribute.itemSize, attribute.normalized);
 
 			}
 
-			const accessor = this.processAccessor( modifiedAttribute || attribute, geometry );
+			const accessor = this.processAccessor(modifiedAttribute || attribute, geometry);
 
-			if ( accessor !== null ) {
+			if (accessor !== null) {
 
-				attributes[ attributeName ] = accessor;
-				cache.attributes.set( this.getUID( attribute ), accessor );
+				attributes[attributeName] = accessor;
+				cache.attributes.set(this.getUID(attribute), accessor);
 
 			}
 
 		}
 
-		if ( originalNormal !== undefined ) geometry.setAttribute( 'normal', originalNormal );
+		if (originalNormal !== undefined) geometry.setAttribute('normal', originalNormal);
 
 		// Skip if no exportable attributes found
-		if ( Object.keys( attributes ).length === 0 ) return null;
+		if (Object.keys(attributes).length === 0) return null;
 
 		// Morph targets
-		if ( mesh.morphTargetInfluences !== undefined && mesh.morphTargetInfluences.length > 0 ) {
+		if (mesh.morphTargetInfluences !== undefined && mesh.morphTargetInfluences.length > 0) {
 
 			const weights = [];
 			const targetNames = [];
 			const reverseDictionary = {};
 
-			if ( mesh.morphTargetDictionary !== undefined ) {
+			if (mesh.morphTargetDictionary !== undefined) {
 
-				for ( const key in mesh.morphTargetDictionary ) {
+				for (const key in mesh.morphTargetDictionary) {
 
-					reverseDictionary[ mesh.morphTargetDictionary[ key ] ] = key;
+					reverseDictionary[mesh.morphTargetDictionary[key]] = key;
 
 				}
 
 			}
 
-			for ( let i = 0; i < mesh.morphTargetInfluences.length; ++ i ) {
+			for (let i = 0; i < mesh.morphTargetInfluences.length; ++i) {
 
 				const target = {};
 				let warned = false;
 
-				for ( const attributeName in geometry.morphAttributes ) {
+				for (const attributeName in geometry.morphAttributes) {
 
 					// glTF 2.0 morph supports only POSITION/NORMAL/TANGENT.
 					// Three.js doesn't support TANGENT yet.
 
-					if ( attributeName !== 'position' && attributeName !== 'normal' ) {
+					if (attributeName !== 'position' && attributeName !== 'normal') {
 
-						if ( ! warned ) {
+						if (!warned) {
 
-							console.warn( 'GLTFExporter: Only POSITION and NORMAL morph are supported.' );
+							console.warn('GLTFExporter: Only POSITION and NORMAL morph are supported.');
 							warned = true;
 
 						}
@@ -1503,7 +1503,7 @@ class GLTFWriter {
 
 					}
 
-					const attribute = geometry.morphAttributes[ attributeName ][ i ];
+					const attribute = geometry.morphAttributes[attributeName][i];
 					const gltfAttributeName = attributeName.toUpperCase();
 
 					// Three.js morph attribute has absolute values while the one of glTF has relative values.
@@ -1511,11 +1511,11 @@ class GLTFWriter {
 					// glTF 2.0 Specification:
 					// https://github.com/KhronosGroup/glTF/tree/master/specification/2.0#morph-targets
 
-					const baseAttribute = geometry.attributes[ attributeName ];
+					const baseAttribute = geometry.attributes[attributeName];
 
-					if ( cache.attributes.has( this.getUID( attribute ) ) ) {
+					if (cache.attributes.has(this.getUID(attribute))) {
 
-						target[ gltfAttributeName ] = cache.attributes.get( this.getUID( attribute ) );
+						target[gltfAttributeName] = cache.attributes.get(this.getUID(attribute));
 						continue;
 
 					}
@@ -1523,37 +1523,37 @@ class GLTFWriter {
 					// Clones attribute not to override
 					const relativeAttribute = attribute.clone();
 
-					if ( ! geometry.morphTargetsRelative ) {
+					if (!geometry.morphTargetsRelative) {
 
-						for ( let j = 0, jl = attribute.count; j < jl; j ++ ) {
+						for (let j = 0, jl = attribute.count; j < jl; j++) {
 
 							relativeAttribute.setXYZ(
 								j,
-								attribute.getX( j ) - baseAttribute.getX( j ),
-								attribute.getY( j ) - baseAttribute.getY( j ),
-								attribute.getZ( j ) - baseAttribute.getZ( j )
+								attribute.getX(j) - baseAttribute.getX(j),
+								attribute.getY(j) - baseAttribute.getY(j),
+								attribute.getZ(j) - baseAttribute.getZ(j)
 							);
 
 						}
 
 					}
 
-					target[ gltfAttributeName ] = this.processAccessor( relativeAttribute, geometry );
-					cache.attributes.set( this.getUID( baseAttribute ), target[ gltfAttributeName ] );
+					target[gltfAttributeName] = this.processAccessor(relativeAttribute, geometry);
+					cache.attributes.set(this.getUID(baseAttribute), target[gltfAttributeName]);
 
 				}
 
-				targets.push( target );
+				targets.push(target);
 
-				weights.push( mesh.morphTargetInfluences[ i ] );
+				weights.push(mesh.morphTargetInfluences[i]);
 
-				if ( mesh.morphTargetDictionary !== undefined ) targetNames.push( reverseDictionary[ i ] );
+				if (mesh.morphTargetDictionary !== undefined) targetNames.push(reverseDictionary[i]);
 
 			}
 
 			meshDef.weights = weights;
 
-			if ( targetNames.length > 0 ) {
+			if (targetNames.length > 0) {
 
 				meshDef.extras = {};
 				meshDef.extras.targetNames = targetNames;
@@ -1562,69 +1562,69 @@ class GLTFWriter {
 
 		}
 
-		const isMultiMaterial = Array.isArray( mesh.material );
+		const isMultiMaterial = Array.isArray(mesh.material);
 
-		if ( isMultiMaterial && geometry.groups.length === 0 ) return null;
+		if (isMultiMaterial && geometry.groups.length === 0) return null;
 
-		const materials = isMultiMaterial ? mesh.material : [ mesh.material ];
-		const groups = isMultiMaterial ? geometry.groups : [ { materialIndex: 0, start: undefined, count: undefined } ];
+		const materials = isMultiMaterial ? mesh.material : [mesh.material];
+		const groups = isMultiMaterial ? geometry.groups : [{ materialIndex: 0, start: undefined, count: undefined }];
 
-		for ( let i = 0, il = groups.length; i < il; i ++ ) {
+		for (let i = 0, il = groups.length; i < il; i++) {
 
 			const primitive = {
 				mode: mode,
 				attributes: attributes,
 			};
 
-			this.serializeUserData( geometry, primitive );
+			this.serializeUserData(geometry, primitive);
 
-			if ( targets.length > 0 ) primitive.targets = targets;
+			if (targets.length > 0) primitive.targets = targets;
 
-			if ( geometry.index !== null ) {
+			if (geometry.index !== null) {
 
-				let cacheKey = this.getUID( geometry.index );
+				let cacheKey = this.getUID(geometry.index);
 
-				if ( groups[ i ].start !== undefined || groups[ i ].count !== undefined ) {
+				if (groups[i].start !== undefined || groups[i].count !== undefined) {
 
-					cacheKey += ':' + groups[ i ].start + ':' + groups[ i ].count;
+					cacheKey += ':' + groups[i].start + ':' + groups[i].count;
 
 				}
 
-				if ( cache.attributes.has( cacheKey ) ) {
+				if (cache.attributes.has(cacheKey)) {
 
-					primitive.indices = cache.attributes.get( cacheKey );
+					primitive.indices = cache.attributes.get(cacheKey);
 
 				} else {
 
-					primitive.indices = this.processAccessor( geometry.index, geometry, groups[ i ].start, groups[ i ].count );
-					cache.attributes.set( cacheKey, primitive.indices );
+					primitive.indices = this.processAccessor(geometry.index, geometry, groups[i].start, groups[i].count);
+					cache.attributes.set(cacheKey, primitive.indices);
 
 				}
 
-				if ( primitive.indices === null ) delete primitive.indices;
+				if (primitive.indices === null) delete primitive.indices;
 
 			}
 
-			const material = this.processMaterial( materials[ groups[ i ].materialIndex ] );
+			const material = this.processMaterial(materials[groups[i].materialIndex]);
 
-			if ( material !== null ) primitive.material = material;
+			if (material !== null) primitive.material = material;
 
-			primitives.push( primitive );
+			primitives.push(primitive);
 
 		}
 
 		meshDef.primitives = primitives;
 
-		if ( ! json.meshes ) json.meshes = [];
+		if (!json.meshes) json.meshes = [];
 
-		this._invokeAll( function ( ext ) {
+		this._invokeAll(function (ext) {
 
-			ext.writeMesh && ext.writeMesh( mesh, meshDef );
+			ext.writeMesh && ext.writeMesh(mesh, meshDef);
 
-		} );
+		});
 
-		const index = json.meshes.push( meshDef ) - 1;
-		cache.meshes.set( meshCacheKey, index );
+		const index = json.meshes.push(meshDef) - 1;
+		cache.meshes.set(meshCacheKey, index);
 		return index;
 
 	}
@@ -1634,11 +1634,11 @@ class GLTFWriter {
 	 * @param  {THREE.Camera} camera Camera to process
 	 * @return {Integer}      Index of the processed mesh in the "camera" array
 	 */
-	processCamera( camera ) {
+	processCamera(camera) {
 
 		const json = this.json;
 
-		if ( ! json.cameras ) json.cameras = [];
+		if (!json.cameras) json.cameras = [];
 
 		const isOrtho = camera.isOrthographicCamera;
 
@@ -1646,7 +1646,7 @@ class GLTFWriter {
 			type: isOrtho ? 'orthographic' : 'perspective'
 		};
 
-		if ( isOrtho ) {
+		if (isOrtho) {
 
 			cameraDef.orthographic = {
 				xmag: camera.right * 2,
@@ -1659,7 +1659,7 @@ class GLTFWriter {
 
 			cameraDef.perspective = {
 				aspectRatio: camera.aspect,
-				yfov: MathUtils.degToRad( camera.fov ),
+				yfov: MathUtils.degToRad(camera.fov),
 				zfar: camera.far <= 0 ? 0.001 : camera.far,
 				znear: camera.near < 0 ? 0 : camera.near
 			};
@@ -1667,9 +1667,9 @@ class GLTFWriter {
 		}
 
 		// Question: Is saving "type" as name intentional?
-		if ( camera.name !== '' ) cameraDef.name = camera.type;
+		if (camera.name !== '') cameraDef.name = camera.type;
 
-		return json.cameras.push( cameraDef ) - 1;
+		return json.cameras.push(cameraDef) - 1;
 
 	}
 
@@ -1683,31 +1683,31 @@ class GLTFWriter {
 	 * @param {THREE.Object3D} root
 	 * @return {number|null}
 	 */
-	processAnimation( clip, root ) {
+	processAnimation(clip, root) {
 
 		const json = this.json;
 		const nodeMap = this.nodeMap;
 
-		if ( ! json.animations ) json.animations = [];
+		if (!json.animations) json.animations = [];
 
-		clip = GLTFExporter.Utils.mergeMorphTargetTracks( clip.clone(), root );
+		clip = GLTFExporter.Utils.mergeMorphTargetTracks(clip.clone(), root);
 
 		const tracks = clip.tracks;
 		const channels = [];
 		const samplers = [];
 
-		for ( let i = 0; i < tracks.length; ++ i ) {
+		for (let i = 0; i < tracks.length; ++i) {
 
-			const track = tracks[ i ];
-			const trackBinding = PropertyBinding.parseTrackName( track.name );
-			let trackNode = PropertyBinding.findNode( root, trackBinding.nodeName );
-			const trackProperty = PATH_PROPERTIES[ trackBinding.propertyName ];
+			const track = tracks[i];
+			const trackBinding = PropertyBinding.parseTrackName(track.name);
+			let trackNode = PropertyBinding.findNode(root, trackBinding.nodeName);
+			const trackProperty = PATH_PROPERTIES[trackBinding.propertyName];
 
-			if ( trackBinding.objectName === 'bones' ) {
+			if (trackBinding.objectName === 'bones') {
 
-				if ( trackNode.isSkinnedMesh === true ) {
+				if (trackNode.isSkinnedMesh === true) {
 
-					trackNode = trackNode.skeleton.getBoneByName( trackBinding.objectIndex );
+					trackNode = trackNode.skeleton.getBoneByName(trackBinding.objectIndex);
 
 				} else {
 
@@ -1717,9 +1717,9 @@ class GLTFWriter {
 
 			}
 
-			if ( ! trackNode || ! trackProperty ) {
+			if (!trackNode || !trackProperty) {
 
-				console.warn( 'THREE.GLTFExporter: Could not export animation track "%s".', track.name );
+				console.warn('THREE.GLTFExporter: Could not export animation track "%s".', track.name);
 				return null;
 
 			}
@@ -1727,7 +1727,7 @@ class GLTFWriter {
 			const inputItemSize = 1;
 			let outputItemSize = track.values.length / track.times.length;
 
-			if ( trackProperty === PATH_PROPERTIES.morphTargetInfluences ) {
+			if (trackProperty === PATH_PROPERTIES.morphTargetInfluences) {
 
 				outputItemSize /= trackNode.morphTargetInfluences.length;
 
@@ -1740,7 +1740,7 @@ class GLTFWriter {
 			// Detecting glTF cubic spline interpolant by checking factory method's special property
 			// GLTFCubicSplineInterpolant is a custom interpolant and track doesn't return
 			// valid value from .getInterpolation().
-			if ( track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline === true ) {
+			if (track.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline === true) {
 
 				interpolation = 'CUBICSPLINE';
 
@@ -1749,7 +1749,7 @@ class GLTFWriter {
 				// but needs to be stored as VEC3 so dividing by 3 here.
 				outputItemSize /= 3;
 
-			} else if ( track.getInterpolation() === InterpolateDiscrete ) {
+			} else if (track.getInterpolation() === InterpolateDiscrete) {
 
 				interpolation = 'STEP';
 
@@ -1759,27 +1759,27 @@ class GLTFWriter {
 
 			}
 
-			samplers.push( {
-				input: this.processAccessor( new BufferAttribute( track.times, inputItemSize ) ),
-				output: this.processAccessor( new BufferAttribute( track.values, outputItemSize ) ),
+			samplers.push({
+				input: this.processAccessor(new BufferAttribute(track.times, inputItemSize)),
+				output: this.processAccessor(new BufferAttribute(track.values, outputItemSize)),
 				interpolation: interpolation
-			} );
+			});
 
-			channels.push( {
+			channels.push({
 				sampler: samplers.length - 1,
 				target: {
-					node: nodeMap.get( trackNode ),
+					node: nodeMap.get(trackNode),
 					path: trackProperty
 				}
-			} );
+			});
 
 		}
 
-		json.animations.push( {
+		json.animations.push({
 			name: clip.name || 'clip_' + json.animations.length,
 			samplers: samplers,
 			channels: channels
-		} );
+		});
 
 		return json.animations.length - 1;
 
@@ -1789,40 +1789,40 @@ class GLTFWriter {
 	 * @param {THREE.Object3D} object
 	 * @return {number|null}
 	 */
-	 processSkin( object ) {
+	processSkin(object) {
 
 		const json = this.json;
 		const nodeMap = this.nodeMap;
 
-		const node = json.nodes[ nodeMap.get( object ) ];
+		const node = json.nodes[nodeMap.get(object)];
 
 		const skeleton = object.skeleton;
 
-		if ( skeleton === undefined ) return null;
+		if (skeleton === undefined) return null;
 
-		const rootJoint = object.skeleton.bones[ 0 ];
+		const rootJoint = object.skeleton.bones[0];
 
-		if ( rootJoint === undefined ) return null;
+		if (rootJoint === undefined) return null;
 
 		const joints = [];
-		const inverseBindMatrices = new Float32Array( skeleton.bones.length * 16 );
+		const inverseBindMatrices = new Float32Array(skeleton.bones.length * 16);
 		const temporaryBoneInverse = new Matrix4();
 
-		for ( let i = 0; i < skeleton.bones.length; ++ i ) {
+		for (let i = 0; i < skeleton.bones.length; ++i) {
 
-			joints.push( nodeMap.get( skeleton.bones[ i ] ) );
-			temporaryBoneInverse.copy( skeleton.boneInverses[ i ] );
-			temporaryBoneInverse.multiply( object.bindMatrix ).toArray( inverseBindMatrices, i * 16 );
+			joints.push(nodeMap.get(skeleton.bones[i]));
+			temporaryBoneInverse.copy(skeleton.boneInverses[i]);
+			temporaryBoneInverse.multiply(object.bindMatrix).toArray(inverseBindMatrices, i * 16);
 
 		}
 
-		if ( json.skins === undefined ) json.skins = [];
+		if (json.skins === undefined) json.skins = [];
 
-		json.skins.push( {
-			inverseBindMatrices: this.processAccessor( new BufferAttribute( inverseBindMatrices, 16 ) ),
+		json.skins.push({
+			inverseBindMatrices: this.processAccessor(new BufferAttribute(inverseBindMatrices, 16)),
 			joints: joints,
-			skeleton: nodeMap.get( rootJoint )
-		} );
+			skeleton: nodeMap.get(rootJoint)
+		});
 
 		const skinIndex = node.skin = json.skins.length - 1;
 
@@ -1835,35 +1835,35 @@ class GLTFWriter {
 	 * @param  {THREE.Object3D} node Object3D to processNode
 	 * @return {Integer} Index of the node in the nodes list
 	 */
-	processNode( object ) {
+	processNode(object) {
 
 		const json = this.json;
 		const options = this.options;
 		const nodeMap = this.nodeMap;
 
-		if ( ! json.nodes ) json.nodes = [];
+		if (!json.nodes) json.nodes = [];
 
 		const nodeDef = {};
 
-		if ( options.trs ) {
+		if (options.trs) {
 
 			const rotation = object.quaternion.toArray();
 			const position = object.position.toArray();
 			const scale = object.scale.toArray();
 
-			if ( ! equalArray( rotation, [ 0, 0, 0, 1 ] ) ) {
+			if (!equalArray(rotation, [0, 0, 0, 1])) {
 
 				nodeDef.rotation = rotation;
 
 			}
 
-			if ( ! equalArray( position, [ 0, 0, 0 ] ) ) {
+			if (!equalArray(position, [0, 0, 0])) {
 
 				nodeDef.translation = position;
 
 			}
 
-			if ( ! equalArray( scale, [ 1, 1, 1 ] ) ) {
+			if (!equalArray(scale, [1, 1, 1])) {
 
 				nodeDef.scale = scale;
 
@@ -1871,13 +1871,13 @@ class GLTFWriter {
 
 		} else {
 
-			if ( object.matrixAutoUpdate ) {
+			if (object.matrixAutoUpdate) {
 
 				object.updateMatrix();
 
 			}
 
-			if ( isIdentityMatrix( object.matrix ) === false ) {
+			if (isIdentityMatrix(object.matrix) === false) {
 
 				nodeDef.matrix = object.matrix.elements;
 
@@ -1886,54 +1886,54 @@ class GLTFWriter {
 		}
 
 		// We don't export empty strings name because it represents no-name in Three.js.
-		if ( object.name !== '' ) nodeDef.name = String( object.name );
+		if (object.name !== '') nodeDef.name = String(object.name);
 
-		this.serializeUserData( object, nodeDef );
+		this.serializeUserData(object, nodeDef);
 
-		if ( object.isMesh || object.isLine || object.isPoints ) {
+		if (object.isMesh || object.isLine || object.isPoints) {
 
-			const meshIndex = this.processMesh( object );
+			const meshIndex = this.processMesh(object);
 
-			if ( meshIndex !== null ) nodeDef.mesh = meshIndex;
+			if (meshIndex !== null) nodeDef.mesh = meshIndex;
 
-		} else if ( object.isCamera ) {
+		} else if (object.isCamera) {
 
-			nodeDef.camera = this.processCamera( object );
+			nodeDef.camera = this.processCamera(object);
 
 		}
 
-		if ( object.isSkinnedMesh ) this.skins.push( object );
+		if (object.isSkinnedMesh) this.skins.push(object);
 
-		if ( object.children.length > 0 ) {
+		if (object.children.length > 0) {
 
 			const children = [];
 
-			for ( let i = 0, l = object.children.length; i < l; i ++ ) {
+			for (let i = 0, l = object.children.length; i < l; i++) {
 
-				const child = object.children[ i ];
+				const child = object.children[i];
 
-				if ( child.visible || options.onlyVisible === false ) {
+				if (child.visible || options.onlyVisible === false) {
 
-					const nodeIndex = this.processNode( child );
+					const nodeIndex = this.processNode(child);
 
-					if ( nodeIndex !== null ) children.push( nodeIndex );
+					if (nodeIndex !== null) children.push(nodeIndex);
 
 				}
 
 			}
 
-			if ( children.length > 0 ) nodeDef.children = children;
+			if (children.length > 0) nodeDef.children = children;
 
 		}
 
-		this._invokeAll( function ( ext ) {
+		this._invokeAll(function (ext) {
 
-			ext.writeNode && ext.writeNode( object, nodeDef );
+			ext.writeNode && ext.writeNode(object, nodeDef);
 
-		} );
+		});
 
-		const nodeIndex = json.nodes.push( nodeDef ) - 1;
-		nodeMap.set( object, nodeIndex );
+		const nodeIndex = json.nodes.push(nodeDef) - 1;
+		nodeMap.set(object, nodeIndex);
 		return nodeIndex;
 
 	}
@@ -1942,12 +1942,12 @@ class GLTFWriter {
 	 * Process Scene
 	 * @param  {Scene} node Scene to process
 	 */
-	processScene( scene ) {
+	processScene(scene) {
 
 		const json = this.json;
 		const options = this.options;
 
-		if ( ! json.scenes ) {
+		if (!json.scenes) {
 
 			json.scenes = [];
 			json.scene = 0;
@@ -1956,29 +1956,29 @@ class GLTFWriter {
 
 		const sceneDef = {};
 
-		if ( scene.name !== '' ) sceneDef.name = scene.name;
+		if (scene.name !== '') sceneDef.name = scene.name;
 
-		json.scenes.push( sceneDef );
+		json.scenes.push(sceneDef);
 
 		const nodes = [];
 
-		for ( let i = 0, l = scene.children.length; i < l; i ++ ) {
+		for (let i = 0, l = scene.children.length; i < l; i++) {
 
-			const child = scene.children[ i ];
+			const child = scene.children[i];
 
-			if ( child.visible || options.onlyVisible === false ) {
+			if (child.visible || options.onlyVisible === false) {
 
-				const nodeIndex = this.processNode( child );
+				const nodeIndex = this.processNode(child);
 
-				if ( nodeIndex !== null ) nodes.push( nodeIndex );
+				if (nodeIndex !== null) nodes.push(nodeIndex);
 
 			}
 
 		}
 
-		if ( nodes.length > 0 ) sceneDef.nodes = nodes;
+		if (nodes.length > 0) sceneDef.nodes = nodes;
 
-		this.serializeUserData( scene, sceneDef );
+		this.serializeUserData(scene, sceneDef);
 
 	}
 
@@ -1986,81 +1986,81 @@ class GLTFWriter {
 	 * Creates a Scene to hold a list of objects and parse it
 	 * @param  {Array} objects List of objects to process
 	 */
-	processObjects( objects ) {
+	processObjects(objects) {
 
 		const scene = new Scene();
 		scene.name = 'AuxScene';
 
-		for ( let i = 0; i < objects.length; i ++ ) {
+		for (let i = 0; i < objects.length; i++) {
 
 			// We push directly to children instead of calling `add` to prevent
 			// modify the .parent and break its original scene and hierarchy
-			scene.children.push( objects[ i ] );
+			scene.children.push(objects[i]);
 
 		}
 
-		this.processScene( scene );
+		this.processScene(scene);
 
 	}
 
 	/**
 	 * @param {THREE.Object3D|Array<THREE.Object3D>} input
 	 */
-	processInput( input ) {
+	processInput(input) {
 
 		const options = this.options;
 
-		input = input instanceof Array ? input : [ input ];
+		input = input instanceof Array ? input : [input];
 
-		this._invokeAll( function ( ext ) {
+		this._invokeAll(function (ext) {
 
-			ext.beforeParse && ext.beforeParse( input );
+			ext.beforeParse && ext.beforeParse(input);
 
-		} );
+		});
 
 		const objectsWithoutScene = [];
 
-		for ( let i = 0; i < input.length; i ++ ) {
+		for (let i = 0; i < input.length; i++) {
 
-			if ( input[ i ] instanceof Scene ) {
+			if (input[i] instanceof Scene) {
 
-				this.processScene( input[ i ] );
+				this.processScene(input[i]);
 
 			} else {
 
-				objectsWithoutScene.push( input[ i ] );
+				objectsWithoutScene.push(input[i]);
 
 			}
 
 		}
 
-		if ( objectsWithoutScene.length > 0 ) this.processObjects( objectsWithoutScene );
+		if (objectsWithoutScene.length > 0) this.processObjects(objectsWithoutScene);
 
-		for ( let i = 0; i < this.skins.length; ++ i ) {
+		for (let i = 0; i < this.skins.length; ++i) {
 
-			this.processSkin( this.skins[ i ] );
-
-		}
-
-		for ( let i = 0; i < options.animations.length; ++ i ) {
-
-			this.processAnimation( options.animations[ i ], input[ 0 ] );
+			this.processSkin(this.skins[i]);
 
 		}
 
-		this._invokeAll( function ( ext ) {
+		for (let i = 0; i < options.animations.length; ++i) {
 
-			ext.afterParse && ext.afterParse( input );
+			this.processAnimation(options.animations[i], input[0]);
 
-		} );
+		}
+
+		this._invokeAll(function (ext) {
+
+			ext.afterParse && ext.afterParse(input);
+
+		});
 
 	}
 
-	_invokeAll( func ) {
+	_invokeAll(func) {
 
-		for ( let i = 0, il = this.plugins.length; i < il; i ++ ) {
+		for (let i = 0, il = this.plugins.length; i < il; i++) {
 
-			func( this.plugins[ i ] );
+			func(this.plugins[i]);
 
 		}
 
@@ -2075,20 +2075,20 @@ class GLTFWriter {
  */
 class GLTFLightExtension {
 
-	constructor( writer ) {
+	constructor(writer) {
 
 		this.writer = writer;
 		this.name = 'KHR_lights_punctual';
 
 	}
 
-	writeNode( light, nodeDef ) {
+	writeNode(light, nodeDef) {
 
-		if ( ! light.isLight ) return;
+		if (!light.isLight) return;
 
-		if ( ! light.isDirectionalLight && ! light.isPointLight && ! light.isSpotLight ) {
+		if (!light.isDirectionalLight && !light.isPointLight && !light.isSpotLight) {
 
-			console.warn( 'THREE.GLTFExporter: Only directional, point, and spot lights are supported.', light );
+			console.warn('THREE.GLTFExporter: Only directional, point, and spot lights are supported.', light);
 			return;
 
 		}
@@ -2099,65 +2099,65 @@ class GLTFLightExtension {
 
 		const lightDef = {};
 
-		if ( light.name ) lightDef.name = light.name;
+		if (light.name) lightDef.name = light.name;
 
 		lightDef.color = light.color.toArray();
 
 		lightDef.intensity = light.intensity;
 
-		if ( light.isDirectionalLight ) {
+		if (light.isDirectionalLight) {
 
 			lightDef.type = 'directional';
 
-		} else if ( light.isPointLight ) {
+		} else if (light.isPointLight) {
 
 			lightDef.type = 'point';
 
-			if ( light.distance > 0 ) lightDef.range = light.distance;
+			if (light.distance > 0) lightDef.range = light.distance;
 
-		} else if ( light.isSpotLight ) {
+		} else if (light.isSpotLight) {
 
 			lightDef.type = 'spot';
 
-			if ( light.distance > 0 ) lightDef.range = light.distance;
+			if (light.distance > 0) lightDef.range = light.distance;
 
 			lightDef.spot = {};
-			lightDef.spot.innerConeAngle = ( light.penumbra - 1.0 ) * light.angle * - 1.0;
+			lightDef.spot.innerConeAngle = (light.penumbra - 1.0) * light.angle * - 1.0;
 			lightDef.spot.outerConeAngle = light.angle;
 
 		}
 
-		if ( light.decay !== undefined && light.decay !== 2 ) {
+		if (light.decay !== undefined && light.decay !== 2) {
 
-			console.warn( 'THREE.GLTFExporter: Light decay may be lost. glTF is physically-based, '
-				+ 'and expects light.decay=2.' );
+			console.warn('THREE.GLTFExporter: Light decay may be lost. glTF is physically-based, '
+				+ 'and expects light.decay=2.');
 
 		}
 
-		if ( light.target
-				&& ( light.target.parent !== light
+		if (light.target
+			&& (light.target.parent !== light
 				|| light.target.position.x !== 0
 				|| light.target.position.y !== 0
-				|| light.target.position.z !== - 1 ) ) {
+				|| light.target.position.z !== - 1)) {
 
-			console.warn( 'THREE.GLTFExporter: Light direction may be lost. For best results, '
-				+ 'make light.target a child of the light with position 0,0,-1.' );
+			console.warn('THREE.GLTFExporter: Light direction may be lost. For best results, '
+				+ 'make light.target a child of the light with position 0,0,-1.');
 
 		}
 
-		if ( ! extensionsUsed[ this.name ] ) {
+		if (!extensionsUsed[this.name]) {
 
 			json.extensions = json.extensions || {};
-			json.extensions[ this.name ] = { lights: [] };
-			extensionsUsed[ this.name ] = true;
+			json.extensions[this.name] = { lights: [] };
+			extensionsUsed[this.name] = true;
 
 		}
 
-		const lights = json.extensions[ this.name ].lights;
-		lights.push( lightDef );
+		const lights = json.extensions[this.name].lights;
+		lights.push(lightDef);
 
 		nodeDef.extensions = nodeDef.extensions || {};
-		nodeDef.extensions[ this.name ] = { light: lights.length - 1 };
+		nodeDef.extensions[this.name] = { light: lights.length - 1 };
 
 	}
 
@@ -2170,24 +2170,24 @@ class GLTFLightExtension {
  */
 class GLTFMaterialsUnlitExtension {
 
-	constructor( writer ) {
+	constructor(writer) {
 
 		this.writer = writer;
 		this.name = 'KHR_materials_unlit';
 
 	}
 
-	writeMaterial( material, materialDef ) {
+	writeMaterial(material, materialDef) {
 
-		if ( ! material.isMeshBasicMaterial ) return;
+		if (!material.isMeshBasicMaterial) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;
 
 		materialDef.extensions = materialDef.extensions || {};
-		materialDef.extensions[ this.name ] = {};
+		materialDef.extensions[this.name] = {};
 
-		extensionsUsed[ this.name ] = true;
+		extensionsUsed[this.name] = true;
 
 		materialDef.pbrMetallicRoughness.metallicFactor = 0.0;
 		materialDef.pbrMetallicRoughness.roughnessFactor = 0.9;
@@ -2203,50 +2203,50 @@ class GLTFMaterialsUnlitExtension {
  */
 class GLTFMaterialsPBRSpecularGlossiness {
 
-	constructor( writer ) {
+	constructor(writer) {
 
 		this.writer = writer;
 		this.name = 'KHR_materials_pbrSpecularGlossiness';
 
 	}
 
-	writeMaterial( material, materialDef ) {
+	writeMaterial(material, materialDef) {
 
-		if ( ! material.isGLTFSpecularGlossinessMaterial ) return;
+		if (!material.isGLTFSpecularGlossinessMaterial) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;
 
 		const extensionDef = {};
 
-		if ( materialDef.pbrMetallicRoughness.baseColorFactor ) {
+		if (materialDef.pbrMetallicRoughness.baseColorFactor) {
 
 			extensionDef.diffuseFactor = materialDef.pbrMetallicRoughness.baseColorFactor;
 
 		}
 
-		const specularFactor = [ 1, 1, 1 ];
-		material.specular.toArray( specularFactor, 0 );
+		const specularFactor = [1, 1, 1];
+		material.specular.toArray(specularFactor, 0);
 		extensionDef.specularFactor = specularFactor;
 		extensionDef.glossinessFactor = material.glossiness;
 
-		if ( materialDef.pbrMetallicRoughness.baseColorTexture ) {
+		if (materialDef.pbrMetallicRoughness.baseColorTexture) {
 
 			extensionDef.diffuseTexture = materialDef.pbrMetallicRoughness.baseColorTexture;
 
 		}
 
-		if ( material.specularMap ) {
+		if (material.specularMap) {
 
-			const specularMapDef = { index: writer.processTexture( material.specularMap ) };
-			writer.applyTextureTransform( specularMapDef, material.specularMap );
+			const specularMapDef = { index: writer.processTexture(material.specularMap) };
+			writer.applyTextureTransform(specularMapDef, material.specularMap);
 			extensionDef.specularGlossinessTexture = specularMapDef;
 
 		}
 
 		materialDef.extensions = materialDef.extensions || {};
-		materialDef.extensions[ this.name ] = extensionDef;
-		extensionsUsed[ this.name ] = true;
+		materialDef.extensions[this.name] = extensionDef;
+		extensionsUsed[this.name] = true;
 
 	}
 
@@ -2259,16 +2259,16 @@ class GLTFMaterialsPBRSpecularGlossiness {
  */
 class GLTFMaterialsClearcoatExtension {
 
-	constructor( writer ) {
+	constructor(writer) {
 
 		this.writer = writer;
 		this.name = 'KHR_materials_clearcoat';
 
 	}
 
-	writeMaterial( material, materialDef ) {
+	writeMaterial(material, materialDef) {
 
-		if ( ! material.isMeshPhysicalMaterial ) return;
+		if (!material.isMeshPhysicalMaterial) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;
@@ -2277,36 +2277,36 @@ class GLTFMaterialsClearcoatExtension {
 
 		extensionDef.clearcoatFactor = material.clearcoat;
 
-		if ( material.clearcoatMap ) {
+		if (material.clearcoatMap) {
 
-			const clearcoatMapDef = { index: writer.processTexture( material.clearcoatMap ) };
-			writer.applyTextureTransform( clearcoatMapDef, material.clearcoatMap );
+			const clearcoatMapDef = { index: writer.processTexture(material.clearcoatMap) };
+			writer.applyTextureTransform(clearcoatMapDef, material.clearcoatMap);
 			extensionDef.clearcoatTexture = clearcoatMapDef;
 
 		}
 
 		extensionDef.clearcoatRoughnessFactor = material.clearcoatRoughness;
 
-		if ( material.clearcoatRoughnessMap ) {
+		if (material.clearcoatRoughnessMap) {
 
-			const clearcoatRoughnessMapDef = { index: writer.processTexture( material.clearcoatRoughnessMap ) };
-			writer.applyTextureTransform( clearcoatRoughnessMapDef, material.clearcoatRoughnessMap );
+			const clearcoatRoughnessMapDef = { index: writer.processTexture(material.clearcoatRoughnessMap) };
+			writer.applyTextureTransform(clearcoatRoughnessMapDef, material.clearcoatRoughnessMap);
 			extensionDef.clearcoatRoughnessTexture = clearcoatRoughnessMapDef;
 
 		}
 
-		if ( material.clearcoatNormalMap ) {
+		if (material.clearcoatNormalMap) {
 
-			const clearcoatNormalMapDef = { index: writer.processTexture( material.clearcoatNormalMap ) };
-			writer.applyTextureTransform( clearcoatNormalMapDef, material.clearcoatNormalMap );
+			const clearcoatNormalMapDef = { index: writer.processTexture(material.clearcoatNormalMap) };
+			writer.applyTextureTransform(clearcoatNormalMapDef, material.clearcoatNormalMap);
 			extensionDef.clearcoatNormalTexture = clearcoatNormalMapDef;
 
 		}
 
 		materialDef.extensions = materialDef.extensions || {};
-		materialDef.extensions[ this.name ] = extensionDef;
+		materialDef.extensions[this.name] = extensionDef;
 
-		extensionsUsed[ this.name ] = true;
+		extensionsUsed[this.name] = true;
 
 
 	}
@@ -2320,16 +2320,16 @@ class GLTFMaterialsClearcoatExtension {
  */
 class GLTFMaterialsTransmissionExtension {
 
-	constructor( writer ) {
+	constructor(writer) {
 
 		this.writer = writer;
 		this.name = 'KHR_materials_transmission';
 
 	}
 
-	writeMaterial( material, materialDef ) {
+	writeMaterial(material, materialDef) {
 
-		if ( ! material.isMeshPhysicalMaterial || material.transmission === 0 ) return;
+		if (!material.isMeshPhysicalMaterial || material.transmission === 0) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;
@@ -2338,18 +2338,18 @@ class GLTFMaterialsTransmissionExtension {
 
 		extensionDef.transmissionFactor = material.transmission;
 
-		if ( material.transmissionMap ) {
+		if (material.transmissionMap) {
 
-			const transmissionMapDef = { index: writer.processTexture( material.transmissionMap ) };
-			writer.applyTextureTransform( transmissionMapDef, material.transmissionMap );
+			const transmissionMapDef = { index: writer.processTexture(material.transmissionMap) };
+			writer.applyTextureTransform(transmissionMapDef, material.transmissionMap);
 			extensionDef.transmissionTexture = transmissionMapDef;
 
 		}
 
 		materialDef.extensions = materialDef.extensions || {};
-		materialDef.extensions[ this.name ] = extensionDef;
+		materialDef.extensions[this.name] = extensionDef;
 
-		extensionsUsed[ this.name ] = true;
+		extensionsUsed[this.name] = true;
 
 	}
 
@@ -2362,16 +2362,16 @@ class GLTFMaterialsTransmissionExtension {
  */
 class GLTFMaterialsVolumeExtension {
 
-	constructor( writer ) {
+	constructor(writer) {
 
 		this.writer = writer;
 		this.name = 'KHR_materials_volume';
 
 	}
 
-	writeMaterial( material, materialDef ) {
+	writeMaterial(material, materialDef) {
 
-		if ( ! material.isMeshPhysicalMaterial || material.transmission === 0 ) return;
+		if (!material.isMeshPhysicalMaterial || material.transmission === 0) return;
 
 		const writer = this.writer;
 		const extensionsUsed = writer.extensionsUsed;
@@ -2380,10 +2380,10 @@ class GLTFMaterialsVolumeExtension {
 
 		extensionDef.thicknessFactor = material.thickness;
 
-		if ( material.thicknessMap ) {
+		if (material.thicknessMap) {
 
-			const thicknessMapDef = { index: writer.processTexture( material.thicknessMap ) };
-			writer.applyTextureTransform( thicknessMapDef, material.thicknessMap );
+			const thicknessMapDef = { index: writer.processTexture(material.thicknessMap) };
+			writer.applyTextureTransform(thicknessMapDef, material.thicknessMap);
 			extensionDef.thicknessTexture = thicknessMapDef;
 
 		}
@@ -2392,9 +2392,9 @@ class GLTFMaterialsVolumeExtension {
 		extensionDef.attenuationColor = material.attenuationColor.toArray();
 
 		materialDef.extensions = materialDef.extensions || {};
-		materialDef.extensions[ this.name ] = extensionDef;
+		materialDef.extensions[this.name] = extensionDef;
 
-		extensionsUsed[ this.name ] = true;
+		extensionsUsed[this.name] = true;
 
 	}
 
@@ -2405,72 +2405,72 @@ class GLTFMaterialsVolumeExtension {
  */
 GLTFExporter.Utils = {
 
-	insertKeyframe: function ( track, time ) {
+	insertKeyframe: function (track, time) {
 
 		const tolerance = 0.001; // 1ms
 		const valueSize = track.getValueSize();
 
-		const times = new track.TimeBufferType( track.times.length + 1 );
-		const values = new track.ValueBufferType( track.values.length + valueSize );
-		const interpolant = track.createInterpolant( new track.ValueBufferType( valueSize ) );
+		const times = new track.TimeBufferType(track.times.length + 1);
+		const values = new track.ValueBufferType(track.values.length + valueSize);
+		const interpolant = track.createInterpolant(new track.ValueBufferType(valueSize));
 
 		let index;
 
-		if ( track.times.length === 0 ) {
+		if (track.times.length === 0) {
 
-			times[ 0 ] = time;
+			times[0] = time;
 
-			for ( let i = 0; i < valueSize; i ++ ) {
+			for (let i = 0; i < valueSize; i++) {
 
-				values[ i ] = 0;
+				values[i] = 0;
 
 			}
 
 			index = 0;
 
-		} else if ( time < track.times[ 0 ] ) {
+		} else if (time < track.times[0]) {
 
-			if ( Math.abs( track.times[ 0 ] - time ) < tolerance ) return 0;
+			if (Math.abs(track.times[0] - time) < tolerance) return 0;
 
-			times[ 0 ] = time;
-			times.set( track.times, 1 );
+			times[0] = time;
+			times.set(track.times, 1);
 
-			values.set( interpolant.evaluate( time ), 0 );
-			values.set( track.values, valueSize );
+			values.set(interpolant.evaluate(time), 0);
+			values.set(track.values, valueSize);
 
 			index = 0;
 
-		} else if ( time > track.times[ track.times.length - 1 ] ) {
+		} else if (time > track.times[track.times.length - 1]) {
 
-			if ( Math.abs( track.times[ track.times.length - 1 ] - time ) < tolerance ) {
+			if (Math.abs(track.times[track.times.length - 1] - time) < tolerance) {
 
 				return track.times.length - 1;
 
 			}
 
-			times[ times.length - 1 ] = time;
-			times.set( track.times, 0 );
+			times[times.length - 1] = time;
+			times.set(track.times, 0);
 
-			values.set( track.values, 0 );
-			values.set( interpolant.evaluate( time ), track.values.length );
+			values.set(track.values, 0);
+			values.set(interpolant.evaluate(time), track.values.length);
 
 			index = times.length - 1;
 
 		} else {
 
-			for ( let i = 0; i < track.times.length; i ++ ) {
+			for (let i = 0; i < track.times.length; i++) {
 
-				if ( Math.abs( track.times[ i ] - time ) < tolerance ) return i;
+				if (Math.abs(track.times[i] - time) < tolerance) return i;
 
-				if ( track.times[ i ] < time && track.times[ i + 1 ] > time ) {
+				if (track.times[i] < time && track.times[i + 1] > time) {
 
-					times.set( track.times.slice( 0, i + 1 ), 0 );
-					times[ i + 1 ] = time;
-					times.set( track.times.slice( i + 1 ), i + 2 );
+					times.set(track.times.slice(0, i + 1), 0);
+					times[i + 1] = time;
+					times.set(track.times.slice(i + 1), i + 2);
 
-					values.set( track.values.slice( 0, ( i + 1 ) * valueSize ), 0 );
-					values.set( interpolant.evaluate( time ), ( i + 1 ) * valueSize );
-					values.set( track.values.slice( ( i + 1 ) * valueSize ), ( i + 2 ) * valueSize );
+					values.set(track.values.slice(0, (i + 1) * valueSize), 0);
+					values.set(interpolant.evaluate(time), (i + 1) * valueSize);
+					values.set(track.values.slice((i + 1) * valueSize), (i + 2) * valueSize);
 
 					index = i + 1;
 
@@ -2489,50 +2489,50 @@ GLTFExporter.Utils = {
 
 	},
 
-	mergeMorphTargetTracks: function ( clip, root ) {
+	mergeMorphTargetTracks: function (clip, root) {
 
 		const tracks = [];
 		const mergedTracks = {};
 		const sourceTracks = clip.tracks;
 
-		for ( let i = 0; i < sourceTracks.length; ++ i ) {
+		for (let i = 0; i < sourceTracks.length; ++i) {
 
-			let sourceTrack = sourceTracks[ i ];
-			const sourceTrackBinding = PropertyBinding.parseTrackName( sourceTrack.name );
-			const sourceTrackNode = PropertyBinding.findNode( root, sourceTrackBinding.nodeName );
+			let sourceTrack = sourceTracks[i];
+			const sourceTrackBinding = PropertyBinding.parseTrackName(sourceTrack.name);
+			const sourceTrackNode = PropertyBinding.findNode(root, sourceTrackBinding.nodeName);
 
-			if ( sourceTrackBinding.propertyName !== 'morphTargetInfluences' || sourceTrackBinding.propertyIndex === undefined ) {
+			if (sourceTrackBinding.propertyName !== 'morphTargetInfluences' || sourceTrackBinding.propertyIndex === undefined) {
 
 				// Tracks that don't affect morph targets, or that affect all morph targets together, can be left as-is.
-				tracks.push( sourceTrack );
+				tracks.push(sourceTrack);
 				continue;
 
 			}
 
-			if ( sourceTrack.createInterpolant !== sourceTrack.InterpolantFactoryMethodDiscrete
-				&& sourceTrack.createInterpolant !== sourceTrack.InterpolantFactoryMethodLinear ) {
+			if (sourceTrack.createInterpolant !== sourceTrack.InterpolantFactoryMethodDiscrete
+				&& sourceTrack.createInterpolant !== sourceTrack.InterpolantFactoryMethodLinear) {
 
-				if ( sourceTrack.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline ) {
+				if (sourceTrack.createInterpolant.isInterpolantFactoryMethodGLTFCubicSpline) {
 
 					// This should never happen, because glTF morph target animations
 					// affect all targets already.
-					throw new Error( 'THREE.GLTFExporter: Cannot merge tracks with glTF CUBICSPLINE interpolation.' );
+					throw new Error('THREE.GLTFExporter: Cannot merge tracks with glTF CUBICSPLINE interpolation.');
 
 				}
 
-				console.warn( 'THREE.GLTFExporter: Morph target interpolation mode not yet supported. Using LINEAR instead.' );
+				console.warn('THREE.GLTFExporter: Morph target interpolation mode not yet supported. Using LINEAR instead.');
 
 				sourceTrack = sourceTrack.clone();
-				sourceTrack.setInterpolation( InterpolateLinear );
+				sourceTrack.setInterpolation(InterpolateLinear);
 
 			}
 
 			const targetCount = sourceTrackNode.morphTargetInfluences.length;
-			const targetIndex = sourceTrackNode.morphTargetDictionary[ sourceTrackBinding.propertyIndex ];
+			const targetIndex = sourceTrackNode.morphTargetDictionary[sourceTrackBinding.propertyIndex];
 
-			if ( targetIndex === undefined ) {
+			if (targetIndex === undefined) {
 
-				throw new Error( 'THREE.GLTFExporter: Morph target name not found: ' + sourceTrackBinding.propertyIndex );
+				throw new Error('THREE.GLTFExporter: Morph target name not found: ' + sourceTrackBinding.propertyIndex);
 
 			}
 
@@ -2540,49 +2540,49 @@ GLTFExporter.Utils = {
 
 			// If this is the first time we've seen this object, create a new
 			// track to store merged keyframe data for each morph target.
-			if ( mergedTracks[ sourceTrackNode.uuid ] === undefined ) {
+			if (mergedTracks[sourceTrackNode.uuid] === undefined) {
 
 				mergedTrack = sourceTrack.clone();
 
-				const values = new mergedTrack.ValueBufferType( targetCount * mergedTrack.times.length );
+				const values = new mergedTrack.ValueBufferType(targetCount * mergedTrack.times.length);
 
-				for ( let j = 0; j < mergedTrack.times.length; j ++ ) {
+				for (let j = 0; j < mergedTrack.times.length; j++) {
 
-					values[ j * targetCount + targetIndex ] = mergedTrack.values[ j ];
+					values[j * targetCount + targetIndex] = mergedTrack.values[j];
 
 				}
 
 				// We need to take into consideration the intended target node
 				// of our original un-merged morphTarget animation.
-				mergedTrack.name = ( sourceTrackBinding.nodeName || '' ) + '.morphTargetInfluences';
+				mergedTrack.name = (sourceTrackBinding.nodeName || '') + '.morphTargetInfluences';
 				mergedTrack.values = values;
 
-				mergedTracks[ sourceTrackNode.uuid ] = mergedTrack;
-				tracks.push( mergedTrack );
+				mergedTracks[sourceTrackNode.uuid] = mergedTrack;
+				tracks.push(mergedTrack);
 
 				continue;
 
 			}
 
-			const sourceInterpolant = sourceTrack.createInterpolant( new sourceTrack.ValueBufferType( 1 ) );
+			const sourceInterpolant = sourceTrack.createInterpolant(new sourceTrack.ValueBufferType(1));
 
-			mergedTrack = mergedTracks[ sourceTrackNode.uuid ];
+			mergedTrack = mergedTracks[sourceTrackNode.uuid];
 
 			// For every existing keyframe of the merged track, write a (possibly
 			// interpolated) value from the source track.
-			for ( let j = 0; j < mergedTrack.times.length; j ++ ) {
+			for (let j = 0; j < mergedTrack.times.length; j++) {
 
-				mergedTrack.values[ j * targetCount + targetIndex ] = sourceInterpolant.evaluate( mergedTrack.times[ j ] );
+				mergedTrack.values[j * targetCount + targetIndex] = sourceInterpolant.evaluate(mergedTrack.times[j]);
 
 			}
 
 			// For every existing keyframe of the source track, write a (possibly
 			// new) keyframe to the merged track. Values from the previous loop may
 			// be written again, but keyframes are de-duplicated.
-			for ( let j = 0; j < sourceTrack.times.length; j ++ ) {
+			for (let j = 0; j < sourceTrack.times.length; j++) {
 
-				const keyframeIndex = this.insertKeyframe( mergedTrack, sourceTrack.times[ j ] );
-				mergedTrack.values[ keyframeIndex * targetCount + targetIndex ] = sourceTrack.values[ j ];
+				const keyframeIndex = this.insertKeyframe(mergedTrack, sourceTrack.times[j]);
+				mergedTrack.values[keyframeIndex * targetCount + targetIndex] = sourceTrack.values[j];
 
 			}
 

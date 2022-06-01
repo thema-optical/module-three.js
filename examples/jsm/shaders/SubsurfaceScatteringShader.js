@@ -3,7 +3,7 @@ import {
 	ShaderChunk,
 	ShaderLib,
 	UniformsUtils
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 /**
  * ------------------------------------------------------------------------------------------
@@ -13,22 +13,22 @@ import {
  *------------------------------------------------------------------------------------------
  */
 
-function replaceAll( string, find, replace ) {
+function replaceAll(string, find, replace) {
 
-	return string.split( find ).join( replace );
+	return string.split(find).join(replace);
 
 }
 
-const meshphong_frag_head = ShaderChunk[ 'meshphong_frag' ].slice( 0, ShaderChunk[ 'meshphong_frag' ].indexOf( 'void main() {' ) );
-const meshphong_frag_body = ShaderChunk[ 'meshphong_frag' ].slice( ShaderChunk[ 'meshphong_frag' ].indexOf( 'void main() {' ) );
+const meshphong_frag_head = ShaderChunk['meshphong_frag'].slice(0, ShaderChunk['meshphong_frag'].indexOf('void main() {'));
+const meshphong_frag_body = ShaderChunk['meshphong_frag'].slice(ShaderChunk['meshphong_frag'].indexOf('void main() {'));
 
 const SubsurfaceScatteringShader = {
 
-	uniforms: UniformsUtils.merge( [
-		ShaderLib[ 'phong' ].uniforms,
+	uniforms: UniformsUtils.merge([
+		ShaderLib['phong'].uniforms,
 		{
 			'thicknessMap': { value: null },
-			'thicknessColor': { value: new Color( 0xffffff ) },
+			'thicknessColor': { value: new Color(0xffffff) },
 			'thicknessDistortion': { value: 0.1 },
 			'thicknessAmbient': { value: 0.0 },
 			'thicknessAttenuation': { value: 0.1 },
@@ -36,12 +36,12 @@ const SubsurfaceScatteringShader = {
 			'thicknessScale': { value: 10.0 }
 		}
 
-	] ),
+	]),
 
 	vertexShader: [
 		'#define USE_UV',
-		ShaderChunk[ 'meshphong_vert' ],
-	].join( '\n' ),
+		ShaderChunk['meshphong_vert'],
+	].join('\n'),
 
 	fragmentShader: [
 		'#define USE_UV',
@@ -65,10 +65,10 @@ const SubsurfaceScatteringShader = {
 		'	reflectedLight.directDiffuse += scatteringIllu * thicknessAttenuation * directLight.color;',
 		'}',
 
-		meshphong_frag_body.replace( '#include <lights_fragment_begin>',
+		meshphong_frag_body.replace('#include <lights_fragment_begin>',
 
 			replaceAll(
-				ShaderChunk[ 'lights_fragment_begin' ],
+				ShaderChunk['lights_fragment_begin'],
 				'RE_Direct( directLight, geometry, material, reflectedLight );',
 				[
 					'RE_Direct( directLight, geometry, material, reflectedLight );',
@@ -76,12 +76,12 @@ const SubsurfaceScatteringShader = {
 					'#if defined( SUBSURFACE ) && defined( USE_UV )',
 					' RE_Direct_Scattering(directLight, vUv, geometry, reflectedLight);',
 					'#endif',
-				].join( '\n' )
+				].join('\n')
 			),
 
 		),
 
-	].join( '\n' ),
+	].join('\n'),
 
 };
 

@@ -6,14 +6,14 @@ import {
 	InstancedMesh,
 	Matrix4,
 	Vector3
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 
 const _matrix = new Matrix4();
 const _vector = new Vector3();
 
 class XRHandPrimitiveModel {
 
-	constructor( handModel, controller, path, handedness, options ) {
+	constructor(handModel, controller, path, handedness, options) {
 
 		this.controller = controller;
 		this.handModel = handModel;
@@ -21,23 +21,23 @@ class XRHandPrimitiveModel {
 
 		let geometry;
 
-		if ( ! options || ! options.primitive || options.primitive === 'sphere' ) {
+		if (!options || !options.primitive || options.primitive === 'sphere') {
 
-			geometry = new SphereGeometry( 1, 10, 10 );
+			geometry = new SphereGeometry(1, 10, 10);
 
-		} else if ( options.primitive === 'box' ) {
+		} else if (options.primitive === 'box') {
 
-			geometry = new BoxGeometry( 1, 1, 1 );
+			geometry = new BoxGeometry(1, 1, 1);
 
 		}
 
 		const material = new MeshStandardMaterial();
 
-		this.handMesh = new InstancedMesh( geometry, material, 30 );
-		this.handMesh.instanceMatrix.setUsage( DynamicDrawUsage ); // will be updated every frame
+		this.handMesh = new InstancedMesh(geometry, material, 30);
+		this.handMesh.instanceMatrix.setUsage(DynamicDrawUsage); // will be updated every frame
 		this.handMesh.castShadow = true;
 		this.handMesh.receiveShadow = true;
-		this.handModel.add( this.handMesh );
+		this.handModel.add(this.handMesh);
 
 		this.joints = [
 			'wrist',
@@ -76,17 +76,17 @@ class XRHandPrimitiveModel {
 
 		let count = 0;
 
-		for ( let i = 0; i < this.joints.length; i ++ ) {
+		for (let i = 0; i < this.joints.length; i++) {
 
-			const joint = joints[ this.joints[ i ] ];
+			const joint = joints[this.joints[i]];
 
-			if ( joint.visible ) {
+			if (joint.visible) {
 
-				_vector.setScalar( joint.jointRadius || defaultRadius );
-				_matrix.compose( joint.position, joint.quaternion, _vector );
-				this.handMesh.setMatrixAt( i, _matrix );
+				_vector.setScalar(joint.jointRadius || defaultRadius);
+				_matrix.compose(joint.position, joint.quaternion, _vector);
+				this.handMesh.setMatrixAt(i, _matrix);
 
-				count ++;
+				count++;
 
 			}
 

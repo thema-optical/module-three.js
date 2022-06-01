@@ -6,7 +6,7 @@ import {
 	Matrix4,
 	Object3D,
 	Vector3
-} from '../../../build/three.module.js';
+} from '../../../src/Three.js';
 import { Projector } from '../renderers/Projector.js';
 import { RenderableFace } from '../renderers/Projector.js';
 import { RenderableLine } from '../renderers/Projector.js';
@@ -14,7 +14,7 @@ import { RenderableSprite } from '../renderers/Projector.js';
 
 class SVGObject extends Object3D {
 
-	constructor( node ) {
+	constructor(node) {
 
 		super();
 
@@ -65,7 +65,7 @@ class SVGRenderer {
 			_svgPathPool = [],
 
 			_projector = new Projector(),
-			_svg = document.createElementNS( 'http://www.w3.org/2000/svg', 'svg' );
+			_svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
 
 		this.domElement = _svg;
 
@@ -86,9 +86,9 @@ class SVGRenderer {
 
 		};
 
-		this.setQuality = function ( quality ) {
+		this.setQuality = function (quality) {
 
-			switch ( quality ) {
+			switch (quality) {
 
 				case 'high': _quality = 1; break;
 				case 'low': _quality = 0; break;
@@ -97,25 +97,25 @@ class SVGRenderer {
 
 		};
 
-		this.setClearColor = function ( color ) {
+		this.setClearColor = function (color) {
 
-			_clearColor.set( color );
+			_clearColor.set(color);
 
 		};
 
-		this.setPixelRatio = function () {};
+		this.setPixelRatio = function () { };
 
-		this.setSize = function ( width, height ) {
+		this.setSize = function (width, height) {
 
 			_svgWidth = width; _svgHeight = height;
 			_svgWidthHalf = _svgWidth / 2; _svgHeightHalf = _svgHeight / 2;
 
-			_svg.setAttribute( 'viewBox', ( - _svgWidthHalf ) + ' ' + ( - _svgHeightHalf ) + ' ' + _svgWidth + ' ' + _svgHeight );
-			_svg.setAttribute( 'width', _svgWidth );
-			_svg.setAttribute( 'height', _svgHeight );
+			_svg.setAttribute('viewBox', (- _svgWidthHalf) + ' ' + (- _svgHeightHalf) + ' ' + _svgWidth + ' ' + _svgHeight);
+			_svg.setAttribute('width', _svgWidth);
+			_svg.setAttribute('height', _svgHeight);
 
-			_clipBox.min.set( - _svgWidthHalf, - _svgHeightHalf );
-			_clipBox.max.set( _svgWidthHalf, _svgHeightHalf );
+			_clipBox.min.set(- _svgWidthHalf, - _svgHeightHalf);
+			_clipBox.max.set(_svgWidthHalf, _svgHeightHalf);
 
 		};
 
@@ -128,7 +128,7 @@ class SVGRenderer {
 
 		};
 
-		this.setPrecision = function ( precision ) {
+		this.setPrecision = function (precision) {
 
 			_precision = precision;
 
@@ -138,17 +138,17 @@ class SVGRenderer {
 
 			_pathCount = 0;
 
-			while ( _svg.childNodes.length > 0 ) {
+			while (_svg.childNodes.length > 0) {
 
-				_svg.removeChild( _svg.childNodes[ 0 ] );
+				_svg.removeChild(_svg.childNodes[0]);
 
 			}
 
 		}
 
-		function convert( c ) {
+		function convert(c) {
 
-			return _precision !== null ? c.toFixed( _precision ) : c;
+			return _precision !== null ? c.toFixed(_precision) : c;
 
 		}
 
@@ -159,23 +159,23 @@ class SVGRenderer {
 
 		};
 
-		this.render = function ( scene, camera ) {
+		this.render = function (scene, camera) {
 
-			if ( camera instanceof Camera === false ) {
+			if (camera instanceof Camera === false) {
 
-				console.error( 'THREE.SVGRenderer.render: camera is not an instance of Camera.' );
+				console.error('THREE.SVGRenderer.render: camera is not an instance of Camera.');
 				return;
 
 			}
 
 			const background = scene.background;
 
-			if ( background && background.isColor ) {
+			if (background && background.isColor) {
 
 				removeChildNodes();
 				_svg.style.backgroundColor = background.getStyle();
 
-			} else if ( this.autoClear === true ) {
+			} else if (this.autoClear === true) {
 
 				this.clear();
 
@@ -184,82 +184,82 @@ class SVGRenderer {
 			_this.info.render.vertices = 0;
 			_this.info.render.faces = 0;
 
-			_viewMatrix.copy( camera.matrixWorldInverse );
-			_viewProjectionMatrix.multiplyMatrices( camera.projectionMatrix, _viewMatrix );
+			_viewMatrix.copy(camera.matrixWorldInverse);
+			_viewProjectionMatrix.multiplyMatrices(camera.projectionMatrix, _viewMatrix);
 
-			_renderData = _projector.projectScene( scene, camera, this.sortObjects, this.sortElements );
+			_renderData = _projector.projectScene(scene, camera, this.sortObjects, this.sortElements);
 			_elements = _renderData.elements;
 			_lights = _renderData.lights;
 
-			_normalViewMatrix.getNormalMatrix( camera.matrixWorldInverse );
+			_normalViewMatrix.getNormalMatrix(camera.matrixWorldInverse);
 
-			calculateLights( _lights );
+			calculateLights(_lights);
 
-			 // reset accumulated path
+			// reset accumulated path
 
 			_currentPath = '';
 			_currentStyle = '';
 
-			for ( let e = 0, el = _elements.length; e < el; e ++ ) {
+			for (let e = 0, el = _elements.length; e < el; e++) {
 
-				const element = _elements[ e ];
+				const element = _elements[e];
 				const material = element.material;
 
-				if ( material === undefined || material.opacity === 0 ) continue;
+				if (material === undefined || material.opacity === 0) continue;
 
 				_elemBox.makeEmpty();
 
-				if ( element instanceof RenderableSprite ) {
+				if (element instanceof RenderableSprite) {
 
 					_v1 = element;
 					_v1.x *= _svgWidthHalf; _v1.y *= - _svgHeightHalf;
 
-					renderSprite( _v1, element, material );
+					renderSprite(_v1, element, material);
 
-				} else if ( element instanceof RenderableLine ) {
+				} else if (element instanceof RenderableLine) {
 
 					_v1 = element.v1; _v2 = element.v2;
 
 					_v1.positionScreen.x *= _svgWidthHalf; _v1.positionScreen.y *= - _svgHeightHalf;
 					_v2.positionScreen.x *= _svgWidthHalf; _v2.positionScreen.y *= - _svgHeightHalf;
 
-					_elemBox.setFromPoints( [ _v1.positionScreen, _v2.positionScreen ] );
+					_elemBox.setFromPoints([_v1.positionScreen, _v2.positionScreen]);
 
-					if ( _clipBox.intersectsBox( _elemBox ) === true ) {
+					if (_clipBox.intersectsBox(_elemBox) === true) {
 
-						renderLine( _v1, _v2, element, material );
+						renderLine(_v1, _v2, element, material);
 
 					}
 
-				} else if ( element instanceof RenderableFace ) {
+				} else if (element instanceof RenderableFace) {
 
 					_v1 = element.v1; _v2 = element.v2; _v3 = element.v3;
 
-					if ( _v1.positionScreen.z < - 1 || _v1.positionScreen.z > 1 ) continue;
-					if ( _v2.positionScreen.z < - 1 || _v2.positionScreen.z > 1 ) continue;
-					if ( _v3.positionScreen.z < - 1 || _v3.positionScreen.z > 1 ) continue;
+					if (_v1.positionScreen.z < - 1 || _v1.positionScreen.z > 1) continue;
+					if (_v2.positionScreen.z < - 1 || _v2.positionScreen.z > 1) continue;
+					if (_v3.positionScreen.z < - 1 || _v3.positionScreen.z > 1) continue;
 
 					_v1.positionScreen.x *= _svgWidthHalf; _v1.positionScreen.y *= - _svgHeightHalf;
 					_v2.positionScreen.x *= _svgWidthHalf; _v2.positionScreen.y *= - _svgHeightHalf;
 					_v3.positionScreen.x *= _svgWidthHalf; _v3.positionScreen.y *= - _svgHeightHalf;
 
-					if ( this.overdraw > 0 ) {
+					if (this.overdraw > 0) {
 
-						expand( _v1.positionScreen, _v2.positionScreen, this.overdraw );
-						expand( _v2.positionScreen, _v3.positionScreen, this.overdraw );
-						expand( _v3.positionScreen, _v1.positionScreen, this.overdraw );
+						expand(_v1.positionScreen, _v2.positionScreen, this.overdraw);
+						expand(_v2.positionScreen, _v3.positionScreen, this.overdraw);
+						expand(_v3.positionScreen, _v1.positionScreen, this.overdraw);
 
 					}
 
-					_elemBox.setFromPoints( [
+					_elemBox.setFromPoints([
 						_v1.positionScreen,
 						_v2.positionScreen,
 						_v3.positionScreen
-					] );
+					]);
 
-					if ( _clipBox.intersectsBox( _elemBox ) === true ) {
+					if (_clipBox.intersectsBox(_elemBox) === true) {
 
-						renderFace3( _v1, _v2, _v3, element, material );
+						renderFace3(_v1, _v2, _v3, element, material);
 
 					}
 
@@ -269,53 +269,53 @@ class SVGRenderer {
 
 			flushPath(); // just to flush last svg:path
 
-			scene.traverseVisible( function ( object ) {
+			scene.traverseVisible(function (object) {
 
-				 if ( object.isSVGObject ) {
+				if (object.isSVGObject) {
 
-					_vector3.setFromMatrixPosition( object.matrixWorld );
-					_vector3.applyMatrix4( _viewProjectionMatrix );
+					_vector3.setFromMatrixPosition(object.matrixWorld);
+					_vector3.applyMatrix4(_viewProjectionMatrix);
 
-					if ( _vector3.z < - 1 || _vector3.z > 1 ) return;
+					if (_vector3.z < - 1 || _vector3.z > 1) return;
 
 					const x = _vector3.x * _svgWidthHalf;
 					const y = - _vector3.y * _svgHeightHalf;
 
 					const node = object.node;
-					node.setAttribute( 'transform', 'translate(' + x + ',' + y + ')' );
+					node.setAttribute('transform', 'translate(' + x + ',' + y + ')');
 
-					_svg.appendChild( node );
+					_svg.appendChild(node);
 
 				}
 
-			} );
+			});
 
 		};
 
-		function calculateLights( lights ) {
+		function calculateLights(lights) {
 
-			_ambientLight.setRGB( 0, 0, 0 );
-			_directionalLights.setRGB( 0, 0, 0 );
-			_pointLights.setRGB( 0, 0, 0 );
+			_ambientLight.setRGB(0, 0, 0);
+			_directionalLights.setRGB(0, 0, 0);
+			_pointLights.setRGB(0, 0, 0);
 
-			for ( let l = 0, ll = lights.length; l < ll; l ++ ) {
+			for (let l = 0, ll = lights.length; l < ll; l++) {
 
-				const light = lights[ l ];
+				const light = lights[l];
 				const lightColor = light.color;
 
-				if ( light.isAmbientLight ) {
+				if (light.isAmbientLight) {
 
 					_ambientLight.r += lightColor.r;
 					_ambientLight.g += lightColor.g;
 					_ambientLight.b += lightColor.b;
 
-				} else if ( light.isDirectionalLight ) {
+				} else if (light.isDirectionalLight) {
 
 					_directionalLights.r += lightColor.r;
 					_directionalLights.g += lightColor.g;
 					_directionalLights.b += lightColor.b;
 
-				} else if ( light.isPointLight ) {
+				} else if (light.isPointLight) {
 
 					_pointLights.r += lightColor.r;
 					_pointLights.g += lightColor.g;
@@ -327,20 +327,20 @@ class SVGRenderer {
 
 		}
 
-		function calculateLight( lights, position, normal, color ) {
+		function calculateLight(lights, position, normal, color) {
 
-			for ( let l = 0, ll = lights.length; l < ll; l ++ ) {
+			for (let l = 0, ll = lights.length; l < ll; l++) {
 
-				const light = lights[ l ];
+				const light = lights[l];
 				const lightColor = light.color;
 
-				if ( light.isDirectionalLight ) {
+				if (light.isDirectionalLight) {
 
-					const lightPosition = _vector3.setFromMatrixPosition( light.matrixWorld ).normalize();
+					const lightPosition = _vector3.setFromMatrixPosition(light.matrixWorld).normalize();
 
-					let amount = normal.dot( lightPosition );
+					let amount = normal.dot(lightPosition);
 
-					if ( amount <= 0 ) continue;
+					if (amount <= 0) continue;
 
 					amount *= light.intensity;
 
@@ -348,17 +348,17 @@ class SVGRenderer {
 					color.g += lightColor.g * amount;
 					color.b += lightColor.b * amount;
 
-				} else if ( light.isPointLight ) {
+				} else if (light.isPointLight) {
 
-					const lightPosition = _vector3.setFromMatrixPosition( light.matrixWorld );
+					const lightPosition = _vector3.setFromMatrixPosition(light.matrixWorld);
 
-					let amount = normal.dot( _vector3.subVectors( lightPosition, position ).normalize() );
+					let amount = normal.dot(_vector3.subVectors(lightPosition, position).normalize());
 
-					if ( amount <= 0 ) continue;
+					if (amount <= 0) continue;
 
-					amount *= light.distance == 0 ? 1 : 1 - Math.min( position.distanceTo( lightPosition ) / light.distance, 1 );
+					amount *= light.distance == 0 ? 1 : 1 - Math.min(position.distanceTo(lightPosition) / light.distance, 1);
 
-					if ( amount == 0 ) continue;
+					if (amount == 0) continue;
 
 					amount *= light.intensity;
 
@@ -372,96 +372,96 @@ class SVGRenderer {
 
 		}
 
-		function renderSprite( v1, element, material ) {
+		function renderSprite(v1, element, material) {
 
 			let scaleX = element.scale.x * _svgWidthHalf;
 			let scaleY = element.scale.y * _svgHeightHalf;
 
-			if ( material.isPointsMaterial ) {
+			if (material.isPointsMaterial) {
 
 				scaleX *= material.size;
 				scaleY *= material.size;
 
 			}
 
-			const path = 'M' + convert( v1.x - scaleX * 0.5 ) + ',' + convert( v1.y - scaleY * 0.5 ) + 'h' + convert( scaleX ) + 'v' + convert( scaleY ) + 'h' + convert( - scaleX ) + 'z';
+			const path = 'M' + convert(v1.x - scaleX * 0.5) + ',' + convert(v1.y - scaleY * 0.5) + 'h' + convert(scaleX) + 'v' + convert(scaleY) + 'h' + convert(- scaleX) + 'z';
 			let style = '';
 
-			if ( material.isSpriteMaterial || material.isPointsMaterial ) {
+			if (material.isSpriteMaterial || material.isPointsMaterial) {
 
 				style = 'fill:' + material.color.getStyle() + ';fill-opacity:' + material.opacity;
 
 			}
 
-			addPath( style, path );
+			addPath(style, path);
 
 		}
 
-		function renderLine( v1, v2, element, material ) {
+		function renderLine(v1, v2, element, material) {
 
-			const path = 'M' + convert( v1.positionScreen.x ) + ',' + convert( v1.positionScreen.y ) + 'L' + convert( v2.positionScreen.x ) + ',' + convert( v2.positionScreen.y );
+			const path = 'M' + convert(v1.positionScreen.x) + ',' + convert(v1.positionScreen.y) + 'L' + convert(v2.positionScreen.x) + ',' + convert(v2.positionScreen.y);
 
-			if ( material.isLineBasicMaterial ) {
+			if (material.isLineBasicMaterial) {
 
 				let style = 'fill:none;stroke:' + material.color.getStyle() + ';stroke-opacity:' + material.opacity + ';stroke-width:' + material.linewidth + ';stroke-linecap:' + material.linecap;
 
-				if ( material.isLineDashedMaterial ) {
+				if (material.isLineDashedMaterial) {
 
 					style = style + ';stroke-dasharray:' + material.dashSize + ',' + material.gapSize;
 
 				}
 
-				addPath( style, path );
+				addPath(style, path);
 
 			}
 
 		}
 
-		function renderFace3( v1, v2, v3, element, material ) {
+		function renderFace3(v1, v2, v3, element, material) {
 
 			_this.info.render.vertices += 3;
-			_this.info.render.faces ++;
+			_this.info.render.faces++;
 
-			const path = 'M' + convert( v1.positionScreen.x ) + ',' + convert( v1.positionScreen.y ) + 'L' + convert( v2.positionScreen.x ) + ',' + convert( v2.positionScreen.y ) + 'L' + convert( v3.positionScreen.x ) + ',' + convert( v3.positionScreen.y ) + 'z';
+			const path = 'M' + convert(v1.positionScreen.x) + ',' + convert(v1.positionScreen.y) + 'L' + convert(v2.positionScreen.x) + ',' + convert(v2.positionScreen.y) + 'L' + convert(v3.positionScreen.x) + ',' + convert(v3.positionScreen.y) + 'z';
 			let style = '';
 
-			if ( material.isMeshBasicMaterial ) {
+			if (material.isMeshBasicMaterial) {
 
-				_color.copy( material.color );
+				_color.copy(material.color);
 
-				if ( material.vertexColors ) {
+				if (material.vertexColors) {
 
-					_color.multiply( element.color );
-
-				}
-
-			} else if ( material.isMeshLambertMaterial || material.isMeshPhongMaterial || material.isMeshStandardMaterial ) {
-
-				_diffuseColor.copy( material.color );
-
-				if ( material.vertexColors ) {
-
-					_diffuseColor.multiply( element.color );
+					_color.multiply(element.color);
 
 				}
 
-				_color.copy( _ambientLight );
+			} else if (material.isMeshLambertMaterial || material.isMeshPhongMaterial || material.isMeshStandardMaterial) {
 
-				_centroid.copy( v1.positionWorld ).add( v2.positionWorld ).add( v3.positionWorld ).divideScalar( 3 );
+				_diffuseColor.copy(material.color);
 
-				calculateLight( _lights, _centroid, element.normalModel, _color );
+				if (material.vertexColors) {
 
-				_color.multiply( _diffuseColor ).add( material.emissive );
+					_diffuseColor.multiply(element.color);
 
-			} else if ( material.isMeshNormalMaterial ) {
+				}
 
-				_normal.copy( element.normalModel ).applyMatrix3( _normalViewMatrix ).normalize();
+				_color.copy(_ambientLight);
 
-				_color.setRGB( _normal.x, _normal.y, _normal.z ).multiplyScalar( 0.5 ).addScalar( 0.5 );
+				_centroid.copy(v1.positionWorld).add(v2.positionWorld).add(v3.positionWorld).divideScalar(3);
+
+				calculateLight(_lights, _centroid, element.normalModel, _color);
+
+				_color.multiply(_diffuseColor).add(material.emissive);
+
+			} else if (material.isMeshNormalMaterial) {
+
+				_normal.copy(element.normalModel).applyMatrix3(_normalViewMatrix).normalize();
+
+				_color.setRGB(_normal.x, _normal.y, _normal.z).multiplyScalar(0.5).addScalar(0.5);
 
 			}
 
-			if ( material.wireframe ) {
+			if (material.wireframe) {
 
 				style = 'fill:none;stroke:' + _color.getStyle() + ';stroke-opacity:' + material.opacity + ';stroke-width:' + material.wireframeLinewidth + ';stroke-linecap:' + material.wireframeLinecap + ';stroke-linejoin:' + material.wireframeLinejoin;
 
@@ -471,20 +471,20 @@ class SVGRenderer {
 
 			}
 
-			addPath( style, path );
+			addPath(style, path);
 
 		}
 
 		// Hide anti-alias gaps
 
-		function expand( v1, v2, pixels ) {
+		function expand(v1, v2, pixels) {
 
 			let x = v2.x - v1.x, y = v2.y - v1.y;
 			const det = x * x + y * y;
 
-			if ( det === 0 ) return;
+			if (det === 0) return;
 
-			const idet = pixels / Math.sqrt( det );
+			const idet = pixels / Math.sqrt(det);
 
 			x *= idet; y *= idet;
 
@@ -493,9 +493,9 @@ class SVGRenderer {
 
 		}
 
-		function addPath( style, path ) {
+		function addPath(style, path) {
 
-			if ( _currentStyle === style ) {
+			if (_currentStyle === style) {
 
 				_currentPath += path;
 
@@ -512,12 +512,12 @@ class SVGRenderer {
 
 		function flushPath() {
 
-			if ( _currentPath ) {
+			if (_currentPath) {
 
-				_svgNode = getPathNode( _pathCount ++ );
-				_svgNode.setAttribute( 'd', _currentPath );
-				_svgNode.setAttribute( 'style', _currentStyle );
-				_svg.appendChild( _svgNode );
+				_svgNode = getPathNode(_pathCount++);
+				_svgNode.setAttribute('d', _currentPath);
+				_svgNode.setAttribute('style', _currentStyle);
+				_svg.appendChild(_svgNode);
 
 			}
 
@@ -526,23 +526,23 @@ class SVGRenderer {
 
 		}
 
-		function getPathNode( id ) {
+		function getPathNode(id) {
 
-			if ( _svgPathPool[ id ] == null ) {
+			if (_svgPathPool[id] == null) {
 
-				_svgPathPool[ id ] = document.createElementNS( 'http://www.w3.org/2000/svg', 'path' );
+				_svgPathPool[id] = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-				if ( _quality == 0 ) {
+				if (_quality == 0) {
 
-					_svgPathPool[ id ].setAttribute( 'shape-rendering', 'crispEdges' ); //optimizeSpeed
+					_svgPathPool[id].setAttribute('shape-rendering', 'crispEdges'); //optimizeSpeed
 
 				}
 
-				return _svgPathPool[ id ];
+				return _svgPathPool[id];
 
 			}
 
-			return _svgPathPool[ id ];
+			return _svgPathPool[id];
 
 		}
 
